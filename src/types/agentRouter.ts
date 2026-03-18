@@ -1,4 +1,9 @@
 /**
+ * TODO(ORGANOID-MIGRATION): agent-router roles are a control-plane model, not confirmed Organoid embodiments.
+ * PHASE-MAPPING-NEEDED: keep operational phases distinct from the target 5-phase embodiment matrix until an explicit design maps them.
+ */
+
+/**
  * Agent Router Types - Multi-Agent Tool Routing System
  * 
  * Defines:

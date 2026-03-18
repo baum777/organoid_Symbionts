@@ -1,22 +1,34 @@
 # System Prompts
 
-## Location
+## Canonical Location
 
 `prompts/system/`
 
+## Canonical Prompt Priority
+
+1. `organoid_system.md` — Organoid Entities as Semantic Symbiont system definition
+2. `base.yaml` — base safety/runtime prompt contract
+3. `mentions.yaml` — mention handling prompt
+4. `posting.yaml` — autonomous posting prompt
+5. `commands.yaml` — command handling prompt
+6. `gorkypf_persona.md` — LEGACY-PERSONA compatibility prompt, pending retirement
+
 ## Available Prompts
 
+### organoid_system.md
+Canonical Organoid embodiment/glyph/phase guidance for migration-era prompt work.
+
 ### base.yaml
-Base personality - identity, tone guidelines, safety rules.
+Base system behavior, tone, and safety rules.
 
 ### mentions.yaml
-Reply to mentions - helpful, concise, matches conversation tone.
+Reply to mentions — helpful, concise, matches conversation tone.
 
 ### posting.yaml
-Autonomous posting - engaging, relevant content.
+Autonomous posting — engaging, relevant content.
 
 ### commands.yaml
-Command handling - responds to /help, /status, etc.
+Command handling — responds to /help, /status, etc.
 
 ## Variables
 

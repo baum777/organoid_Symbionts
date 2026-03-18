@@ -3,7 +3,15 @@
  */
 
 import { describe, it, expect, beforeEach } from "vitest";
-import { clearRegistry, getGnome, getAllGnomes, getFallbackChain } from "../../src/gnomes/registry.js";
+import {
+  clearRegistry,
+  getAllGnomes,
+  getAllOrganoidProfiles,
+  getFallbackChain,
+  getGnome,
+  getLegacyIdForEmbodiment,
+  getOrganoidProfile,
+} from "../../src/gnomes/registry.js";
 import { loadGnomes } from "../../src/gnomes/loadGnomes.js";
 
 describe("Gnome Registry", () => {
@@ -17,7 +25,7 @@ describe("Gnome Registry", () => {
 
   it("loads gnomes from data/gnomes/*.yaml", async () => {
     const profiles = await loadGnomes();
-    expect(profiles.length).toBeGreaterThanOrEqual(1);
+    expect(profiles.length).toBeGreaterThanOrEqual(7);
 
     const firstId = profiles[0]?.id;
     expect(firstId).toBeDefined();
@@ -28,6 +36,18 @@ describe("Gnome Registry", () => {
     expect(loaded?.id).toBe(firstId);
     expect(loaded?.name).toBeTruthy();
     expect(loaded?.role).toBeTruthy();
+  });
+
+  it("registers organoid embodiment aliases alongside legacy ids", async () => {
+    const profiles = await loadGnomes();
+    const first = profiles[0];
+    expect(first?.embodiment).toBeTruthy();
+    if (!first?.embodiment) return;
+
+    const organoid = getOrganoidProfile(first.embodiment);
+    expect(organoid?.id).toBe(first.id);
+    expect(getLegacyIdForEmbodiment(first.embodiment)).toBe(first.id);
+    expect(getAllOrganoidProfiles().length).toBe(profiles.length);
   });
 
   it("getFallbackChain returns configured defensive chain when available", async () => {

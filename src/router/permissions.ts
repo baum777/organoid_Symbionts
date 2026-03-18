@@ -1,4 +1,9 @@
 /**
+ * TODO(ORGANOID-MIGRATION): permission rules still depend on the legacy agent-router role model.
+ * PHASE-MAPPING-NEEDED: do not hard-map these roles/phases onto embodiments without a separate control-plane migration.
+ */
+
+/**
  * Router Permissions - Role and Phase Based Access Control
  * 
  * Defines the PERMISSION_MATRIX that controls which agent roles

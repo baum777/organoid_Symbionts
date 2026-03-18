@@ -1,4 +1,9 @@
-import { getSigilForGnome } from "../gnomes/sigils.js";
+/**
+ * TODO(ORGANOID-MIGRATION): visible output still exposes the legacy sigil file path.
+ * REPLACE-WITH-ORGANOID: Wave 2 adds glyph-first aliases while preserving the import path for runtime safety.
+ */
+
+import { getGlyphForGnome } from "../gnomes/sigils.js";
 import { trimToLimit } from "../utils/textTrim.js";
 
 export type ActivatedVoiceSet = {
@@ -6,6 +11,11 @@ export type ActivatedVoiceSet = {
   secondary?: string;
   tertiary?: string;
 };
+
+export type ActivatedEmbodimentSet = ActivatedVoiceSet;
+
+export const VOICE_GLYPH_MARKER = "--voice-glyphs--";
+export const LEGACY_VOICE_SIGIL_MARKER = "--voice-sigils--";
 
 function normalizeVoices(voices: ActivatedVoiceSet): string[] {
   return [voices.primary, voices.secondary, voices.tertiary]
@@ -15,12 +25,12 @@ function normalizeVoices(voices: ActivatedVoiceSet): string[] {
     .slice(0, 3);
 }
 
-function alreadySigilized(text: string): boolean {
-  return text.includes("--voice-sigils--");
+function alreadyGlyphized(text: string): boolean {
+  return text.includes(VOICE_GLYPH_MARKER) || text.includes(LEGACY_VOICE_SIGIL_MARKER);
 }
 
-export function renderVoiceSigils(text: string, voices: ActivatedVoiceSet): string {
-  if (alreadySigilized(text)) return text;
+export function renderVoiceGlyphs(text: string, voices: ActivatedEmbodimentSet): string {
+  if (alreadyGlyphized(text)) return text;
   const clean = text.trim();
   if (!clean) return "";
 
@@ -29,18 +39,29 @@ export function renderVoiceSigils(text: string, voices: ActivatedVoiceSet): stri
 
   const [v1, v2, v3] = active;
   if (!v1) return clean;
-  const s1 = getSigilForGnome(v1);
-  const s2 = v2 ? getSigilForGnome(v2) : s1;
-  const s3 = v3 ? getSigilForGnome(v3) : s2;
+  const g1 = getGlyphForGnome(v1);
+  const g2 = v2 ? getGlyphForGnome(v2) : g1;
+  const g3 = v3 ? getGlyphForGnome(v3) : g2;
 
-  const marker = "\n\n--voice-sigils--\n";
+  const marker = `
 
-  if (!v2) return `${s1} ${clean} ${s1}${marker}`;
-  if (!v3) return `${s1} ${clean} ${s2}${marker}`;
-  return `${s1} ${clean}\n\n${s2}\n\n${s3}${marker}`;
+${VOICE_GLYPH_MARKER}
+`;
+
+  if (!v2) return `${g1} ${clean} ${g1}${marker}`;
+  if (!v3) return `${g1} ${clean} ${g2}${marker}`;
+  return `${g1} ${clean}
+
+${g2}
+
+${g3}${marker}`;
 }
 
-export function deriveActivatedVoices(selectedGnomeId: string, cameoCandidates?: string[]): ActivatedVoiceSet {
+export function renderVoiceSigils(text: string, voices: ActivatedVoiceSet): string {
+  return renderVoiceGlyphs(text, voices);
+}
+
+export function deriveActivatedEmbodiments(selectedGnomeId: string, cameoCandidates?: string[]): ActivatedEmbodimentSet {
   const voices = [selectedGnomeId, ...(cameoCandidates ?? [])]
     .filter(Boolean)
     .map((v) => v.toLowerCase())
@@ -52,4 +73,12 @@ export function deriveActivatedVoices(selectedGnomeId: string, cameoCandidates?:
     secondary: voices[1],
     tertiary: voices[2],
   };
+}
+
+export function deriveActivatedVoices(selectedGnomeId: string, cameoCandidates?: string[]): ActivatedVoiceSet {
+  return deriveActivatedEmbodiments(selectedGnomeId, cameoCandidates);
+}
+
+export function trimGlyphDecoratedReply(text: string, limit: number): string {
+  return trimToLimit(text, limit);
 }

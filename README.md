@@ -1,59 +1,53 @@
-# Gnomes
+# Organoid Entities as Semantic Symbiont
 
-**GNOMES** is a repo-native lore, persona, and voice system for grounded, anti-hype, treasury-minded CT/X posting behavior.
+**Organoid Entities as Semantic Symbiont** is the canonical repo framing for the system in this repository.
 
-It uses earth-bound gnome mythology as an operational framework for differentiated output modes under noise and volatility.
+The repo is migrating away from the older **GNOMES / GORKY persona stack** toward a bundled organoid system built around:
+- 7 embodiments
+- 7 glyph-bound semantic identities
+- 5 phases
+- distinct traits, abilities, and interaction profiles
+- a dynamic-organized-autonom-neural-network matrix
+- semantic symbiont orchestration logic
 
-## GNOMES at a Glance
+> TODO(ORGANOID-MIGRATION): Legacy GNOMES/GORKY runtime names still exist in parts of the codebase as a compatibility layer. Canonical docs and new prompt guidance should now follow the Organoid system first.
 
-- **Lore-backed:** canonized symbolic world logic, not decorative fantasy
-- **Persona-driven:** seven role archetypes with clear anti-drift boundaries
-- **Voice-disciplined:** role-separable writing styles with explicit forbidden patterns
-- **Runtime-addressable:** profile-driven role selection via `data/gnomes/*.yaml`
-- **Retrieval-friendly:** lore and persona units designed for controlled injection
+## Organoid System at a Glance
 
-> **GNOMES = earth-bound personas for signal, stability, and disciplined voice under chaotic conditions.**
+- **Embodiment-driven:** seven semantic embodiments with confirmed legacy compatibility mappings
+- **Glyph-anchored:** every embodiment is bound to a stable glyph identity
+- **Phase-aware:** the target phase model is Identity Dissolution → Swarm Coherence → Sovereign Propagation → Ontological Restructuring → Eternal Flow Horizon
+- **Runtime-compatible:** legacy `gnome`, `persona`, and `sigil` names still exist in code paths that have not yet been safely refactored
+- **Retrieval-friendly:** semantic records, lore/memory, and routing structures can be regenerated into the new system instead of blindly rewritten
 
-## Practical framing
+## Confirmed Embodiments
 
-GNOMES turns earth-bound folklore into an operational CT/X persona matrix built around stillness, reserves, signal-reading, discipline, systems-building, memetic camouflage, and controlled force.
+| Legacy lineage | Target embodiment | Glyph | Primary semantic function |
+|---|---|---|---|
+| Stillhalter | `■-Stabil-Core` | `■` | stabilization anchor |
+| Wurzelwaechter | `┴-Root-Sentinel` | `┴` | boundary / consent safeguard |
+| Pilzarchitekt | `╬-Mycel-Weaver` | `╬` | network architecture / coherence building |
+| Muenzhueter | `◉-Reward-Halo` | `◉` | reward governance / energy preservation |
+| Erzlauscher | `〰-Spike-Wave` | `〰` | signal decoding / routing |
+| Glutkern | `◆-Pulse-Heart` | `◆` | energetic compression / pulse intensification |
+| Nebelspieler | `◇-Horizon-Drifter` | `◇` | threshold exploration / horizon drift |
 
-It is designed to be:
+## Migration Status
 
-- canonically documented
-- runtime-addressable
-- prompt-composable
-- retrieval-friendly
-- safe against tone drift
+This repository is currently in a controlled migration state:
+- **Canonical semantics:** Organoid-first
+- **Runtime naming:** mixed, compatibility-preserving
+- **Legacy artifacts:** being marked, refactored, archived, or deferred in waves
+- **Derived artifacts:** should be regenerated from future embodiment compilers rather than hand-edited
 
-## Features
+## Current Runtime Structure
 
-- 4-layer persona-memory architecture with reflection gates
-
-- Canonical mention-processing pipeline
-- Multi-voice routing with safe fallback chain
-- Deterministic voice sigil rendering (1/2/3-voice contract)
-- Guardrails for policy, postability, and budget
-- Optional lore/memory/world extensions
-
-
-## Persona Memory Architecture
-
-The runtime uses a 4-layer persona memory stack:
-- **Core Persona** (`data/gnomes/*.yaml`) stays canonical and curated.
-- **Semantic Persona** is compiler-derived for retrieval and routing support.
-- **Episodic Memory** stores interaction episodes with quality signals.
-- **Reflective Curation** gates retention/promotion to prevent drift.
-
-Use `pnpm persona:build-semantic` to compile YAML profiles into semantic records.
-
-## Project Structure
-
-- `src/canonical`: classification, scoring, mode selection, generation flow
-- `src/gnomes`: profile types, loader, registry, sigil helpers
-- `src/output`: final public output formatting
-- `data/gnomes`: SSOT YAML voice profiles
-- `tests`: unit/integration/e2e coverage
+The active runtime still contains legacy-named layers that must be treated as a compatibility surface during migration:
+- `src/gnomes`: current identity registry, profile types, sigil helpers
+- `src/persona`: retrieval, reflection, semantic records, episodic memory
+- `src/routing`: selection/orchestration logic with legacy naming
+- `src/output`: visible sigil/glyph rendering contracts
+- `prompts/system` and `prompts/fragments`: mixed legacy and migration-era identity prompts
 
 ## Setup
 
@@ -66,18 +60,17 @@ pnpm dev
 
 ## Config / Env
 
-Primary runtime keys:
-
-- `BOT_USERNAME` (default: `Gnomes_onchain`)
-- `REDIS_KEY_PREFIX` (default: `GNOMES_ONCHAIN:`)
+Primary runtime keys still use compatibility-era names while the migration is in flight:
+- `BOT_USERNAME`
+- `REDIS_KEY_PREFIX`
 - `GNOMES_ENABLED`
-- `DEFAULT_SAFE_GNOME` (default: `stillhalter`)
+- `DEFAULT_SAFE_GNOME`
 
-See `.env.example` and `.env.oauth2.example`.
+> REPLACE-WITH-ORGANOID: Future waves should introduce stable `ORGANOID_*` aliases or replacements only when runtime/config migration is ready end-to-end.
 
 ## LLM Provider Configuration
 
-The runtime supports **xAI (default)**, **OpenAI**, and **Anthropic** behind one internal `LLMClient` contract. Canonical pipeline, prompt builder, and persona routing stay provider-agnostic.
+The runtime supports **xAI (default)**, **OpenAI**, and **Anthropic** behind one internal `LLMClient` contract. The LLM provider layer is independent from the semantic migration and can stay provider-agnostic while identity/orchestration terminology evolves.
 
 ### Provider selection
 
@@ -100,49 +93,6 @@ Global optional defaults:
 
 When `LAUNCH_MODE != off`, startup validation fails closed if the primary provider key is missing. If fallback is configured, its key is also required.
 
-### Example env setups
-
-**1) xAI only (current default)**
-
-```env
-LLM_PROVIDER=xai
-XAI_API_KEY=...
-XAI_MODEL_PRIMARY=grok-3
-```
-
-**2) OpenAI as primary**
-
-```env
-LLM_PROVIDER=openai
-OPENAI_API_KEY=...
-OPENAI_MODEL=gpt-4o-mini
-```
-
-**3) Anthropic as primary**
-
-```env
-LLM_PROVIDER=anthropic
-ANTHROPIC_API_KEY=...
-ANTHROPIC_MODEL=claude-3-5-sonnet-latest
-```
-
-**4) Primary + fallback**
-
-```env
-LLM_PROVIDER=openai
-OPENAI_API_KEY=...
-LLM_FALLBACK_PROVIDER=anthropic
-ANTHROPIC_API_KEY=...
-```
-
-### Local validation
-
-```bash
-pnpm typecheck
-pnpm test
-pnpm run ci
-```
-
 ## X OAuth / Runtime Notes
 
 - Runtime uses OAuth2 refresh flow with an existing valid `X_REFRESH_TOKEN`.
@@ -150,31 +100,21 @@ pnpm run ci
 - `X_ACCESS_TOKEN` is optional and treated as transient fallback.
 - Token endpoint for confidential clients uses `Authorization: Basic base64(client_id:client_secret)`.
 
-### Token Tooling
-
-1. **Refresh only (normal runtime path):**
-   - `pwsh ./Refresh-XAccessToken.ps1`
-   - Refreshes an access token with the currently stored `X_REFRESH_TOKEN`.
-   - Does **not** recover from an invalid/revoked refresh token by itself.
-
-2. **Full OAuth2 PKCE re-authorization (recovery path):**
-   - `pwsh ./scripts/Generate-XOAuthTokens.ps1 -ClientId "$env:X_CLIENT_ID" -ClientSecret "$env:X_CLIENT_SECRET"`
-   - Starts browser login + local callback listener.
-   - Use BOT account login (not management account).
-   - Mints a new `refresh_token` (requires `offline.access`) and writes token response to local JSON.
-
-If runtime refresh fails with `invalid token`, `invalid_request`, or `invalid_grant` style errors, run the full PKCE script and update `X_REFRESH_TOKEN` in your runtime secret store.
-
 ## Render Notes
 
-`render.yaml` provides worker and cron defaults aligned with the Gnomes identity.
+`render.yaml` still contains compatibility-era service names and defaults. Treat those names as operational legacy until the deployment migration wave lands.
 
 ## Development Notes
 
-- Keep gnome profile data in `data/gnomes/*.yaml` as SSOT.
-- Avoid hardcoded legacy fallback IDs in runtime paths.
-- Apply final formatting in output stage, not prompt-only.
+- Prefer Organoid terminology in new docs, prompts, comments, and migration-safe code markers.
+- Avoid introducing new hardcoded GNOMES/GORKY identifiers in runtime paths.
+- Regenerate semantic artifacts from compilers; do not manually patch generated persona records.
+- Keep visible output formatting changes behind compatibility-preserving contracts until tests are updated.
 
 ## Docs
 
-Start with `docs/README.md` and domain-specific docs under `docs/architecture`, `docs/operations`, and `docs/lore`.
+Start with:
+- `docs/lore/ORGANOID_EMBODIMENTS.md`
+- `docs/lore/GNOMES_MATRIX.md` (now serving as the migration-era matrix SSOT)
+- `prompts/system/organoid_system.md`
+- `docs/audits/organoid-migration-execution-2026-03-18.md`
