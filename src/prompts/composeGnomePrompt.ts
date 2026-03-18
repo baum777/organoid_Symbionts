@@ -1,4 +1,9 @@
 /**
+ * TODO(ORGANOID-MIGRATION): this prompt composer is still the compatibility surface for legacy gnome/persona language.
+ * REPLACE-WITH-ORGANOID: migrate toward an embodiment/glyph/phase-aware composer after prompt fragment parity exists.
+ */
+
+/**
  * Compose Gnome Prompt — Build prompt from global + shared + gnome + event context
  *
  * Used when GNOMES_ENABLED=true. Composes:

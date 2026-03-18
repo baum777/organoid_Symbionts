@@ -1,4 +1,9 @@
 /**
+ * TODO(ORGANOID-MIGRATION): this graph still contains older hidden character remnants (`spark`, `gorky`, `moss`).
+ * REPLACE-WITH-ORGANOID: swap this source only after a confirmed embodiment relation graph exists.
+ */
+
+/**
  * Character Interaction Graph — Gnome-to-gnome relationships
  *
  * Phase-4: Influences cameo likelihood (rivalry, mentor, alliance, etc.).

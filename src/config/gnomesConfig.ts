@@ -1,4 +1,9 @@
 /**
+ * TODO(ORGANOID-MIGRATION): `GNOME_*` flags remain active as compatibility-era config names.
+ * REPLACE-WITH-ORGANOID: introduce stable `ORGANOID_*` aliases only when runtime/config migration can be completed end-to-end.
+ */
+
+/**
  * GNOMES Feature Config — Feature gates for multi-gnome system
  *
  * All GNOMES features are disabled by default. Enable via env for incremental rollout.
