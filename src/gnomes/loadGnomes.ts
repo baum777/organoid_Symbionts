@@ -7,7 +7,7 @@ import { join } from "node:path";
 import yaml from "js-yaml";
 import { DATA_DIR } from "../config/dataDir.js";
 import { registerGnome } from "./registry.js";
-import { isGnomeProfile, type GnomeProfile } from "./types.js";
+import { getProfileGlyph, isGnomeProfile, type GnomeProfile } from "./types.js";
 
 const GNOMES_DATA_DIR = "gnomes";
 
@@ -57,11 +57,24 @@ export async function loadGnomes(): Promise<GnomeProfile[]> {
 }
 
 function sanitizeProfile(p: GnomeProfile): GnomeProfile {
+  const glyph = getProfileGlyph(p);
   return {
     ...p,
     id: String(p.id).toLowerCase().trim(),
+    legacy_id: String(p.legacy_id ?? p.id).toLowerCase().trim(),
     name: String(p.name).trim(),
     role: String(p.role).trim(),
+    embodiment: p.embodiment?.trim(),
+    glyph: {
+      char: String(glyph.char).trim(),
+      code: String(glyph.code).trim(),
+      fallback: String(glyph.fallback).trim(),
+    },
+    sigil: {
+      char: String(p.sigil.char).trim(),
+      code: String(p.sigil.code).trim(),
+      fallback: String(p.sigil.fallback).trim(),
+    },
     archetype: p.archetype,
   };
 }
