@@ -1,4 +1,9 @@
 /**
+ * TODO(ORGANOID-MIGRATION): selector behavior is still keyed by legacy gnome IDs and archetypes.
+ * REPLACE-WITH-ORGANOID: future refactors should preserve deterministic routing while translating to embodiment activation/transition logic.
+ */
+
+/**
  * Gnome Selector — Select the appropriate gnome per interaction
  *
  * Phase-2: Scores gnomes by intent match, aggression range, affinity.

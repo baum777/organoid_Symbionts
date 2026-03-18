@@ -1,4 +1,9 @@
 /**
+ * TODO(ORGANOID-MIGRATION): `GnomeProfile`, `GnomeArchetype`, and `GnomeSigil` are still the runtime compatibility surface.
+ * REPLACE-WITH-ORGANOID: migrate this schema toward embodiment/glyph terminology once loaders, config, and generated artifacts can move together.
+ */
+
+/**
  * Gnome types — Character profile definitions for multi-voice ensemble.
  */
 

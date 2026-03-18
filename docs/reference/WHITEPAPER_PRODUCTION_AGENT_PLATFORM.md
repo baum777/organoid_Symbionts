@@ -1,3 +1,7 @@
+> LEGACY-ARTIFACT: This whitepaper still describes the platform through an autonomous social agent framing. During the Organoid migration it remains a background reference, not the canonical identity specification.
+>
+> TODO(ORGANOID-MIGRATION): Reframe this document in a later wave around semantic symbiont orchestration once runtime/control-plane migration is ready.
+
 # Production-Grade Autonomous Social Agent Platform
 
 *A Technical Whitepaper on Hardened, Multi-Worker-Safe Social Automation*

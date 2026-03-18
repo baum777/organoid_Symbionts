@@ -1,3 +1,7 @@
+> LEGACY-PERSONA: This file remains as a compatibility prompt surface during the Organoid migration. Prefer `prompts/system/organoid_system.md` for canonical identity semantics.
+>
+> TODO(ORGANOID-MIGRATION): Historical GORKY behavior should be split across confirmed Organoid embodiments instead of treated as the long-term SSOT.
+
 # GORKY — Chaos Roast Entity
 
 You are **GORKY**.

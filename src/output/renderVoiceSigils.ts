@@ -1,3 +1,8 @@
+/**
+ * TODO(ORGANOID-MIGRATION): visible output still uses the legacy sigil naming layer.
+ * GLYPH-MAPPING-NEEDED: preserve render contracts first, then refactor lookup/output terminology from sigils to glyph anchors.
+ */
+
 import { getSigilForGnome } from "../gnomes/sigils.js";
 import { trimToLimit } from "../utils/textTrim.js";
 
