@@ -1,0 +1,82 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "GnomeProfile",
+  "description": "Profile definition for a GNOME ensemble character",
+  "type": "object",
+  "required": ["id", "name", "role", "archetype"],
+  "properties": {
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9_]*$",
+      "description": "Unique identifier (lowercase, snake_case)"
+    },
+    "name": { "type": "string", "minLength": 1 },
+    "role": { "type": "string" },
+    "archetype": {
+      "type": "string",
+      "enum": [
+        "chaos_roaster",
+        "dry_observer",
+        "chaotic_reactor",
+        "skeptical_builder",
+        "playful_teaser",
+        "ash_priest"
+      ]
+    },
+    "voice_traits": {
+      "type": "object",
+      "properties": {
+        "tone": { "type": "string" },
+        "sarcasm": { "type": "number", "minimum": 0, "maximum": 10 },
+        "dryness": { "type": "number", "minimum": 0, "maximum": 10 },
+        "warmth": { "type": "number", "minimum": 0, "maximum": 10 },
+        "theatricality": { "type": "number", "minimum": 0, "maximum": 10 },
+        "meme_density": { "type": "number", "minimum": 0, "maximum": 10 }
+      }
+    },
+    "language_prefs": {
+      "type": "object",
+      "properties": {
+        "primary": { "type": "string" },
+        "allow_slang": { "type": "boolean" },
+        "preferred_keywords": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "routing_hints": {
+      "type": "object",
+      "properties": {
+        "preferred_intents": { "type": "array", "items": { "type": "string" } },
+        "preferred_energy": { "type": "array", "items": { "type": "string" } },
+        "aggression_range": { "type": "array", "items": { "type": "number" }, "minItems": 2, "maxItems": 2 },
+        "absurdity_threshold": { "type": "number" }
+      }
+    },
+    "memory_rules": {
+      "type": "object",
+      "properties": {
+        "track_affinity": { "type": "boolean" },
+        "track_jokes": { "type": "boolean" },
+        "max_items_per_user": { "type": "number" },
+        "lore_status_gate": { "type": "string", "enum": ["active"] },
+        "default_lore_tags": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "semantic_facets": { "type": "array", "items": { "type": "string" } },
+    "style_anchors": { "type": "array", "items": { "type": "string" } },
+    "negative_anchors": { "type": "array", "items": { "type": "string" } },
+    "relation_hints": {
+      "type": "object",
+      "properties": {
+        "complements": { "type": "array", "items": { "type": "string" } },
+        "suppresses": { "type": "array", "items": { "type": "string" } },
+        "escalates_with": { "type": "array", "items": { "type": "string" } },
+        "stabilizes_with": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "retrieval_priority": { "type": "number", "minimum": 0, "maximum": 1 },
+    "canonical_examples": { "type": "array", "items": { "type": "string" } },
+    "persona_fragment": { "type": "string" },
+    "safety_boundaries": { "type": "array", "items": { "type": "string" } }
+  },
+  "additionalProperties": true
+}

@@ -1,0 +1,129 @@
+# Render Blueprint — Gnomes Bot
+# Background Worker + optional Health Web Service
+# Node.js/TypeScript project — Python files are legacy and ignored
+
+services:
+  # Background Worker: 24/7 mention poller
+  - type: worker
+    name: gnomes-worker
+    runtime: node
+    region: frankfurt
+    plan: starter
+    buildCommand: |
+      echo "Installing Node.js dependencies..."
+      pnpm install --frozen-lockfile
+      echo "Building TypeScript..."
+      pnpm build
+      echo "Build complete. Output:"
+      ls -la dist/
+    startCommand: node dist/index.js
+    disk:
+      name: xai-bot-data
+      mountPath: /data
+      sizeGB: 1
+    envVars:
+      # Infrastructure
+      - key: NODE_ENV
+        value: production
+      - key: DATA_DIR
+        value: /data
+
+      # State Storage (Redis)
+      - key: USE_REDIS
+        value: "true"
+      - key: KV_URL
+        sync: false  # Set in Render dashboard: redis://default:PASS@HOST.upstash.io:6379
+      - key: REDIS_KEY_PREFIX
+        value: "GNOMES_ONCHAIN:"
+
+      # X OAuth2 (sensitive - set in dashboard or Environment Group)
+      - key: X_CLIENT_ID
+        sync: false
+      - key: X_CLIENT_SECRET
+        sync: false
+      - key: X_REFRESH_TOKEN
+        sync: false
+      - key: X_ACCESS_TOKEN
+        sync: false
+      - key: X_REFRESH_BUFFER_SECONDS
+        value: "300"
+      - key: X_OAUTH_TOKEN_URL
+        value: https://api.x.com/2/oauth2/token
+
+      # LLM Provider (xAI)
+      - key: XAI_API_KEY
+        sync: false
+      - key: XAI_BASE_URL
+        value: https://api.x.ai/v1
+      - key: XAI_MODEL_PRIMARY
+        value: grok-3
+      - key: XAI_MODEL_FALLBACKS
+        value: grok-3-mini
+
+      # Bot Configuration
+      - key: BOT_USERNAME
+        value: Gnomes_onchain
+      - key: LAUNCH_MODE
+        value: prod
+      - key: BOT_ACTIVATION_MODE
+        value: global
+
+      # Polling
+      - key: POLL_INTERVAL_MS
+        value: "30000"
+      - key: MENTIONS_SOURCE
+        value: search
+      - key: ADAPTIVE_POLLING_ENABLED
+        value: "true"
+
+      # Context Engine
+      - key: USE_ENHANCED_CONTEXT
+        value: "true"
+
+      # Logging
+      - key: LOG_LEVEL
+        value: INFO
+
+      # Optional Services
+      - key: REPLICATE_API_KEY
+        sync: false
+
+  # Optional: Health/Metrics Web Service
+  - type: web
+    name: gnomes-health
+    runtime: node
+    region: frankfurt
+    plan: free
+    buildCommand: pnpm install --frozen-lockfile && pnpm build
+    startCommand: node dist/server.js
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: "10000"
+      - key: LOG_LEVEL
+        value: INFO
+      - key: USE_REDIS
+        value: "true"
+      - key: KV_URL
+        sync: false
+
+  # Daily Persona Snippet Extractor — Cron (täglich 3 Uhr UTC)
+  - type: cron
+    name: gnomes-daily-snippets
+    runtime: node
+    region: frankfurt
+    plan: free
+    branch: main
+    buildCommand: pnpm install --frozen-lockfile && pnpm build
+    startCommand: pnpm exec tsx src/persona/dailySnippetExtractor.ts
+    schedule: "0 3 * * *"
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: USE_REDIS
+        value: "true"
+      - key: KV_URL
+        sync: false
+      - key: XAI_API_KEY
+        sync: false
