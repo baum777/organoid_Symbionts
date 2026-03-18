@@ -1,6 +1,6 @@
 /**
  * TODO(ORGANOID-MIGRATION): this prompt composer is still the compatibility surface for legacy gnome/persona language.
- * REPLACE-WITH-ORGANOID: migrate toward an embodiment/glyph/phase-aware composer after prompt fragment parity exists.
+ * REPLACE-WITH-ORGANOID: Wave 2 now prefers embodiment/glyph fragments while keeping legacy gnome IDs and prompt contracts stable.
  */
 
 /**
@@ -16,13 +16,15 @@
  */
 
 import type { GnomeProfile } from "../gnomes/types.js";
+import { getProfileEmbodiment, getProfileGlyph } from "../gnomes/types.js";
 import type { CanonicalEvent, CanonicalMode, ThesisBundle, ScoreBundle } from "../canonical/types.js";
 import type { StyleContext } from "../style/styleResolver.js";
 import { getHardMax } from "../canonical/modeBudgets.js";
 import {
   loadGlobalSafety,
+  loadProfileFragment,
   loadSharedCanon,
-  loadGnomeFragment,
+  loadSharedOrganoidCanon,
 } from "./promptFragments.js";
 import { getActiveLoreForRole } from "../lore/matrixLoreUnits.js";
 
@@ -70,17 +72,29 @@ const MODE_STYLE_HINTS: Record<Exclude<CanonicalMode, "ignore">, string> = {
 export function composeGnomePrompt(ctx: GnomeRuntimeContext): ComposedGnomePrompt {
   const charBudget = getHardMax(ctx.responseMode);
   const globalSafety = loadGlobalSafety();
+  const sharedOrganoidCanon = loadSharedOrganoidCanon();
   const sharedCanon = loadSharedCanon();
-  const gnomeFragment = loadGnomeFragment(ctx.selectedGnome.id) || ctx.selectedGnome.persona_fragment || "";
+  const profileFragment = loadProfileFragment(ctx.selectedGnome);
+  const embodiment = getProfileEmbodiment(ctx.selectedGnome);
+  const glyph = getProfileGlyph(ctx.selectedGnome).char;
 
   const parts: string[] = [globalSafety];
 
-  if (sharedCanon) {
-    parts.push("", "Shared canon:", sharedCanon);
+  if (sharedOrganoidCanon) {
+    parts.push("", "Organoid canon:", sharedOrganoidCanon);
   }
 
-  if (gnomeFragment) {
-    parts.push("", `You are ${ctx.selectedGnome.name} (${ctx.selectedGnome.role}).`, gnomeFragment);
+  if (sharedCanon) {
+    parts.push("", "Compatibility canon:", sharedCanon);
+  }
+
+  if (profileFragment) {
+    parts.push(
+      "",
+      `Runtime identity: ${ctx.selectedGnome.name} (${ctx.selectedGnome.role}).`,
+      `Embodiment anchor: ${embodiment}${glyph ? ` [glyph ${glyph}]` : ""}.`,
+      profileFragment,
+    );
   }
 
   if (ctx.selectedGnome.safety_boundaries?.length) {

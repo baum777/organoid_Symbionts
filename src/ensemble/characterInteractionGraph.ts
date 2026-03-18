@@ -1,6 +1,6 @@
 /**
- * TODO(ORGANOID-MIGRATION): this graph still contains older hidden character remnants (`spark`, `gorky`, `moss`).
- * REPLACE-WITH-ORGANOID: swap this source only after a confirmed embodiment relation graph exists.
+ * TODO(ORGANOID-MIGRATION): Wave 2 replaces hidden `spark`/`gorky`/`moss` remnants with registry-aligned runtime relations.
+ * LEGACY-PERSONA: keep the file path for compatibility until ensemble orchestration is fully embodiment-first.
  */
 
 /**
@@ -15,7 +15,10 @@ export type RelationshipType =
   | "teasing"
   | "alliance"
   | "mockery"
-  | "respect";
+  | "respect"
+  | "stabilizes"
+  | "suppresses"
+  | "complements";
 
 export interface CharacterRelationship {
   gnomeA: string;
@@ -25,9 +28,12 @@ export interface CharacterRelationship {
 }
 
 const DEFAULT_RELATIONSHIPS: CharacterRelationship[] = [
-  { gnomeA: "spark", gnomeB: "gorky", type: "teasing", strength: 0.8 },
-  { gnomeA: "moss", gnomeB: "gorky", type: "respect", strength: 0.7 },
-  { gnomeA: "moss", gnomeB: "spark", type: "mockery", strength: 0.6 },
+  { gnomeA: "stillhalter", gnomeB: "nebelspieler", type: "suppresses", strength: 0.82 },
+  { gnomeA: "stillhalter", gnomeB: "pilzarchitekt", type: "stabilizes", strength: 0.74 },
+  { gnomeA: "stillhalter", gnomeB: "muenzhueter", type: "complements", strength: 0.71 },
+  { gnomeA: "glutkern", gnomeB: "nebelspieler", type: "teasing", strength: 0.77 },
+  { gnomeA: "glutkern", gnomeB: "wurzelwaechter", type: "stabilizes", strength: 0.68 },
+  { gnomeA: "pilzarchitekt", gnomeB: "erzlauscher", type: "alliance", strength: 0.72 },
 ];
 
 const graph = new Map<string, Map<string, CharacterRelationship>>();
@@ -52,10 +58,12 @@ export function getRelationship(gnomeA: string, gnomeB: string): CharacterRelati
   return (graph.get(k)?.get("rel") as CharacterRelationship) ?? null;
 }
 
-/** Check if gnomeB is likely to cameo after gnomeA (e.g. SPARK often interrupts GORKY). */
+/** Check if gnomeB is likely to cameo after gnomeA. */
 export function getCameoLikelihood(primary: string, candidate: string): number {
   const rel = getRelationship(primary, candidate);
   if (!rel) return 0.3;
-  if (["teasing", "mockery", "alliance"].includes(rel.type)) return 0.4 + rel.strength * 0.3;
+  if (["teasing", "mockery", "alliance", "complements"].includes(rel.type)) return 0.4 + rel.strength * 0.3;
+  if (["stabilizes", "respect"].includes(rel.type)) return 0.35 + rel.strength * 0.25;
+  if (rel.type === "suppresses") return 0.2 + rel.strength * 0.15;
   return 0.3;
 }

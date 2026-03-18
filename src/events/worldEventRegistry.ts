@@ -22,9 +22,24 @@ export interface WorldEvent {
 }
 
 const EVENTS: WorldEvent[] = [
-  { id: "ev_chart_funeral", type: "chart_funeral_rite", affectedGnomes: ["gorky", "moss"] },
-  { id: "ev_liquidity", type: "liquidity_festival", affectedGnomes: ["spark", "gorky"] },
-  { id: "ev_fake_builder", type: "fake_builder_trial", affectedGnomes: ["grit", "gorky"] },
+  {
+    id: "ev_chart_funeral",
+    type: "chart_funeral_rite",
+    affectedGnomes: ["stillhalter", "wurzelwaechter"],
+    toneEffect: "stabilize drawdown narratives before adding commentary",
+  },
+  {
+    id: "ev_liquidity",
+    type: "liquidity_festival",
+    affectedGnomes: ["muenzhueter", "pilzarchitekt"],
+    toneEffect: "frame liquidity as reserves, throughput, and network coupling",
+  },
+  {
+    id: "ev_fake_builder",
+    type: "fake_builder_trial",
+    affectedGnomes: ["erzlauscher", "glutkern"],
+    toneEffect: "verify claims, then compress the verdict",
+  },
 ];
 
 export function getWorldEvents(): WorldEvent[] {

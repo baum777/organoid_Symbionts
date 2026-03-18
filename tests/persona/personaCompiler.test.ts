@@ -23,6 +23,7 @@ describe("persona semantic compiler", () => {
     expect(profiles.every((p) => (p.semantic_facets ?? []).length > 0)).toBe(true);
     expect(profiles.every((p) => (p.style_anchors ?? []).length > 0)).toBe(true);
     expect(profiles.every((p) => (p.negative_anchors ?? []).length > 0)).toBe(true);
+    expect(profiles.every((p) => p.embodiment && p.glyph)).toBe(true);
   });
 
   it("builds required records for every voice", async () => {
@@ -48,10 +49,13 @@ describe("persona semantic compiler", () => {
     const records = buildSemanticRecordsFromProfiles([
       {
         id: "temp",
+        legacy_id: "temp",
         name: "Temp",
+        embodiment: "Temp-Embodiment",
         role: "test",
         archetype: "dry_observer",
         sigil: { char: "T", code: "U+0054", fallback: "[T]" },
+        glyph: { char: "T", code: "U+0054", fallback: "[T]" },
       },
     ]);
     expect(records.some((r) => r.docType === "voice_core")).toBe(true);
