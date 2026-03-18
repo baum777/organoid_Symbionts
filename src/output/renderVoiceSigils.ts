@@ -6,6 +6,10 @@
 import { getGlyphForGnome } from "../gnomes/sigils.js";
 import { trimToLimit } from "../utils/textTrim.js";
 
+/**
+ * Legacy output naming remains for compatibility. New code should prefer the embodiment/glyph
+ * aliases exported from this module.
+ */
 export type ActivatedVoiceSet = {
   primary: string;
   secondary?: string;
@@ -14,9 +18,15 @@ export type ActivatedVoiceSet = {
 
 export type ActivatedEmbodimentSet = ActivatedVoiceSet;
 
+<<<<<<< ours
+<<<<<<< ours
 export const VOICE_GLYPH_MARKER = "--voice-glyphs--";
 export const LEGACY_VOICE_SIGIL_MARKER = "--voice-sigils--";
 
+=======
+>>>>>>> theirs
+=======
+>>>>>>> theirs
 function normalizeVoices(voices: ActivatedVoiceSet): string[] {
   return [voices.primary, voices.secondary, voices.tertiary]
     .filter((v): v is string => typeof v === "string" && v.trim().length > 0)
@@ -57,11 +67,23 @@ ${g2}
 ${g3}${marker}`;
 }
 
+<<<<<<< ours
 export function renderVoiceSigils(text: string, voices: ActivatedVoiceSet): string {
   return renderVoiceGlyphs(text, voices);
 }
 
 export function deriveActivatedEmbodiments(selectedGnomeId: string, cameoCandidates?: string[]): ActivatedEmbodimentSet {
+=======
+export function renderEmbodimentGlyphs(text: string, embodiments: ActivatedEmbodimentSet): string {
+  return renderVoiceSigils(text, embodiments);
+}
+
+export function renderEmbodimentGlyphs(text: string, embodiments: ActivatedEmbodimentSet): string {
+  return renderVoiceSigils(text, embodiments);
+}
+
+export function deriveActivatedVoices(selectedGnomeId: string, cameoCandidates?: string[]): ActivatedVoiceSet {
+>>>>>>> theirs
   const voices = [selectedGnomeId, ...(cameoCandidates ?? [])]
     .filter(Boolean)
     .map((v) => v.toLowerCase())
@@ -75,6 +97,8 @@ export function deriveActivatedEmbodiments(selectedGnomeId: string, cameoCandida
   };
 }
 
+<<<<<<< ours
+<<<<<<< ours
 export function deriveActivatedVoices(selectedGnomeId: string, cameoCandidates?: string[]): ActivatedVoiceSet {
   return deriveActivatedEmbodiments(selectedGnomeId, cameoCandidates);
 }
@@ -82,3 +106,18 @@ export function deriveActivatedVoices(selectedGnomeId: string, cameoCandidates?:
 export function trimGlyphDecoratedReply(text: string, limit: number): string {
   return trimToLimit(text, limit);
 }
+=======
+=======
+>>>>>>> theirs
+export function deriveActivatedEmbodiments(
+  selectedEmbodimentId: string,
+  coActivatedEmbodiments?: string[],
+): ActivatedEmbodimentSet {
+  return deriveActivatedVoices(selectedEmbodimentId, coActivatedEmbodiments);
+}
+
+export { trimToLimit };
+<<<<<<< ours
+>>>>>>> theirs
+=======
+>>>>>>> theirs

@@ -1,5 +1,7 @@
 # Organoid Entities as Semantic Symbiont
 
+<<<<<<< ours
+<<<<<<< ours
 **Organoid Entities as Semantic Symbiont** is the canonical repo framing for the system in this repository.
 
 The repo is migrating away from the older **GNOMES / GORKY persona stack** toward a bundled organoid system built around:
@@ -48,12 +50,75 @@ The active runtime still contains legacy-named layers that must be treated as a 
 - `src/routing`: selection/orchestration logic with legacy naming
 - `src/output`: visible sigil/glyph rendering contracts
 - `prompts/system` and `prompts/fragments`: mixed legacy and migration-era identity prompts
+=======
+=======
+>>>>>>> theirs
+This repository is migrating from the legacy **GNOMES / GORKY persona stack** to the new canonical target system:
+
+> **Organoid Entities as Semantic Symbiont**
+
+The active migration goal is a repo-wide semantic system with:
+- 7 embodiments
+- 7 glyph-bound semantic identities
+- 5 phases
+- distinct traits, abilities, and interaction profiles
+- a dynamic-organized-autonom-neural-network matrix
+- semantic symbiont orchestration logic
+
+## Migration status
+
+This codebase still contains legacy `gnome`, `persona`, `sigil`, and `gorky` naming in runtime modules, prompts, tests, and generated artifacts.
+Those legacy surfaces are currently treated as a **compatibility layer**, not the long-term source of truth.
+
+The current canonical direction for new work is:
+- **Organoid embodiments** for semantic identity
+- **glyph anchors** for visible symbolic binding
+- **semantic symbiont orchestration** for routing and interaction
+- **phase-based matrix logic** for activation, transition, propagation, learning, and stabilization
+
+## Canonical entrypoints
+
+Start here for the new top-level semantic model:
+- `docs/lore/ORGANOID_EMBODIMENTS.md`
+- `docs/lore/ORGANOID_ORCHESTRATION.md`
+- `docs/audits/organoid-migration-execution-2026-03-18.md`
+- `docs/audits/codebase-audit-2026-03-18-organoid-migration.md`
+
+Legacy GNOMES/GORKY documents remain in the repo as migration inputs and compatibility references until later waves archive or replace them.
+
+## What exists today
+
+The current implementation still includes these legacy-heavy subsystems:
+- `src/gnomes/**` — legacy identity/profile registry layer
+- `src/persona/**` — retrieval, reflection, memory, and semantic records
+- `src/routing/gnomeSelector.ts` — legacy runtime selection logic
+- `src/output/renderVoiceSigils.ts` — glyph/sigil rendering bridge
+- `prompts/**` — mixed canonical and compatibility prompt surfaces
+- `docs/lore/**` — mixed legacy lore docs plus new organoid canon docs
+
+## Runtime migration posture
+
+This run does **not** attempt a dangerous hard cut.
+Instead, the repo is being moved toward the Organoid system in controlled waves:
+1. canonical terminology migration
+2. legacy persona/artifact cleanup
+3. prompt + identity conversion
+4. runtime-safe compatibility alignment
+5. artifact regeneration and test migration
+
+Where possible, code keeps legacy exports while adding Organoid-compatible aliases so downstream imports do not break during the transition.
+<<<<<<< ours
+>>>>>>> theirs
+=======
+>>>>>>> theirs
 
 ## Setup
 
 ```bash
 pnpm install
 cp .env.example .env
+<<<<<<< ours
+<<<<<<< ours
 pnpm test
 pnpm dev
 ```
@@ -103,18 +168,69 @@ When `LAUNCH_MODE != off`, startup validation fails closed if the primary provid
 ## Render Notes
 
 `render.yaml` still contains compatibility-era service names and defaults. Treat those names as operational legacy until the deployment migration wave lands.
+=======
+pnpm typecheck
+pnpm test
+```
 
-## Development Notes
+## Config / Environment
 
+The repo still exposes legacy compatibility keys such as `GNOMES_ENABLED`, `DEFAULT_SAFE_GNOME`, and related `GNOME_*` flags.
+These are scheduled to migrate toward Organoid-oriented naming in later waves once config compatibility strategy is finalized.
+>>>>>>> theirs
+
+## Development guidance
+
+<<<<<<< ours
 - Prefer Organoid terminology in new docs, prompts, comments, and migration-safe code markers.
 - Avoid introducing new hardcoded GNOMES/GORKY identifiers in runtime paths.
 - Regenerate semantic artifacts from compilers; do not manually patch generated persona records.
 - Keep visible output formatting changes behind compatibility-preserving contracts until tests are updated.
+=======
+- Prefer Organoid terminology in new docs and new APIs.
+- Treat `gnome`, `persona`, `sigil`, and `gorky` as legacy compatibility vocabulary unless a file is explicitly archival.
+- Do not perform blind global rename passes.
+- Regenerate derived artifacts instead of hand-editing them.
+- Keep control-plane agent roles separate from embodiment semantics unless a mapping is explicitly confirmed.
+>>>>>>> theirs
 
-## Docs
+## Legacy compatibility note
 
+<<<<<<< ours
 Start with:
 - `docs/lore/ORGANOID_EMBODIMENTS.md`
 - `docs/lore/GNOMES_MATRIX.md` (now serving as the migration-era matrix SSOT)
 - `prompts/system/organoid_system.md`
 - `docs/audits/organoid-migration-execution-2026-03-18.md`
+=======
+=======
+pnpm typecheck
+pnpm test
+```
+
+## Config / Environment
+
+The repo still exposes legacy compatibility keys such as `GNOMES_ENABLED`, `DEFAULT_SAFE_GNOME`, and related `GNOME_*` flags.
+These are scheduled to migrate toward Organoid-oriented naming in later waves once config compatibility strategy is finalized.
+
+## Development guidance
+
+- Prefer Organoid terminology in new docs and new APIs.
+- Treat `gnome`, `persona`, `sigil`, and `gorky` as legacy compatibility vocabulary unless a file is explicitly archival.
+- Do not perform blind global rename passes.
+- Regenerate derived artifacts instead of hand-editing them.
+- Keep control-plane agent roles separate from embodiment semantics unless a mapping is explicitly confirmed.
+
+## Legacy compatibility note
+
+>>>>>>> theirs
+The following legacy documents remain useful as migration source material, but they are no longer the preferred worldview for new changes:
+- `docs/lore/GNOMES_MATRIX.md`
+- `docs/lore/PERSONA.md`
+- `prompts/system/gorkypf_persona.md`
+- `llm-terminal-test-bundle/**`
+- `legacy/python/**`
+<<<<<<< ours
+>>>>>>> theirs
+=======
+>>>>>>> theirs

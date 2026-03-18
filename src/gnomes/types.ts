@@ -1,10 +1,23 @@
 /**
+<<<<<<< ours
+<<<<<<< ours
  * TODO(ORGANOID-MIGRATION): `GnomeProfile`, `GnomeArchetype`, and `GnomeSigil` remain the runtime compatibility surface.
  * REPLACE-WITH-ORGANOID: Wave 2 introduces additive embodiment/glyph aliases so runtime code can migrate without a hard cut.
  */
 
 /**
  * Gnome types — Character profile definitions for multi-voice ensemble.
+=======
+=======
+>>>>>>> theirs
+ * Gnome types — legacy compatibility profile definitions for the pre-Organoid identity layer.
+ *
+ * TODO(ORGANOID-MIGRATION): Replace the remaining gnome/persona naming with the canonical
+ * Organoid embodiment model once downstream runtime/config consumers have been migrated.
+<<<<<<< ours
+>>>>>>> theirs
+=======
+>>>>>>> theirs
  */
 
 export type GnomeArchetype =
@@ -98,10 +111,30 @@ export interface GnomeProfile extends OrganoidEmbodimentDescriptor {
   canonical_examples?: string[];
 }
 
+<<<<<<< ours
+<<<<<<< ours
 export interface OrganoidEmbodimentProfile extends GnomeProfile {
   embodiment: string;
   glyph: OrganoidGlyph;
 }
+=======
+=======
+>>>>>>> theirs
+/**
+ * Organoid compatibility aliases.
+ *
+ * These aliases intentionally preserve the existing runtime structure while giving new code a
+ * migration-safe vocabulary. Do not assume the legacy fields are already semantically perfect.
+ */
+export type OrganoidEmbodimentProfile = GnomeProfile;
+export type OrganoidGlyph = GnomeSigil;
+export type EmbodimentRoutingHints = RoutingHints;
+export type EmbodimentMemoryRules = MemoryRules;
+export type EmbodimentRelationHints = RelationHints;
+<<<<<<< ours
+>>>>>>> theirs
+=======
+>>>>>>> theirs
 
 function isStringArray(v: unknown): v is string[] {
   return Array.isArray(v) && v.every((x) => typeof x === "string");
@@ -153,6 +186,8 @@ export function isGnomeProfile(v: unknown): v is GnomeProfile {
   );
 }
 
+<<<<<<< ours
+<<<<<<< ours
 export function getProfileGlyph(profile: GnomeProfile): OrganoidGlyph {
   return profile.glyph ?? profile.sigil;
 }
@@ -168,3 +203,9 @@ export function getLegacyProfileId(profile: GnomeProfile): string {
 export function isOrganoidEmbodimentProfile(profile: GnomeProfile): profile is OrganoidEmbodimentProfile {
   return typeof profile.embodiment === "string" && profile.embodiment.length > 0 && isSigilLike(profile.glyph);
 }
+=======
+export const isOrganoidEmbodimentProfile = isGnomeProfile;
+>>>>>>> theirs
+=======
+export const isOrganoidEmbodimentProfile = isGnomeProfile;
+>>>>>>> theirs
