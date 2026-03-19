@@ -60,7 +60,7 @@ export function loadSharedCanon(): string {
   return loadFragment("sharedCanon.md");
 }
 
-/** Load embodiment-specific organoid fragment. */
+/** Load canonical organoid fragment, with `embodiments/` as compatibility fallback. */
 export function loadEmbodimentFragment(profileOrEmbodiment: GnomeProfile | string): string {
   const legacyId = typeof profileOrEmbodiment === "string" ? profileOrEmbodiment : getLegacyProfileId(profileOrEmbodiment);
   const embodiment = typeof profileOrEmbodiment === "string" ? profileOrEmbodiment : getProfileEmbodiment(profileOrEmbodiment);
