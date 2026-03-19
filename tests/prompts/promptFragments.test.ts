@@ -11,6 +11,6 @@ describe("promptFragments", () => {
   it("keeps legacy gorky fragment reachable through the legacy loader", () => {
     const content = loadGnomeFragment("gorky");
     expect(content).toContain("LEGACY-PERSONA");
-    expect(content).toContain("compatibility bridge");
+    expect(content).toContain("compatibility-only prompt surface");
   });
 });
