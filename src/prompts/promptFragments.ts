@@ -8,7 +8,7 @@ import { readFileSync, existsSync } from "node:fs";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { dirname } from "node:path";
-import { getProfileEmbodiment, type GnomeProfile } from "../gnomes/types.js";
+import { getLegacyProfileId, getProfileEmbodiment, type GnomeProfile } from "../gnomes/types.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -62,12 +62,16 @@ export function loadSharedCanon(): string {
 
 /** Load embodiment-specific organoid fragment. */
 export function loadEmbodimentFragment(profileOrEmbodiment: GnomeProfile | string): string {
-  const embodiment = typeof profileOrEmbodiment === "string"
-    ? profileOrEmbodiment
-    : getProfileEmbodiment(profileOrEmbodiment);
+  const legacyId = typeof profileOrEmbodiment === "string" ? profileOrEmbodiment : getLegacyProfileId(profileOrEmbodiment);
+  const embodiment = typeof profileOrEmbodiment === "string" ? profileOrEmbodiment : getProfileEmbodiment(profileOrEmbodiment);
+  const legacySlug = embodimentSlug(legacyId);
+  const embodimentSlugValue = embodimentSlug(embodiment);
 
-  const slug = embodimentSlug(embodiment);
-  return loadFragment(`embodiments/${slug}.md`);
+  return (
+    loadFragment(`organoids/${legacySlug}.md`) ||
+    loadFragment(`organoids/${embodimentSlugValue}.md`) ||
+    loadFragment(`embodiments/${embodimentSlugValue}.md`)
+  );
 }
 
 /** Load gnome-specific compatibility fragment by gnome id. */
