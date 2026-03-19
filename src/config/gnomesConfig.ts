@@ -1,21 +1,12 @@
 /**
-<<<<<<< ours
-<<<<<<< ours
  * TODO(ORGANOID-MIGRATION): `GNOME_*` flags remain active as compatibility-era config names.
  * REPLACE-WITH-ORGANOID: introduce stable `ORGANOID_*` aliases only when runtime/config migration can be completed end-to-end.
  */
 
 /**
  * GNOMES Feature Config — Feature gates for multi-gnome system
-=======
- * GNOMES Feature Config — legacy compatibility feature gates for the pre-Organoid naming layer.
->>>>>>> theirs
-=======
- * GNOMES Feature Config — legacy compatibility feature gates for the pre-Organoid naming layer.
->>>>>>> theirs
  *
- * TODO(ORGANOID-MIGRATION): Keep these env-backed fields stable until config migration and
- * deployment aliases are ready. New code may use the Organoid-compatible aliases exported below.
+ * All GNOMES features are disabled by default. Enable via env for incremental rollout.
  */
 
 export interface GnomesConfig {
@@ -56,8 +47,6 @@ export interface GnomesConfig {
   /** Phase-5: Lore expansion (default: false) */
   GNOME_LORE_EXPANSION_ENABLED: boolean;
 }
-
-export type OrganoidConfig = GnomesConfig;
 
 const DEFAULTS: GnomesConfig = {
   GNOMES_ENABLED: false,
@@ -107,15 +96,7 @@ export function getGnomesConfig(): GnomesConfig {
   return cached;
 }
 
-export function getOrganoidConfig(): OrganoidConfig {
-  return getGnomesConfig();
-}
-
 /** Reset cache (for tests). */
 export function resetGnomesConfigCache(): void {
   cached = null;
-}
-
-export function resetOrganoidConfigCache(): void {
-  resetGnomesConfigCache();
 }
