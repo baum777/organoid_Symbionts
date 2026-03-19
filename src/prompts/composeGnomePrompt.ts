@@ -17,7 +17,7 @@ import { getHardMax } from "../canonical/modeBudgets.js";
 import {
   loadGlobalSafety,
   loadSharedCanon,
-  loadGnomeFragment,
+  loadEmbodimentFragment,
 } from "./promptFragments.js";
 import { getActiveLoreForRole } from "../lore/matrixLoreUnits.js";
 
@@ -66,7 +66,7 @@ export function composeGnomePrompt(ctx: GnomeRuntimeContext): ComposedGnomePromp
   const charBudget = getHardMax(ctx.responseMode);
   const globalSafety = loadGlobalSafety();
   const sharedCanon = loadSharedCanon();
-  const gnomeFragment = loadGnomeFragment(ctx.selectedGnome.id) || ctx.selectedGnome.persona_fragment || "";
+  const gnomeFragment = loadEmbodimentFragment(ctx.selectedGnome.id) || ctx.selectedGnome.persona_fragment || "";
 
   const parts: string[] = [globalSafety];
 
@@ -136,3 +136,6 @@ export function composeGnomePrompt(ctx: GnomeRuntimeContext): ComposedGnomePromp
     char_budget: charBudget,
   };
 }
+
+
+export const composeEmbodimentPrompt = composeGnomePrompt;

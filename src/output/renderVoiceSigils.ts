@@ -1,11 +1,17 @@
 import { getSigilForGnome } from "../gnomes/sigils.js";
 import { trimToLimit } from "../utils/textTrim.js";
 
+/**
+ * Legacy output naming remains for compatibility. New code should prefer the embodiment/glyph
+ * aliases exported from this module.
+ */
 export type ActivatedVoiceSet = {
   primary: string;
   secondary?: string;
   tertiary?: string;
 };
+
+export type ActivatedEmbodimentSet = ActivatedVoiceSet;
 
 function normalizeVoices(voices: ActivatedVoiceSet): string[] {
   return [voices.primary, voices.secondary, voices.tertiary]
@@ -40,6 +46,10 @@ export function renderVoiceSigils(text: string, voices: ActivatedVoiceSet): stri
   return `${s1} ${clean}\n\n${s2}\n\n${s3}${marker}`;
 }
 
+export function renderEmbodimentGlyphs(text: string, embodiments: ActivatedEmbodimentSet): string {
+  return renderVoiceSigils(text, embodiments);
+}
+
 export function deriveActivatedVoices(selectedGnomeId: string, cameoCandidates?: string[]): ActivatedVoiceSet {
   const voices = [selectedGnomeId, ...(cameoCandidates ?? [])]
     .filter(Boolean)
@@ -53,3 +63,12 @@ export function deriveActivatedVoices(selectedGnomeId: string, cameoCandidates?:
     tertiary: voices[2],
   };
 }
+
+export function deriveActivatedEmbodiments(
+  selectedEmbodimentId: string,
+  coActivatedEmbodiments?: string[],
+): ActivatedEmbodimentSet {
+  return deriveActivatedVoices(selectedEmbodimentId, coActivatedEmbodiments);
+}
+
+export { trimToLimit };

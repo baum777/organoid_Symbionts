@@ -5,7 +5,7 @@
 import { describe, it, expect, beforeEach } from "vitest";
 import { clearRegistry } from "../../src/gnomes/registry.js";
 import { loadGnomes } from "../../src/gnomes/loadGnomes.js";
-import { selectGnome } from "../../src/routing/gnomeSelector.js";
+import { selectEmbodiment, selectGnome } from "../../src/routing/gnomeSelector.js";
 import { extractSelectorFeatures } from "../../src/routing/selectorFeatures.js";
 import type { ClassifierOutput, ScoreBundle } from "../../src/canonical/types.js";
 import type { CanonicalEvent } from "../../src/canonical/types.js";
@@ -93,5 +93,17 @@ describe("Gnome Selector", () => {
     );
     const result = selectGnome(features, "lore_drop", { enabled: true });
     expect(result.responseMode).toBe("lore_drop");
+  });
+
+  it("exposes embodiment selection alias without changing behavior", () => {
+    const features = extractSelectorFeatures(
+      makeClassifier(),
+      defaultScores,
+      makeEvent(),
+    );
+    const legacy = selectGnome(features, "social_banter", { enabled: false, defaultSafeGnome: "stillhalter" });
+    const next = selectEmbodiment(features, "social_banter", { enabled: false, defaultSafeGnome: "stillhalter" });
+    expect(next.selectedGnomeId).toBe(legacy.selectedGnomeId);
+    expect(next.reasoning).toEqual(legacy.reasoning);
   });
 });

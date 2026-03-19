@@ -1,5 +1,5 @@
 import { getGnome } from "./registry.js";
-import type { GnomeProfile, GnomeSigil } from "./types.js";
+import type { GnomeProfile, GnomeSigil, OrganoidGlyph } from "./types.js";
 
 const GLOBAL_FALLBACK_SIGIL = "[GNOME]";
 
@@ -17,10 +17,22 @@ export function resolveSigil(profileOrId: GnomeProfile | string | undefined): Gn
   };
 }
 
+export function resolveGlyph(profileOrId: GnomeProfile | string | undefined): OrganoidGlyph {
+  return resolveSigil(profileOrId);
+}
+
 export function getSigilForGnome(id: string): string {
   return resolveSigil(id).char;
 }
 
+export function getGlyphForEmbodiment(id: string): string {
+  return resolveGlyph(id).char;
+}
+
 export function getFallbackSigil(id: string): string {
   return resolveSigil(id).fallback;
+}
+
+export function getFallbackGlyph(id: string): string {
+  return resolveGlyph(id).fallback;
 }

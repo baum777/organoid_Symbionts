@@ -1,39 +1,30 @@
-# GNOMES — Lore, Personas, and Voice Summary
+# Organoid Canon and Legacy Lore Transition Guide
 
-## Overview
+This directory now contains both:
+- the **new canonical Organoid semantic system**, and
+- the **legacy GNOMES/GORKY lore stack** retained as migration input.
 
-**GNOMES** are earth-bound meta beings built for the age of terminal noise.
+## Canonical Organoid sources of truth
 
-In this repo, they are not mascots or fantasy decoration. They are a **structured persona and voice system** for:
+Use these files first for new work:
+- [ORGANOID_EMBODIMENTS.md](./ORGANOID_EMBODIMENTS.md) — 7 embodiments, glyphs, traits, abilities, and interaction profiles
+- [ORGANOID_ORCHESTRATION.md](./ORGANOID_ORCHESTRATION.md) — 5 phases, matrix logic, orchestration rules, confirmed/probable/unsure mappings
 
-- stillness under volatility
-- wealth with roots
-- anti-hype judgment
-- treasury-minded restraint
-- grounded humor over panic performance
-- clarity in high-noise timelines
+## Legacy transition sources
 
-> **The surface belongs to hype. The depth belongs to the gnomes.**
+These files remain useful for migration, comparison, and controlled replacement planning:
+- [GNOMES_MATRIX.md](./GNOMES_MATRIX.md) — legacy matrix SSOT now treated as transition reference
+- [GNOMES_GOVERNANCE.md](./GNOMES_GOVERNANCE.md) — legacy governance and activation framing
+- [GNOMES_LORE_UNITS.md](./GNOMES_LORE_UNITS.md) — legacy retrieval unit contract
+- [LORE.md](./LORE.md) — legacy symbolic world logic
+- [PERSONA.md](./PERSONA.md) — legacy persona matrix with transition notes
+- [GORKY_HUMOR_PATTERNS.md](./GORKY_HUMOR_PATTERNS.md) — legacy single-persona style guide
+- [GORKY_IMAGE_STYLE_GUIDE.md](./GORKY_IMAGE_STYLE_GUIDE.md) — legacy image/style guidance
 
-GNOMES connects:
+## Working rule
 
-- **lore** → symbolic identity and world logic
-- **personas** → role-based behavioral archetypes
-- **voices** → CT/X-native writing styles
-- **memory** → retrieval-friendly lore and role fragments
-- **output** → stable, differentiated posting behavior
-
-## Canonical Source of Truth
-
-- [GNOMES_MATRIX.md](./GNOMES_MATRIX.md) — matrix SSOT, role taxonomy, blend and dominance controls
-- [GNOMES_GOVERNANCE.md](./GNOMES_GOVERNANCE.md) — authority, activation process, and change control
-- [GNOMES_LORE_UNITS.md](./GNOMES_LORE_UNITS.md) — retrieval unit contract
-- [LORE.md](./LORE.md) — origin and symbolic world logic
-- [PERSONA.md](./PERSONA.md) — persona matrix and voice discipline
-
-## Runtime + Prompt Integration
-
-- Runtime profiles: `data/gnomes/*.yaml`
-- Profile schema: `schemas/gnome_profile.schema.json`
-- Prompt fragments: `prompts/fragments/gnomes/*.md`
-- Lore retrieval units: `memory/lore/lore_units.approved.jsonl`
+For new implementation work:
+- prefer **embodiment** over persona/gnome terminology,
+- prefer **glyph** over sigil where the target system is authoritative,
+- prefer **semantic symbiont orchestration** over older voice/persona-only language,
+- treat GNOMES/GORKY documents as compatibility or archival inputs unless explicitly promoted.

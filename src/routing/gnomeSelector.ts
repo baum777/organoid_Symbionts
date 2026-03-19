@@ -1,9 +1,8 @@
 /**
- * Gnome Selector — Select the appropriate gnome per interaction
+ * Gnome Selector — legacy compatibility selector for interaction identities.
  *
- * Phase-2: Scores gnomes by intent match, aggression range, affinity.
- * Safe fallback order uses defensive gnomes from registry fallback chain.
- * Deterministic for identical inputs.
+ * TODO(ORGANOID-MIGRATION): Replace gnome-specific naming once downstream runtime imports have
+ * switched to the embodiment-compatible aliases exported from this module.
  */
 
 import { getGnome, getAllGnomes, getFallbackChain } from "../gnomes/registry.js";
@@ -37,36 +36,32 @@ export interface GnomeSelectionResult {
   cameoCandidates?: string[];
 }
 
+export type EmbodimentSelectionCandidate = GnomeSelectionCandidate;
+export type EmbodimentSelectionResult = GnomeSelectionResult;
+
 const CONFIDENCE_THRESHOLD = 0.5;
 
-/**
- * Score a gnome for this interaction (deterministic).
- */
+/** Score a gnome for this interaction (deterministic). */
 function scoreGnome(profile: GnomeProfile, features: SelectorFeatures, affinity: number): number {
   let score = 0.5;
 
-  // Intent match (routing_hints.preferred_intents)
   const preferred = profile.routing_hints?.preferred_intents ?? [];
   if (preferred.length && preferred.includes(features.intent)) score += 0.25;
   else if (profile.archetype === "chaos_roaster" && ["hype_claim", "launch_announcement", "meme_only"].includes(features.intent)) score += 0.2;
   else if (profile.archetype === "dry_observer" && ["question", "persona_query", "lore_query"].includes(features.intent)) score += 0.2;
 
-  // Aggression range
   const aggrRange = profile.routing_hints?.aggression_range;
   if (aggrRange) {
     const [lo, hi] = aggrRange;
     if (features.aggressionScore >= lo && features.aggressionScore <= hi) score += 0.15;
   }
 
-  // User affinity (prefer gnomes user has interacted with positively)
   score += Math.min(affinity * 0.2, 0.2);
 
-  // Absurdity: chaos_roaster/chaotic_reactor thrive on high absurdity
   if (features.absurdityScore > 0.6 && ["chaos_roaster", "chaotic_reactor"].includes(profile.archetype)) score += 0.1;
 
   return Math.min(score, 1);
 }
-
 
 export function computeRuleBasedScores(
   features: SelectorFeatures,
@@ -116,7 +111,6 @@ export function selectGnome(
 
   const fallbackChain = getFallbackChain();
 
-  // Score each gnome (deterministic: stable sort by id then by score)
   const scored: GnomeSelectionCandidate[] = all
     .map((p) => {
       const ruleBasedScore = scoreGnome(p, features, affinityMap[p.id] ?? 0);
@@ -164,7 +158,6 @@ export function selectGnome(
 
   const alternatives = scored.filter((c) => c.gnomeId !== selectedId).slice(0, 3);
 
-  // Phase-3: Add cameoCandidates when swarm enabled and energy/absurdity thresholds met
   let cameoCandidates: string[] | undefined;
   if (opts?.swarmEnabled && opts?.maxCameos && opts.maxCameos > 0) {
     const conversationEnergy = features.relevanceScore * (features.absurdityScore > 0.5 ? 1.2 : 1);
@@ -195,4 +188,12 @@ export function selectGnome(
     explainability: opts?.semanticExplainByGnome?.[selectedId] ?? { anchors: [], boundaries: [], reasons: [] },
     cameoCandidates,
   };
+}
+
+export function selectEmbodiment(
+  features: SelectorFeatures,
+  responseMode: CanonicalMode,
+  opts?: Parameters<typeof selectGnome>[2],
+): EmbodimentSelectionResult {
+  return selectGnome(features, responseMode, opts);
 }

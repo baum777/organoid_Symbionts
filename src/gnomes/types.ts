@@ -1,5 +1,8 @@
 /**
- * Gnome types — Character profile definitions for multi-voice ensemble.
+ * Gnome types — legacy compatibility profile definitions for the pre-Organoid identity layer.
+ *
+ * TODO(ORGANOID-MIGRATION): Replace the remaining gnome/persona naming with the canonical
+ * Organoid embodiment model once downstream runtime/config consumers have been migrated.
  */
 
 export type GnomeArchetype =
@@ -73,6 +76,18 @@ export interface GnomeProfile {
   canonical_examples?: string[];
 }
 
+/**
+ * Organoid compatibility aliases.
+ *
+ * These aliases intentionally preserve the existing runtime structure while giving new code a
+ * migration-safe vocabulary. Do not assume the legacy fields are already semantically perfect.
+ */
+export type OrganoidEmbodimentProfile = GnomeProfile;
+export type OrganoidGlyph = GnomeSigil;
+export type EmbodimentRoutingHints = RoutingHints;
+export type EmbodimentMemoryRules = MemoryRules;
+export type EmbodimentRelationHints = RelationHints;
+
 function isStringArray(v: unknown): v is string[] {
   return Array.isArray(v) && v.every((x) => typeof x === "string");
 }
@@ -114,3 +129,5 @@ export function isGnomeProfile(v: unknown): v is GnomeProfile {
         isOptionalStringArray(relationHints.stabilizes_with)))
   );
 }
+
+export const isOrganoidEmbodimentProfile = isGnomeProfile;

@@ -1,10 +1,17 @@
 /**
- * Gnome Registry Tests — Load and lookup gnome profiles
+ * Gnome Registry Tests — Load and lookup compatibility profiles.
  */
 
 import { describe, it, expect, beforeEach } from "vitest";
-import { clearRegistry, getGnome, getAllGnomes, getFallbackChain } from "../../src/gnomes/registry.js";
-import { loadGnomes } from "../../src/gnomes/loadGnomes.js";
+import {
+  clearRegistry,
+  getGnome,
+  getAllGnomes,
+  getFallbackChain,
+  getEmbodiment,
+  getAllEmbodiments,
+} from "../../src/gnomes/registry.js";
+import { loadEmbodiments, loadGnomes } from "../../src/gnomes/loadGnomes.js";
 
 describe("Gnome Registry", () => {
   beforeEach(() => {
@@ -15,9 +22,9 @@ describe("Gnome Registry", () => {
     expect(getAllGnomes()).toEqual([]);
   });
 
-  it("loads gnomes from data/gnomes/*.yaml", async () => {
+  it("loads compatibility profiles from data/gnomes/*.yaml", async () => {
     const profiles = await loadGnomes();
-    expect(profiles.length).toBeGreaterThanOrEqual(1);
+    expect(profiles.length).toBeGreaterThanOrEqual(7);
 
     const firstId = profiles[0]?.id;
     expect(firstId).toBeDefined();
@@ -26,7 +33,7 @@ describe("Gnome Registry", () => {
     const loaded = getGnome(firstId);
     expect(loaded).toBeDefined();
     expect(loaded?.id).toBe(firstId);
-    expect(loaded?.name).toBeTruthy();
+    expect(loaded?.name).toContain("-");
     expect(loaded?.role).toBeTruthy();
   });
 
@@ -44,5 +51,11 @@ describe("Gnome Registry", () => {
 
     expect(getGnome(sampleId.toUpperCase())).toBeDefined();
     expect(getGnome(sampleId.toLowerCase())).toBeDefined();
+  });
+
+  it("loads embodiment aliases without breaking legacy registry access", async () => {
+    const profiles = await loadEmbodiments();
+    expect(getAllEmbodiments().length).toBe(profiles.length);
+    expect(getEmbodiment("stillhalter")?.name).toBe("■-Stabil-Core");
   });
 });

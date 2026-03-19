@@ -1,13 +1,16 @@
 /**
- * Load Gnomes — Load gnome profiles from data/gnomes/*.yaml
+ * Load Gnomes — load compatibility profiles from data/gnomes/*.yaml.
+ *
+ * TODO(ORGANOID-MIGRATION): move the canonical storage path once embodiment-native loading is
+ * fully wired. For now, the YAML files may contain Organoid-led names while keeping legacy ids.
  */
 
 import { readdir, readFile } from "node:fs/promises";
 import { join } from "node:path";
 import yaml from "js-yaml";
 import { DATA_DIR } from "../config/dataDir.js";
-import { registerGnome } from "./registry.js";
-import { isGnomeProfile, type GnomeProfile } from "./types.js";
+import { registerEmbodiment, registerGnome } from "./registry.js";
+import { isGnomeProfile, type GnomeProfile, type OrganoidEmbodimentProfile } from "./types.js";
 
 const GNOMES_DATA_DIR = "gnomes";
 
@@ -53,6 +56,12 @@ export async function loadGnomes(): Promise<GnomeProfile[]> {
     throw new Error(`Invalid gnome profiles: ${errors.join("; ")}`);
   }
 
+  return profiles;
+}
+
+export async function loadEmbodiments(): Promise<OrganoidEmbodimentProfile[]> {
+  const profiles = await loadGnomes();
+  for (const profile of profiles) registerEmbodiment(profile);
   return profiles;
 }
 
