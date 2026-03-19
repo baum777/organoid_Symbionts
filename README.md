@@ -20,6 +20,14 @@ The repo is migrating away from the older **GNOMES / GORKY persona stack** towar
 - **Runtime-compatible:** legacy `gnome`, `persona`, and `sigil` names still exist in code paths that have not yet been safely refactored
 - **Retrieval-friendly:** semantic records, lore/memory, and routing structures can be regenerated into the new system instead of blindly rewritten
 
+## Whitepaper Context
+
+The canonical introduction docs for the current Organoid model live in:
+- `docs/lore/WHITEPAPER_INTRO.md` — German introduction whitepaper
+- `docs/lore/WHITEPAPER_INTRO_EN.md` — English 1:1 introduction whitepaper
+
+These docs describe the seven entities, their traits, interaction layers, and the phase-based concept model in a format intended for onboarding and canonical reference.
+
 ## Confirmed Embodiments
 
 | Legacy lineage | Target embodiment | Glyph | Primary semantic function |

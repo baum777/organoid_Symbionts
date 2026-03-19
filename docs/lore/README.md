@@ -16,6 +16,8 @@ The repo still contains legacy GNOMES/GORKY naming in runtime code, prompts, tes
 
 - [ORGANOID_EMBODIMENTS.md](./ORGANOID_EMBODIMENTS.md) — confirmed embodiments, glyphs, phase model, and uncertain areas
 - [GNOMES_MATRIX.md](./GNOMES_MATRIX.md) — migration-era matrix SSOT, now Organoid-first despite the legacy filename
+- [WHITEPAPER_INTRO.md](./WHITEPAPER_INTRO.md) — introduction whitepaper for entities, traits, interaction layers, and concept framing
+- [WHITEPAPER_INTRO_EN.md](./WHITEPAPER_INTRO_EN.md) — English 1:1 introduction whitepaper for the same canonical content
 - [GNOMES_GOVERNANCE.md](./GNOMES_GOVERNANCE.md) — still legacy-leaning; review in later waves
 - [GNOMES_LORE_UNITS.md](./GNOMES_LORE_UNITS.md) — retrieval unit contract, pending terminology migration
 - [LORE.md](./LORE.md) — symbolic world logic, pending target-system consolidation
