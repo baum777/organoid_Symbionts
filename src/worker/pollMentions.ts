@@ -68,6 +68,7 @@ import {
 import {
   buildEngagementCandidate,
   buildRawTriggerInputFromMention,
+  maybeBuildConversationBundle,
   toCanonicalExecutionInput,
 } from "../engagement/candidateBoundary.js";
 import {
@@ -334,7 +335,29 @@ export async function processCanonicalMention(
 
   const rawTriggerInput = buildRawTriggerInputFromMention(mention, source);
   const engagementCandidate = buildEngagementCandidate(rawTriggerInput);
-  const event = toCanonicalExecutionInput(engagementCandidate);
+  const conversationBundle = maybeBuildConversationBundle({
+    candidate: engagementCandidate,
+    sourceTweet: {
+      tweetId: engagementCandidate.tweetId,
+      conversationId: engagementCandidate.conversationId,
+      authorId: engagementCandidate.authorId,
+      normalizedText: engagementCandidate.normalizedText,
+      discoveredAt: engagementCandidate.discoveredAt,
+    },
+    authorContext: {
+      authorId: engagementCandidate.authorId,
+      authorHandle:
+        typeof rawTriggerInput.metadata?.authorHandle === "string"
+          ? rawTriggerInput.metadata.authorHandle
+          : undefined,
+      sourceAccount:
+        typeof rawTriggerInput.metadata?.source === "string"
+          ? rawTriggerInput.metadata.source
+          : undefined,
+    },
+    sourceMetadata: rawTriggerInput.metadata,
+  });
+  const event = toCanonicalExecutionInput(engagementCandidate, conversationBundle);
   const config = configOverride ?? DEFAULT_CANONICAL_CONFIG;
   const compliance = readEngagementComplianceConfig();
   const interactionKey = buildInteractionKey({

@@ -13,6 +13,7 @@ import type { TimelineCandidate } from "../engagement/types.js";
 import {
   buildEngagementCandidate,
   buildRawTriggerInputFromTimelineCandidate,
+  maybeBuildConversationBundle,
   toCanonicalExecutionInput,
 } from "../engagement/candidateBoundary.js";
 import { logInfo, logWarn } from "../ops/logger.js";
@@ -365,7 +366,29 @@ export async function runTimelineEngagementIteration(): Promise<TimelineIteratio
         markPipelineEntered();
         const rawTriggerInput = buildRawTriggerInputFromTimelineCandidate(candidate);
         const engagementCandidate = buildEngagementCandidate(rawTriggerInput);
-        const event = toCanonicalExecutionInput(engagementCandidate);
+        const conversationBundle = maybeBuildConversationBundle({
+          candidate: engagementCandidate,
+          sourceTweet: {
+            tweetId: engagementCandidate.tweetId,
+            conversationId: engagementCandidate.conversationId,
+            authorId: engagementCandidate.authorId,
+            normalizedText: engagementCandidate.normalizedText,
+            discoveredAt: engagementCandidate.discoveredAt,
+          },
+          authorContext: {
+            authorId: engagementCandidate.authorId,
+            authorHandle:
+              typeof rawTriggerInput.metadata?.authorHandle === "string"
+                ? rawTriggerInput.metadata.authorHandle
+                : undefined,
+            sourceAccount:
+              typeof rawTriggerInput.metadata?.sourceAccount === "string"
+                ? rawTriggerInput.metadata.sourceAccount
+                : undefined,
+          },
+          sourceMetadata: rawTriggerInput.metadata,
+        });
+        const event = toCanonicalExecutionInput(engagementCandidate, conversationBundle);
         const result = await handleEvent(event, deps, {
           ...DEFAULT_CANONICAL_CONFIG,
           model_id: DEFAULT_CANONICAL_CONFIG.model_id,
