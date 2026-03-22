@@ -6,7 +6,6 @@ import {
   toCanonicalExecutionInput,
 } from "../../src/engagement/candidateBoundary.js";
 import {
-  buildConversationParentRef,
   maybeBuildConversationBundle,
 } from "../../src/engagement/conversationBundle.js";
 
@@ -20,16 +19,13 @@ describe("candidateBoundary", () => {
       conversation_id: "conv-1",
       created_at: "2026-03-22T10:00:00.000Z",
       in_reply_to_user_id: "bot-1",
+      referenced_tweets: [{ type: "replied_to", id: "parent-mention-1" }],
     } as const;
 
     const raw = buildRawTriggerInputFromMention(mention, "mentions");
     const candidate = buildEngagementCandidate(raw);
     const bundle = maybeBuildConversationBundle({
       candidate,
-      parentRef: buildConversationParentRef({
-        tweetId: "parent-mention-1",
-        conversationId: candidate.conversationId,
-      }),
       sourceTweet: {
         tweetId: candidate.tweetId,
         conversationId: candidate.conversationId,
@@ -50,6 +46,8 @@ describe("candidateBoundary", () => {
     expect(raw.sourceEventId).toBe("mention-1");
     expect(candidate.candidateId).toBe("mention-1");
     expect(candidate.normalizedText).toBe("Hello @Gnomes_onchain, can you help?");
+    expect(raw.parentRef?.tweetId).toBe("parent-mention-1");
+    expect(candidate.parentRef?.tweetId).toBe("parent-mention-1");
     expect(bundle?.sourceTweet?.tweetId).toBe("mention-1");
     expect(bundle?.parentRef?.tweetId).toBe("parent-mention-1");
     expect(bundle?.authorContext?.authorHandle).toBe("Alice");
@@ -73,7 +71,7 @@ describe("candidateBoundary", () => {
       replyCount: 0,
       likeCount: 0,
       quoteCount: 0,
-      referencedTweetIds: [],
+      referencedTweetIds: ["parent-tweet-1"],
       sourceAccount: "bob",
       contextSignals: [],
       threadSignals: [],
@@ -100,10 +98,6 @@ describe("candidateBoundary", () => {
     const candidate = buildEngagementCandidate(raw);
     const bundle = maybeBuildConversationBundle({
       candidate,
-      parentRef: buildConversationParentRef({
-        tweetId: "parent-tweet-1",
-        conversationId: candidate.conversationId,
-      }),
       sourceTweet: {
         tweetId: candidate.tweetId,
         conversationId: candidate.conversationId,
@@ -124,6 +118,8 @@ describe("candidateBoundary", () => {
     expect(raw.sourceEventId).toBe("timeline:tweet-1");
     expect(candidate.candidateId).toBe("timeline:tweet-1");
     expect(candidate.normalizedText).toBe("A thoughtful timeline reply with a clear question?");
+    expect(raw.parentRef?.tweetId).toBe("parent-tweet-1");
+    expect(candidate.parentRef?.tweetId).toBe("parent-tweet-1");
     expect(bundle?.sourceTweet?.tweetId).toBe("tweet-1");
     expect(bundle?.parentRef?.tweetId).toBe("parent-tweet-1");
     expect(bundle?.authorContext?.sourceAccount).toBe("timeline");
@@ -140,6 +136,10 @@ describe("candidateBoundary", () => {
       tweetId: "mention-2",
       conversationId: "conv-3",
       authorId: "author-3",
+      parentRef: {
+        tweetId: "parent-2",
+        conversationId: "conv-3",
+      },
       discoveredAt: "2026-03-22T12:00:00.000Z",
       rawText: "Hello there",
       metadata: { authorHandle: "alice", sourceAccount: "mentions" },
@@ -148,15 +148,42 @@ describe("candidateBoundary", () => {
 
     const bundle = maybeBuildConversationBundle({
       candidate,
-      parentRef: buildConversationParentRef({
-        tweetId: "parent-2",
-        conversationId: candidate.conversationId,
-      }),
     });
 
     expect(bundle?.sourceTweet?.tweetId).toBe("mention-2");
     expect(bundle?.parentRef?.tweetId).toBe("parent-2");
     expect(bundle?.authorContext?.authorId).toBe("author-3");
     expect(bundle?.sourceMetadata?.authorHandle).toBe("alice");
+  });
+
+  it("keeps the bundle sparse when no cheap parent hint is present", () => {
+    const raw = {
+      triggerType: "mention" as const,
+      sourceEventId: "mention-3",
+      tweetId: "mention-3",
+      conversationId: undefined,
+      authorId: "author-4",
+      discoveredAt: "2026-03-22T12:30:00.000Z",
+      rawText: "Hello there",
+      metadata: { authorHandle: "alice", sourceAccount: "mentions" },
+    };
+    const candidate = buildEngagementCandidate(raw);
+
+    const bundle = maybeBuildConversationBundle({
+      candidate,
+      sourceTweet: {
+        tweetId: candidate.tweetId,
+        conversationId: candidate.conversationId,
+        authorId: candidate.authorId,
+        normalizedText: candidate.normalizedText,
+        discoveredAt: candidate.discoveredAt,
+      },
+      sourceMetadata: raw.metadata,
+    });
+
+    expect(raw.parentRef).toBeUndefined();
+    expect(candidate.parentRef).toBeUndefined();
+    expect(bundle?.parentRef).toBeUndefined();
+    expect(bundle?.sourceTweet?.tweetId).toBe("mention-3");
   });
 });

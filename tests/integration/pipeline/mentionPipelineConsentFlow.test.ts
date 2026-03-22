@@ -17,6 +17,13 @@ const buildRawTriggerInputMock = vi.fn((mention: Mention, source: "mentions" | "
   tweetId: mention.id,
   conversationId: mention.conversation_id,
   authorId: mention.author_id,
+  parentRef: mention.referenced_tweets?.find((ref) => ref.type === "replied_to" || ref.type === "quoted")
+    ? {
+        tweetId: mention.referenced_tweets?.find((ref) => ref.type === "replied_to" || ref.type === "quoted")
+          ?.id,
+        conversationId: mention.conversation_id ?? undefined,
+      }
+    : undefined,
   discoveredAt: mention.created_at ?? new Date().toISOString(),
   rawText: mention.text,
   metadata: {
@@ -28,6 +35,7 @@ const buildEngagementCandidateMock = vi.fn((raw: { sourceEventId?: string; tweet
   candidateId: raw.sourceEventId ?? raw.tweetId,
   triggerType: "mention" as const,
   tweetId: raw.tweetId,
+  parentRef: (raw as { parentRef?: { tweetId?: string; conversationId?: string; authorId?: string } }).parentRef,
   normalizedText: raw.rawText?.trim() ?? "",
   discoveredAt: new Date().toISOString(),
 }));
@@ -37,6 +45,11 @@ const maybeBuildConversationBundleMock = vi.fn(
       tweetId: string;
       conversationId?: string;
       authorId?: string;
+      parentRef?: {
+        tweetId?: string;
+        conversationId?: string;
+        authorId?: string;
+      };
       normalizedText: string;
       discoveredAt: string;
       sourceMetadata?: Record<string, unknown>;
@@ -53,6 +66,11 @@ const maybeBuildConversationBundleMock = vi.fn(
       authorHandle?: string;
       sourceAccount?: string;
     };
+    parentRef?: {
+      tweetId?: string;
+      conversationId?: string;
+      authorId?: string;
+    };
     sourceMetadata?: Record<string, unknown>;
   }) => ({
     sourceTweet:
@@ -63,11 +81,56 @@ const maybeBuildConversationBundleMock = vi.fn(
         normalizedText: input.candidate.normalizedText,
         discoveredAt: input.candidate.discoveredAt,
       },
-    parentRef: input.parentRef,
+    parentRef: input.parentRef ?? input.candidate.parentRef,
     authorContext: input.authorContext,
     sourceMetadata: input.sourceMetadata ?? input.candidate.sourceMetadata,
   })
 );
+const assembleSignalProfileMock = vi.fn((candidate: { candidateId: string }) => ({
+  relevance: {
+    topicFit: "MEDIUM",
+    technicalDepth: "LOW",
+    discourseFit: "HIGH",
+    offTopicRisk: "LOW",
+  },
+  attention: {
+    freshnessBucket: "very_fresh",
+    replyDensity: "HIGH",
+    visibleMomentum: "LOW",
+    discussionState: "alive",
+    publicVisibilityLevel: "MEDIUM",
+  },
+  participationFit: {
+    threadOpenness: "HIGH",
+    entryPlausibility: "HIGH",
+    roomForUsefulContribution: "MEDIUM",
+    closedSocialExchangeRisk: "LOW",
+    broadcastVsDialogueState: "open_dialogue",
+    lateEntryRisk: "LOW",
+  },
+  risk: {
+    adversarialConflictRisk: "LOW",
+    ragebaitOrMemeRisk: "LOW",
+    opportunisticReplyRisk: "LOW",
+    pileOnRisk: "LOW",
+    lowSubstanceRisk: "LOW",
+    intimacyOrClosedGroupRisk: "LOW",
+  },
+  meta: {
+    authorTypeGuess: "layperson",
+    substanceLevel: "MEDIUM",
+    dialogueState: "open_dialogue",
+    conversationForm: "NARROW_THREAD",
+  },
+  reasons: [`candidate:${candidate.candidateId}`],
+  evidenceStatus: {
+    relevance: "heuristic",
+    attention: "derived",
+    participationFit: "heuristic",
+    risk: "heuristic",
+    meta: "heuristic",
+  },
+}));
 const toCanonicalExecutionInputMock = vi.fn(() => ({
   event_id: "mention-event",
   platform: "twitter" as const,
@@ -115,6 +178,10 @@ vi.mock("../../../src/engagement/conversationBundle.js", () => ({
   buildConversationParentRef: (hint: { tweetId?: string; conversationId?: string; authorId?: string }) =>
     hint?.tweetId || hint?.conversationId || hint?.authorId ? hint : undefined,
   maybeBuildConversationBundle: maybeBuildConversationBundleMock,
+}));
+
+vi.mock("../../../src/engagement/signalProfile.js", () => ({
+  assembleSignalProfile: assembleSignalProfileMock,
 }));
 
 vi.mock("../../../src/config/engagementComplianceConfig.js", () => ({
@@ -190,12 +257,13 @@ describe("mention pipeline consent flow", () => {
     expect(buildRawTriggerInputMock).toHaveBeenCalledTimes(1);
     expect(buildEngagementCandidateMock).toHaveBeenCalledTimes(1);
     expect(maybeBuildConversationBundleMock).toHaveBeenCalledTimes(1);
-    expect(maybeBuildConversationBundleMock.mock.calls[0]?.[0].parentRef).toMatchObject({
+    expect(maybeBuildConversationBundleMock.mock.calls[0]?.[0].candidate.parentRef).toMatchObject({
       tweetId: "bot-1",
       conversationId: "conv-1",
     });
+    expect(assembleSignalProfileMock).toHaveBeenCalledTimes(1);
     expect(toCanonicalExecutionInputMock).toHaveBeenCalledTimes(1);
-    expect(toCanonicalExecutionInputMock.mock.calls[0]?.[1]).toBeDefined();
+    expect(toCanonicalExecutionInputMock.mock.calls[0]?.[1].signalProfile).toBeDefined();
   });
 
   it("holds a valid candidate when budget is exhausted", async () => {
