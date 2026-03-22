@@ -1,4 +1,5 @@
 import type { EngagementCandidate } from "./candidateBoundary.js";
+import type { SignalProfile } from "./signalProfile.js";
 
 export interface ConversationSourceTweet {
   tweetId: string;
@@ -25,12 +26,19 @@ export interface ConversationBundle {
   parentRef?: ConversationParentRef;
   authorContext?: ConversationAuthorContext;
   sourceMetadata?: Record<string, unknown>;
+  signalProfile?: SignalProfile;
 }
 
 export interface ConversationBundleInput {
   candidate: Pick<
     EngagementCandidate,
-    "tweetId" | "conversationId" | "authorId" | "normalizedText" | "discoveredAt" | "sourceMetadata"
+    | "tweetId"
+    | "conversationId"
+    | "authorId"
+    | "normalizedText"
+    | "discoveredAt"
+    | "sourceMetadata"
+    | "parentRef"
   >;
   sourceTweet?: ConversationSourceTweet;
   parentRef?: ConversationParentRef;
@@ -99,9 +107,10 @@ export function buildConversationParentRef(
 }
 
 export function maybeBuildConversationBundle(input: ConversationBundleInput): ConversationBundle | undefined {
+  const parentRef = input.parentRef ?? input.candidate.parentRef;
   const bundle: ConversationBundle = {
     sourceTweet: buildSourceTweet(input),
-    parentRef: input.parentRef,
+    parentRef,
     authorContext: buildAuthorContext(input),
   };
 

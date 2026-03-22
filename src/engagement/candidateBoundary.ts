@@ -1,7 +1,7 @@
 import type { Mention } from "../poller/mentionsMapper.js";
 import type { CanonicalEvent, TriggerType } from "../canonical/types.js";
 import type { TimelineCandidate } from "./types.js";
-import type { ConversationBundle } from "./conversationBundle.js";
+import { buildConversationParentRef, type ConversationBundle } from "./conversationBundle.js";
 
 export interface RawTriggerInput {
   triggerType: "mention" | "timeline";
@@ -9,6 +9,7 @@ export interface RawTriggerInput {
   tweetId: string;
   conversationId?: string;
   authorId?: string;
+  parentRef?: ConversationBundle["parentRef"];
   discoveredAt: string;
   rawText?: string;
   metadata?: Record<string, unknown>;
@@ -20,6 +21,7 @@ export interface EngagementCandidate {
   tweetId: string;
   conversationId?: string;
   authorId?: string;
+  parentRef?: ConversationBundle["parentRef"];
   normalizedText: string;
   discoveredAt: string;
   sourceMetadata?: Record<string, unknown>;
@@ -69,12 +71,17 @@ export function buildRawTriggerInputFromMention(
   mention: Mention,
   source: "mentions" | "search"
 ): RawTriggerInput {
+  const parentTweetId = mention.referenced_tweets?.find((ref) => ref.type === "replied_to" || ref.type === "quoted")?.id;
   return {
     triggerType: "mention",
     sourceEventId: mention.id,
     tweetId: mention.id,
     conversationId: mention.conversation_id ?? undefined,
     authorId: mention.author_id,
+    parentRef: buildConversationParentRef({
+      tweetId: parentTweetId,
+      conversationId: mention.conversation_id ?? undefined,
+    }),
     discoveredAt: mention.created_at ?? new Date().toISOString(),
     rawText: mention.text,
     metadata: {
@@ -92,6 +99,10 @@ export function buildRawTriggerInputFromTimelineCandidate(candidate: TimelineCan
     tweetId: candidate.tweetId,
     conversationId: candidate.conversationId,
     authorId: candidate.authorId,
+    parentRef: buildConversationParentRef({
+      tweetId: candidate.referencedTweetIds[0],
+      conversationId: candidate.conversationId,
+    }),
     discoveredAt: candidate.createdAt,
     rawText: candidate.text,
     metadata: {
@@ -112,6 +123,7 @@ export function buildEngagementCandidate(raw: RawTriggerInput): EngagementCandid
     tweetId: raw.tweetId,
     conversationId: raw.conversationId,
     authorId: raw.authorId,
+    parentRef: raw.parentRef,
     normalizedText: normalizeText(raw.rawText),
     discoveredAt: raw.discoveredAt,
     sourceMetadata: raw.metadata,
