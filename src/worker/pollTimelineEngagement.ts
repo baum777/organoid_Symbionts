@@ -16,9 +16,9 @@ import {
   toCanonicalExecutionInput,
 } from "../engagement/candidateBoundary.js";
 import {
-  buildConversationParentRef,
   maybeBuildConversationBundle,
 } from "../engagement/conversationBundle.js";
+import { assembleSignalProfile } from "../engagement/signalProfile.js";
 import { logInfo, logWarn } from "../ops/logger.js";
 import { isPostingDisabled } from "../ops/launchGate.js";
 import { withCircuitBreaker } from "../ops/llmCircuitBreaker.js";
@@ -371,10 +371,6 @@ export async function runTimelineEngagementIteration(): Promise<TimelineIteratio
         const engagementCandidate = buildEngagementCandidate(rawTriggerInput);
         const conversationBundle = maybeBuildConversationBundle({
           candidate: engagementCandidate,
-          parentRef: buildConversationParentRef({
-            tweetId: candidate.referencedTweetIds[0],
-            conversationId: candidate.conversationId,
-          }),
           sourceTweet: {
             tweetId: engagementCandidate.tweetId,
             conversationId: engagementCandidate.conversationId,
@@ -395,7 +391,11 @@ export async function runTimelineEngagementIteration(): Promise<TimelineIteratio
           },
           sourceMetadata: rawTriggerInput.metadata,
         });
-        const event = toCanonicalExecutionInput(engagementCandidate, conversationBundle);
+        const signalProfile = assembleSignalProfile(engagementCandidate, conversationBundle);
+        const event = toCanonicalExecutionInput(engagementCandidate, {
+          ...conversationBundle,
+          signalProfile,
+        });
         const result = await handleEvent(event, deps, {
           ...DEFAULT_CANONICAL_CONFIG,
           model_id: DEFAULT_CANONICAL_CONFIG.model_id,

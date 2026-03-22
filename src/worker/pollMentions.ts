@@ -71,9 +71,9 @@ import {
   toCanonicalExecutionInput,
 } from "../engagement/candidateBoundary.js";
 import {
-  buildConversationParentRef,
   maybeBuildConversationBundle,
 } from "../engagement/conversationBundle.js";
+import { assembleSignalProfile } from "../engagement/signalProfile.js";
 import {
   runWritePreflight,
   releaseWritePreflight,
@@ -340,12 +340,6 @@ export async function processCanonicalMention(
   const engagementCandidate = buildEngagementCandidate(rawTriggerInput);
   const conversationBundle = maybeBuildConversationBundle({
     candidate: engagementCandidate,
-    parentRef: buildConversationParentRef({
-      tweetId:
-        mention.referenced_tweets?.find((ref) => ref.type === "replied_to" || ref.type === "quoted")
-          ?.id,
-      conversationId: mention.conversation_id ?? undefined,
-    }),
     sourceTweet: {
       tweetId: engagementCandidate.tweetId,
       conversationId: engagementCandidate.conversationId,
@@ -366,7 +360,11 @@ export async function processCanonicalMention(
     },
     sourceMetadata: rawTriggerInput.metadata,
   });
-  const event = toCanonicalExecutionInput(engagementCandidate, conversationBundle);
+  const signalProfile = assembleSignalProfile(engagementCandidate, conversationBundle);
+  const event = toCanonicalExecutionInput(engagementCandidate, {
+    ...conversationBundle,
+    signalProfile,
+  });
   const config = configOverride ?? DEFAULT_CANONICAL_CONFIG;
   const compliance = readEngagementComplianceConfig();
   const interactionKey = buildInteractionKey({
