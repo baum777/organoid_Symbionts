@@ -248,6 +248,40 @@ how to tune back.
 
 ---
 
+## compliance-first engagement layer
+
+The X engagement path is now guarded by a dedicated consent / energy / decision layer.
+
+### What it does
+
+- evaluates whether interaction is allowed at all
+- scores whether the current signal is strong enough to consider
+- blocks writes unless auth, approval, budget, and duplicate checks all pass
+
+### Decision states
+
+- `SKIP` - no generation, no write
+- `HOLD` - retain candidate, but do not write
+- `REVIEW` - candidate may be rechecked, but still does not write yet
+- `ENGAGE` - the only state that may reach generation and write preflight
+- `BLOCK` - hard fail-closed state for opt-out, auth, approval, or policy violations
+
+### Guardrails
+
+- no consent means no engagement
+- opt-out always wins
+- search-only and keyword-only candidates never create consent
+- AI-generated replies require explicit approval
+- duplicate interactions are interaction-bounded, not just tweet-id-bounded
+- writes are preflighted before publish
+
+### Documentation
+
+- [consent / energy / decision layer](docs/compliance/consent-energy-decision.md)
+- [compliance test spec](docs/compliance/compliance-test-spec.md)
+
+---
+
 🧬 tl;dr
 
 this is:

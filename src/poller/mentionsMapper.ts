@@ -75,7 +75,9 @@ function mapTweetToMention(
 
   // Get in_reply_to_user_id if this is a reply
   const inReplyToUserId =
-    referencedTweets?.find((r) => r.type === "replied_to")?.id ?? null;
+    (tweet as unknown as { in_reply_to_user_id?: string | null }).in_reply_to_user_id ??
+    referencedTweets?.find((r) => r.type === "replied_to")?.id ??
+    null;
 
   if (!authorUsername) {
     console.warn(`[WARN] authorUsername missing for mention ${tweet.id}`);

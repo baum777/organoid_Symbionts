@@ -12,6 +12,7 @@ import { createXClient } from "../clients/xClient.js";
 import { checkXConfigHealth } from "../clients/xClientConfig.js";
 import { invokeXApiRequest } from "../clients/xApi.js";
 import { createUnifiedLLMClient } from "../clients/llmClient.unified.js";
+import { readEngagementComplianceConfig } from "../config/engagementComplianceConfig.js";
 import {
   mapMentionsResponse,
   MENTIONS_FETCH_OPTIONS,
@@ -25,6 +26,7 @@ import { handleEvent, type PipelineDeps } from "../canonical/pipeline.js";
 import type { CanonicalConfig, CanonicalEvent, PipelineResult } from "../canonical/types.js";
 import { DEFAULT_CANONICAL_CONFIG } from "../canonical/types.js";
 import { logError } from "../ops/logger.js";
+import { checkLLMBudget } from "../state/sharedBudgetGate.js";
 import { shutdownAuditLog, getAuditBufferSize } from "../canonical/auditLog.js";
 import {
   incrementCounter,
@@ -56,6 +58,23 @@ import {
   POLL_LOCK_RETRY_MS,
 } from "../ops/pollLock.js";
 import { logInfo, logWarn } from "../ops/logger.js";
+import { evaluateConsent, type ConsentInput } from "../engagement/consentEvaluator.js";
+import { evaluateEnergy, type EnergyInput } from "../engagement/energyEvaluator.js";
+import { decideEngagement } from "../engagement/engagementDecision.js";
+import {
+  recordConsentDecision,
+  recordEngagementDecision,
+} from "../engagement/complianceMetrics.js";
+import {
+  runWritePreflight,
+  releaseWritePreflight,
+  markWriteHandled,
+} from "../engagement/writePreflight.js";
+import {
+  buildInteractionKey,
+  isInteractionHandled,
+  isInteractionReserved,
+} from "../engagement/interactionLedger.js";
 import { writeInteractionWriteback } from "../memory/writeback/interactionWriteback.js";
 import {
   writeRoutingDecision,
@@ -144,7 +163,7 @@ function adaptForMentionsMapper(response: { tweets?: unknown[]; includes?: unkno
 async function fetchMentionsViaMentionsEndpoint(
   userId: string,
   sinceId: string | null
-): Promise<{ mentions: Mention[]; maxId: string | null }> {
+): Promise<{ mentions: Mention[]; maxId: string | null; source: "mentions" }> {
   const params: Record<string, unknown> = {
     max_results: MENTIONS_FETCH_OPTIONS.max_results,
     expansions: [...MENTIONS_FETCH_OPTIONS.expansions],
@@ -164,13 +183,13 @@ async function fetchMentionsViaMentionsEndpoint(
     uri: `https://api.x.com/2/users/${userId}/mentions?${query.toString()}`,
   });
   const result = mapMentionsResponse(adaptForMentionsMapper(response));
-  return { mentions: result.mentions, maxId: result.maxId };
+  return { mentions: result.mentions, maxId: result.maxId, source: "mentions" };
 }
 
 async function fetchMentionsViaSearch(
   username: string,
   sinceId: string | null
-): Promise<{ mentions: Mention[]; maxId: string | null }> {
+): Promise<{ mentions: Mention[]; maxId: string | null; source: "search" }> {
   const params: Record<string, unknown> = {
     max_results: MENTIONS_FETCH_OPTIONS.max_results,
     expansions: [...MENTIONS_FETCH_OPTIONS.expansions],
@@ -190,13 +209,13 @@ async function fetchMentionsViaSearch(
     uri: `https://api.x.com/2/tweets/search/recent?${searchParams.toString()}`,
   });
   const result = mapMentionsResponse(adaptForMentionsMapper(response));
-  return { mentions: result.mentions, maxId: result.maxId };
+  return { mentions: result.mentions, maxId: result.maxId, source: "search" };
 }
 
 async function fetchMentions(
   userId: string,
   sinceId: string | null
-): Promise<{ mentions: Mention[]; maxId: string | null }> {
+): Promise<{ mentions: Mention[]; maxId: string | null; source: "mentions" | "search" }> {
   if (MENTIONS_SOURCE === "search") {
     return fetchMentionsViaSearch(BOT_USERNAME, sinceId);
   }
@@ -240,11 +259,67 @@ function mentionToCanonicalEvent(mention: Mention): CanonicalEvent {
   };
 }
 
+function normalizeHandle(handle: string | null | undefined): string {
+  return (handle ?? "").toLowerCase().replace(/^@/, "").trim();
+}
+
+function buildMentionConsentInput(params: {
+  mention: Mention;
+  botUserId: string;
+  isSearchDerived: boolean;
+  optInHandles: string[];
+  optOutHandles: string[];
+  priorInteraction: boolean;
+}): ConsentInput {
+  const authorHandle = normalizeHandle(params.mention.authorUsername);
+  const hasExplicitOptIn = authorHandle ? params.optInHandles.includes(authorHandle) : false;
+  const hasOptOut = authorHandle ? params.optOutHandles.includes(authorHandle) : false;
+
+  return {
+    isDirectMention: !params.isSearchDerived,
+    isReplyToBot: params.mention.in_reply_to_user_id === params.botUserId,
+    isQuoteOfBot: (params.mention.referenced_tweets ?? []).some((ref) => ref.type === "quoted"),
+    hasExplicitOptIn,
+    hasOptOut,
+    priorInteraction: params.priorInteraction,
+    isSearchDerived: params.isSearchDerived,
+  };
+}
+
+function buildMentionEnergyInput(mention: Mention): EnergyInput {
+  const text = mention.text ?? "";
+  const words = text.split(/\s+/).filter(Boolean);
+  const replyLike = /\b(can you|could you|please|help|how do i|what is|why is)\b/i.test(text);
+  const directness = mention.in_reply_to_user_id ? 4 : 3;
+  const intent = replyLike || text.includes("?") ? 4 : words.length > 12 ? 2 : 1;
+  const relevance = Math.min(4, Math.max(0, words.length / 8));
+
+  const createdAtMs = mention.created_at ? Date.parse(mention.created_at) : NaN;
+  const ageHours = Number.isFinite(createdAtMs) ? Math.max(0, (Date.now() - createdAtMs) / 3_600_000) : 48;
+  const freshness = ageHours < 1 ? 4 : ageHours < 6 ? 3 : ageHours < 24 ? 2 : ageHours < 72 ? 1 : 0;
+  const legitimacy = mention.conversation_id ? 3 : 1;
+  const friction = /\b(spam|scam|airdrop|follow me|dm me|100x|moon)\b/i.test(text) ? 3 : 0;
+
+  return { directness, intent, relevance, freshness, legitimacy, friction };
+}
+
+function logComplianceDecision(params: {
+  mentionId: string;
+  consentState: string;
+  consentReason: string;
+  energyBand: string;
+  decision: string;
+  reason: string;
+}): void {
+  logInfo("[COMPLIANCE] Mention decision", params);
+}
+
 export async function processCanonicalMention(
   deps: PipelineDeps,
   xClient: ReturnType<typeof createXClient>,
   mention: Mention,
   dryRun: boolean,
+  source: "mentions" | "search",
   configOverride?: typeof DEFAULT_CANONICAL_CONFIG,
 ): Promise<PipelineResult | undefined> {
   if (await isProcessed(mention.id)) {
@@ -280,6 +355,70 @@ export async function processCanonicalMention(
 
   const event = mentionToCanonicalEvent(mention);
   const config = configOverride ?? DEFAULT_CANONICAL_CONFIG;
+  const compliance = readEngagementComplianceConfig();
+  const interactionKey = buildInteractionKey({
+    source: "mention",
+    tweetId: mention.id,
+    authorId: mention.author_id,
+    conversationId: mention.conversation_id,
+  });
+  const priorInteraction = (await isInteractionHandled(interactionKey)) || (await isInteractionReserved(interactionKey));
+  const searchDerived = source === "search";
+  const consent = evaluateConsent(
+    buildMentionConsentInput({
+      mention,
+      botUserId: deps.botUserId,
+      isSearchDerived: searchDerived,
+      optInHandles: compliance.optInHandles,
+      optOutHandles: compliance.optOutHandles,
+      priorInteraction,
+    })
+  );
+  const energy = evaluateEnergy(buildMentionEnergyInput(mention));
+  const budgetCheck = await checkLLMBudget(false);
+  const decision = decideEngagement({
+    consent,
+    energy,
+    alreadyReplied: priorInteraction,
+    hasWriteBudget: budgetCheck.allowed,
+    authValid: Boolean(deps.botUserId),
+    aiApproval: compliance.aiApproval,
+  });
+
+  recordConsentDecision(consent);
+  recordEngagementDecision(decision, consent, energy);
+  logComplianceDecision({
+    mentionId: mention.id,
+    consentState: consent.state,
+    consentReason: consent.reason,
+    energyBand: energy.band,
+    decision: decision.decision,
+    reason: decision.reason,
+  });
+
+  if (decision.decision !== "ENGAGE") {
+    incrementCounter(COUNTER_NAMES.MENTIONS_SKIPPED_TOTAL);
+    console.log(`[COMPLIANCE] ${mention.id}: ${decision.decision} — ${decision.reason}`);
+    await recordMentionSkipped(mention.id);
+    mentionErrorCounts.delete(mention.id);
+    return undefined;
+  }
+
+  const preflight = await runWritePreflight({
+    source: "mention",
+    tweetId: mention.id,
+    authorId: mention.author_id,
+    conversationId: mention.conversation_id,
+    verifyTarget: true,
+  });
+
+  if (!preflight.ok) {
+    incrementCounter(COUNTER_NAMES.MENTIONS_SKIPPED_TOTAL);
+    console.log(`[COMPLIANCE] ${mention.id}: ${preflight.reason} (preflight)`);
+    await recordMentionSkipped(mention.id);
+    mentionErrorCounts.delete(mention.id);
+    return undefined;
+  }
 
   try {
     const result = await handleEvent(event, deps, config);
@@ -287,12 +426,14 @@ export async function processCanonicalMention(
     if (result.action === "skip") {
       incrementCounter(COUNTER_NAMES.MENTIONS_SKIPPED_TOTAL);
       console.log(`[SKIP] ${mention.id}: ${result.skip_reason}`);
+      await releaseWritePreflight(preflight.interactionKey);
       await recordMentionSkipped(mention.id);
       mentionErrorCounts.delete(mention.id);
       return result;
     }
 
     await recordEventProcessed(mention.id);
+    await markWriteHandled(preflight.interactionKey);
 
     const postDecision = shouldPost(mention.authorUsername ?? undefined);
     if (postDecision.action !== "post") {
@@ -379,6 +520,7 @@ export async function processCanonicalMention(
 
     return result;
   } catch (error) {
+    await releaseWritePreflight(preflight.interactionKey);
     incrementCounter(COUNTER_NAMES.MENTIONS_FAILED_TOTAL);
     const currentErrors = mentionErrorCounts.get(mention.id) ?? 0;
     mentionErrorCounts.set(mention.id, currentErrors + 1);
@@ -499,7 +641,7 @@ export async function runWorkerLoop(): Promise<void> {
 
       console.log("\n[POLL] Fetching mentions...");
 
-      const { mentions, maxId } = await fetchMentions(userId, lastSinceId);
+      const { mentions, maxId, source } = await fetchMentions(userId, lastSinceId);
 
       consecutiveFailures = 0;
       setGauge(GAUGE_NAMES.RECENT_FAILURE_STREAK, 0);
@@ -510,7 +652,7 @@ export async function runWorkerLoop(): Promise<void> {
       for (const mention of mentions) {
         const startMs = Date.now();
         try {
-          await processCanonicalMention(pipelineDeps, xClient, mention, dryRun);
+          await processCanonicalMention(pipelineDeps, xClient, mention, dryRun, source);
         } catch (error) {
           console.warn(`[CONTINUE] Moving to next mention after error in ${mention.id}`);
         } finally {

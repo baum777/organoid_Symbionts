@@ -48,12 +48,13 @@ describe("timeline engagement worker", () => {
     handleEventMock.mockClear();
   });
 
-  it("runs scout->rank->policy->generate->publish->writeback and dedupes next run", async () => {
+  it("defaults to skip for timeline candidates without explicit consent", async () => {
     const { runTimelineEngagementIteration } = await import("../../src/worker/pollTimelineEngagement.js");
 
     await runTimelineEngagementIteration();
     await runTimelineEngagementIteration();
 
-    expect(replyMock).toHaveBeenCalledTimes(1);
+    expect(handleEventMock).not.toHaveBeenCalled();
+    expect(replyMock).not.toHaveBeenCalled();
   });
 });
