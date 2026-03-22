@@ -11,6 +11,41 @@ const budgetMock = vi.fn(async () => ({
   used: 0,
   limit: 30,
 }));
+const buildRawTriggerInputMock = vi.fn((mention: Mention, source: "mentions" | "search") => ({
+  triggerType: "mention" as const,
+  sourceEventId: mention.id,
+  tweetId: mention.id,
+  conversationId: mention.conversation_id,
+  authorId: mention.author_id,
+  discoveredAt: mention.created_at ?? new Date().toISOString(),
+  rawText: mention.text,
+  metadata: {
+    source,
+    authorHandle: mention.authorUsername ? `@${mention.authorUsername.toLowerCase()}` : undefined,
+  },
+}));
+const buildEngagementCandidateMock = vi.fn((raw: { sourceEventId?: string; tweetId: string; rawText?: string }) => ({
+  candidateId: raw.sourceEventId ?? raw.tweetId,
+  triggerType: "mention" as const,
+  tweetId: raw.tweetId,
+  normalizedText: raw.rawText?.trim() ?? "",
+  discoveredAt: new Date().toISOString(),
+}));
+const toCanonicalExecutionInputMock = vi.fn(() => ({
+  event_id: "mention-event",
+  platform: "twitter" as const,
+  trigger_type: "mention" as const,
+  author_handle: "@alice",
+  author_id: "author-1",
+  text: "mention reply",
+  parent_text: null,
+  quoted_text: null,
+  conversation_context: [],
+  cashtags: [],
+  hashtags: [],
+  urls: [],
+  timestamp: new Date().toISOString(),
+}));
 
 let complianceConfig = {
   aiApproval: true,
@@ -31,6 +66,12 @@ vi.mock("../../../src/clients/xApi.js", () => ({
 
 vi.mock("../../../src/canonical/pipeline.js", () => ({
   handleEvent: handleEventMock,
+}));
+
+vi.mock("../../../src/engagement/candidateBoundary.js", () => ({
+  buildRawTriggerInputFromMention: buildRawTriggerInputMock,
+  buildEngagementCandidate: buildEngagementCandidateMock,
+  toCanonicalExecutionInput: toCanonicalExecutionInputMock,
 }));
 
 vi.mock("../../../src/config/engagementComplianceConfig.js", () => ({
@@ -103,6 +144,9 @@ describe("mention pipeline consent flow", () => {
     expect(first).toBeDefined();
     expect(second).toBeUndefined();
     expect(replyMock).toHaveBeenCalledTimes(1);
+    expect(buildRawTriggerInputMock).toHaveBeenCalledTimes(1);
+    expect(buildEngagementCandidateMock).toHaveBeenCalledTimes(1);
+    expect(toCanonicalExecutionInputMock).toHaveBeenCalledTimes(1);
   });
 
   it("holds a valid candidate when budget is exhausted", async () => {

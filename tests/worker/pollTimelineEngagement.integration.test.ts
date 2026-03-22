@@ -34,6 +34,45 @@ const reserveMock = vi.fn(async () => ({
 }));
 const policyMock = vi.fn(async () => ({ allowed: true, reason: "allow" }));
 const decisionMock = vi.fn(() => ({ decision: "ENGAGE", reason: "allow" }));
+const buildRawTriggerInputMock = vi.fn((candidate: { tweetId: string; authorId: string; conversationId: string; createdAt: string; text: string; authorUsername: string; sourceAccount: string; finalScore: number; selectedBecause: string[]; scoreBreakdown: Record<string, number>; policyDecision: string }) => ({
+  triggerType: "timeline" as const,
+  sourceEventId: `timeline:${candidate.tweetId}`,
+  tweetId: candidate.tweetId,
+  conversationId: candidate.conversationId,
+  authorId: candidate.authorId,
+  discoveredAt: candidate.createdAt,
+  rawText: candidate.text,
+  metadata: {
+    authorHandle: `@${candidate.authorUsername}`,
+    sourceAccount: candidate.sourceAccount,
+    finalScore: candidate.finalScore,
+    selectedBecause: [...candidate.selectedBecause],
+    scoreBreakdown: { ...candidate.scoreBreakdown },
+    policyDecision: candidate.policyDecision,
+  },
+}));
+const buildEngagementCandidateMock = vi.fn((raw: { sourceEventId?: string; tweetId: string; rawText?: string; discoveredAt: string }) => ({
+  candidateId: raw.sourceEventId ?? raw.tweetId,
+  triggerType: "timeline" as const,
+  tweetId: raw.tweetId,
+  normalizedText: raw.rawText?.trim() ?? "",
+  discoveredAt: raw.discoveredAt,
+}));
+const toCanonicalExecutionInputMock = vi.fn((candidate: { candidateId: string; triggerType: string; tweetId: string; normalizedText: string; discoveredAt: string }) => ({
+  event_id: candidate.candidateId,
+  platform: "twitter" as const,
+  trigger_type: "reply" as const,
+  author_handle: "@alice",
+  author_id: "author-1",
+  text: candidate.normalizedText,
+  parent_text: null,
+  quoted_text: null,
+  conversation_context: [],
+  cashtags: [],
+  hashtags: [],
+  urls: [],
+  timestamp: candidate.discoveredAt,
+}));
 
 vi.mock("../../src/clients/xClient.js", () => ({
   createXClient: () => ({ reply: replyMock }),
@@ -89,6 +128,12 @@ vi.mock("../../src/engagement/engagementDecision.js", () => ({
   decideEngagement: decisionMock,
 }));
 
+vi.mock("../../src/engagement/candidateBoundary.js", () => ({
+  buildRawTriggerInputFromTimelineCandidate: buildRawTriggerInputMock,
+  buildEngagementCandidate: buildEngagementCandidateMock,
+  toCanonicalExecutionInput: toCanonicalExecutionInputMock,
+}));
+
 vi.mock("../../src/state/sharedBudgetGate.js", () => ({
   checkLLMBudget: vi.fn(async () => ({
     allowed: true,
@@ -135,6 +180,9 @@ function resetHarness(): void {
   reserveMock.mockClear();
   policyMock.mockClear();
   decisionMock.mockClear();
+  buildRawTriggerInputMock.mockClear();
+  buildEngagementCandidateMock.mockClear();
+  toCanonicalExecutionInputMock.mockClear();
 }
 
 describe("timeline engagement worker", () => {
@@ -244,5 +292,8 @@ describe("timeline engagement worker", () => {
     expect(reserveMock).toHaveBeenCalledTimes(1);
     expect(handleEventMock).toHaveBeenCalledTimes(1);
     expect(replyMock).toHaveBeenCalledTimes(1);
+    expect(buildRawTriggerInputMock).toHaveBeenCalledTimes(1);
+    expect(buildEngagementCandidateMock).toHaveBeenCalledTimes(1);
+    expect(toCanonicalExecutionInputMock).toHaveBeenCalledTimes(1);
   });
 });
