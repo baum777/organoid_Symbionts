@@ -28,6 +28,8 @@ const AUDIT_BUFFER_DEGRADED = 80;
 const AUDIT_BUFFER_UNHEALTHY = 95;
 const FAILURE_STREAK_DEGRADED = 2;
 const FAILURE_STREAK_UNHEALTHY = 5;
+const TIMELINE_FAILURE_STREAK_DEGRADED = 1;
+const TIMELINE_FAILURE_STREAK_UNHEALTHY = 5;
 
 /** Worker calls this on successful poll — writes to StateStore for cross-process Health. */
 export async function recordPollSuccess(): Promise<void> {
@@ -142,6 +144,27 @@ async function checkBacklogStuck(snapshot: ReturnType<typeof getSnapshot>): Prom
   };
 }
 
+async function checkTimelineHardening(snapshot: ReturnType<typeof getSnapshot>): Promise<HealthCheckResult> {
+  const lockFailures = snapshot.gauges[GAUGE_NAMES.TIMELINE_LOCK_FAILURE_STREAK] ?? 0;
+  const reservationFailures = snapshot.gauges[GAUGE_NAMES.TIMELINE_RESERVATION_FAILURE_STREAK] ?? 0;
+  const storeFailures = snapshot.gauges[GAUGE_NAMES.TIMELINE_STORE_FAILURE_STREAK] ?? 0;
+  const publishFailures = snapshot.gauges[GAUGE_NAMES.TIMELINE_PUBLISH_FAILURE_STREAK] ?? 0;
+  const worstFailure = Math.max(lockFailures, reservationFailures, storeFailures, publishFailures);
+
+  let status: HealthStatus = "healthy";
+  if (worstFailure >= TIMELINE_FAILURE_STREAK_UNHEALTHY) status = "unhealthy";
+  else if (worstFailure >= TIMELINE_FAILURE_STREAK_DEGRADED) status = "degraded";
+
+  return {
+    name: "timeline_hardening",
+    status,
+    message:
+      worstFailure > 0
+        ? `lock=${lockFailures},reservation=${reservationFailures},store=${storeFailures},publish=${publishFailures}`
+        : undefined,
+  };
+}
+
 async function checkProcessAlive(): Promise<HealthCheckResult> {
   return { name: "process_alive", status: "healthy" };
 }
@@ -170,6 +193,7 @@ export async function runHealthChecks(): Promise<HealthReport> {
   checks.push(await checkStateStoreReachable());
   checks.push(await checkRecentPollSuccess());
   checks.push(await checkBacklogStuck(snapshot));
+  checks.push(await checkTimelineHardening(snapshot));
 
   if (healthDeps) {
     checks.push(await checkAuditBuffer(healthDeps.getAuditBufferSize));

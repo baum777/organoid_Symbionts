@@ -48,6 +48,24 @@ describe("observability health", () => {
     expect(audit?.status).toBe("degraded");
   });
 
+  it("returns degraded when timeline hardening gauges show recent failures", async () => {
+    await recordPollSuccess();
+    setGauge(GAUGE_NAMES.TIMELINE_LOCK_FAILURE_STREAK, 1);
+    setGauge(GAUGE_NAMES.TIMELINE_RESERVATION_FAILURE_STREAK, 1);
+    const report = await runHealthChecks();
+    const timeline = report.checks.find((c) => c.name === "timeline_hardening");
+    expect(timeline?.status).toBe("degraded");
+    expect(timeline?.message).toContain("lock=1");
+  });
+
+  it("returns unhealthy when timeline hardening failures are sustained", async () => {
+    await recordPollSuccess();
+    setGauge(GAUGE_NAMES.TIMELINE_RESERVATION_FAILURE_STREAK, 6);
+    const report = await runHealthChecks();
+    const timeline = report.checks.find((c) => c.name === "timeline_hardening");
+    expect(timeline?.status).toBe("unhealthy");
+  });
+
   it("process_alive is always healthy", async () => {
     const report = await runHealthChecks();
     const alive = report.checks.find((c) => c.name === "process_alive");
