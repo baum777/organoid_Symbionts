@@ -72,7 +72,7 @@ export function buildRawTriggerInputFromMention(
     triggerType: "mention",
     sourceEventId: mention.id,
     tweetId: mention.id,
-    conversationId: mention.conversation_id,
+    conversationId: mention.conversation_id ?? undefined,
     authorId: mention.author_id,
     discoveredAt: mention.created_at ?? new Date().toISOString(),
     rawText: mention.text,
