@@ -58,6 +58,42 @@ const buildEngagementCandidateMock = vi.fn((raw: { sourceEventId?: string; tweet
   normalizedText: raw.rawText?.trim() ?? "",
   discoveredAt: raw.discoveredAt,
 }));
+const maybeBuildConversationBundleMock = vi.fn(
+  (input: {
+    candidate: {
+      tweetId: string;
+      conversationId?: string;
+      authorId?: string;
+      normalizedText: string;
+      discoveredAt: string;
+      sourceMetadata?: Record<string, unknown>;
+    };
+    sourceTweet?: {
+      tweetId: string;
+      conversationId?: string;
+      authorId?: string;
+      normalizedText?: string;
+      discoveredAt?: string;
+    };
+    authorContext?: {
+      authorId?: string;
+      authorHandle?: string;
+      sourceAccount?: string;
+    };
+    sourceMetadata?: Record<string, unknown>;
+  }) => ({
+    sourceTweet:
+      input.sourceTweet ?? {
+        tweetId: input.candidate.tweetId,
+        conversationId: input.candidate.conversationId,
+        authorId: input.candidate.authorId,
+        normalizedText: input.candidate.normalizedText,
+        discoveredAt: input.candidate.discoveredAt,
+      },
+    authorContext: input.authorContext,
+    sourceMetadata: input.sourceMetadata ?? input.candidate.sourceMetadata,
+  })
+);
 const toCanonicalExecutionInputMock = vi.fn((candidate: { candidateId: string; triggerType: string; tweetId: string; normalizedText: string; discoveredAt: string }) => ({
   event_id: candidate.candidateId,
   platform: "twitter" as const,
@@ -134,6 +170,10 @@ vi.mock("../../src/engagement/candidateBoundary.js", () => ({
   toCanonicalExecutionInput: toCanonicalExecutionInputMock,
 }));
 
+vi.mock("../../src/engagement/conversationBundle.js", () => ({
+  maybeBuildConversationBundle: maybeBuildConversationBundleMock,
+}));
+
 vi.mock("../../src/state/sharedBudgetGate.js", () => ({
   checkLLMBudget: vi.fn(async () => ({
     allowed: true,
@@ -182,6 +222,7 @@ function resetHarness(): void {
   decisionMock.mockClear();
   buildRawTriggerInputMock.mockClear();
   buildEngagementCandidateMock.mockClear();
+  maybeBuildConversationBundleMock.mockClear();
   toCanonicalExecutionInputMock.mockClear();
 }
 
@@ -292,8 +333,10 @@ describe("timeline engagement worker", () => {
     expect(reserveMock).toHaveBeenCalledTimes(1);
     expect(handleEventMock).toHaveBeenCalledTimes(1);
     expect(replyMock).toHaveBeenCalledTimes(1);
+    expect(maybeBuildConversationBundleMock).toHaveBeenCalledTimes(1);
     expect(buildRawTriggerInputMock).toHaveBeenCalledTimes(1);
     expect(buildEngagementCandidateMock).toHaveBeenCalledTimes(1);
     expect(toCanonicalExecutionInputMock).toHaveBeenCalledTimes(1);
+    expect(toCanonicalExecutionInputMock.mock.calls[0]?.[1]).toBeDefined();
   });
 });

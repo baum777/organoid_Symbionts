@@ -5,6 +5,7 @@ import {
   buildRawTriggerInputFromTimelineCandidate,
   toCanonicalExecutionInput,
 } from "../../src/engagement/candidateBoundary.js";
+import { maybeBuildConversationBundle } from "../../src/engagement/conversationBundle.js";
 
 describe("candidateBoundary", () => {
   it("normalizes mention ingress into the shared candidate boundary", () => {
@@ -20,15 +21,34 @@ describe("candidateBoundary", () => {
 
     const raw = buildRawTriggerInputFromMention(mention, "mentions");
     const candidate = buildEngagementCandidate(raw);
-    const canonical = toCanonicalExecutionInput(candidate);
+    const bundle = maybeBuildConversationBundle({
+      candidate,
+      sourceTweet: {
+        tweetId: candidate.tweetId,
+        conversationId: candidate.conversationId,
+        authorId: candidate.authorId,
+        normalizedText: candidate.normalizedText,
+        discoveredAt: candidate.discoveredAt,
+      },
+      authorContext: {
+        authorId: candidate.authorId,
+        authorHandle: "Alice",
+        sourceAccount: "mentions",
+      },
+      sourceMetadata: raw.metadata,
+    });
+    const canonical = toCanonicalExecutionInput(candidate, bundle);
 
     expect(raw.triggerType).toBe("mention");
     expect(raw.sourceEventId).toBe("mention-1");
     expect(candidate.candidateId).toBe("mention-1");
     expect(candidate.normalizedText).toBe("Hello @Gnomes_onchain, can you help?");
+    expect(bundle?.sourceTweet?.tweetId).toBe("mention-1");
+    expect(bundle?.authorContext?.authorHandle).toBe("Alice");
     expect(canonical.event_id).toBe("mention-1");
     expect(canonical.trigger_type).toBe("mention");
     expect(canonical.author_handle).toBe("@alice");
+    expect(canonical.context).toBeUndefined();
   });
 
   it("normalizes timeline ingress into the same shared candidate boundary", () => {
@@ -70,14 +90,53 @@ describe("candidateBoundary", () => {
 
     const raw = buildRawTriggerInputFromTimelineCandidate(timelineCandidate);
     const candidate = buildEngagementCandidate(raw);
-    const canonical = toCanonicalExecutionInput(candidate);
+    const bundle = maybeBuildConversationBundle({
+      candidate,
+      sourceTweet: {
+        tweetId: candidate.tweetId,
+        conversationId: candidate.conversationId,
+        authorId: candidate.authorId,
+        normalizedText: candidate.normalizedText,
+        discoveredAt: candidate.discoveredAt,
+      },
+      authorContext: {
+        authorId: candidate.authorId,
+        authorHandle: "bob",
+        sourceAccount: "timeline",
+      },
+      sourceMetadata: raw.metadata,
+    });
+    const canonical = toCanonicalExecutionInput(candidate, bundle);
 
     expect(raw.triggerType).toBe("timeline");
     expect(raw.sourceEventId).toBe("timeline:tweet-1");
     expect(candidate.candidateId).toBe("timeline:tweet-1");
     expect(candidate.normalizedText).toBe("A thoughtful timeline reply with a clear question?");
+    expect(bundle?.sourceTweet?.tweetId).toBe("tweet-1");
+    expect(bundle?.authorContext?.sourceAccount).toBe("timeline");
     expect(canonical.event_id).toBe("timeline:tweet-1");
     expect(canonical.trigger_type).toBe("reply");
     expect(canonical.author_handle).toBe("@bob");
+    expect(canonical.context).toBeUndefined();
+  });
+
+  it("builds a sparse conversation bundle from the shared candidate boundary", () => {
+    const raw = {
+      triggerType: "mention" as const,
+      sourceEventId: "mention-2",
+      tweetId: "mention-2",
+      conversationId: "conv-3",
+      authorId: "author-3",
+      discoveredAt: "2026-03-22T12:00:00.000Z",
+      rawText: "Hello there",
+      metadata: { authorHandle: "alice", sourceAccount: "mentions" },
+    };
+    const candidate = buildEngagementCandidate(raw);
+
+    const bundle = maybeBuildConversationBundle({ candidate });
+
+    expect(bundle?.sourceTweet?.tweetId).toBe("mention-2");
+    expect(bundle?.authorContext?.authorId).toBe("author-3");
+    expect(bundle?.sourceMetadata?.authorHandle).toBe("alice");
   });
 });

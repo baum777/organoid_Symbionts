@@ -68,9 +68,9 @@ import {
 import {
   buildEngagementCandidate,
   buildRawTriggerInputFromMention,
-  maybeBuildConversationBundle,
   toCanonicalExecutionInput,
 } from "../engagement/candidateBoundary.js";
+import { maybeBuildConversationBundle } from "../engagement/conversationBundle.js";
 import {
   runWritePreflight,
   releaseWritePreflight,

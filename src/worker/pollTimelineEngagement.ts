@@ -13,9 +13,9 @@ import type { TimelineCandidate } from "../engagement/types.js";
 import {
   buildEngagementCandidate,
   buildRawTriggerInputFromTimelineCandidate,
-  maybeBuildConversationBundle,
   toCanonicalExecutionInput,
 } from "../engagement/candidateBoundary.js";
+import { maybeBuildConversationBundle } from "../engagement/conversationBundle.js";
 import { logInfo, logWarn } from "../ops/logger.js";
 import { isPostingDisabled } from "../ops/launchGate.js";
 import { withCircuitBreaker } from "../ops/llmCircuitBreaker.js";
