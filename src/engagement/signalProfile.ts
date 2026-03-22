@@ -107,6 +107,10 @@ function normalizeText(text: string | undefined): string {
   return text?.trim() ?? "";
 }
 
+function hasValidTimestamp(value: string): boolean {
+  return Number.isFinite(Date.parse(value));
+}
+
 function countWords(text: string): number {
   return normalizeText(text).split(/\s+/).filter(Boolean).length;
 }
@@ -153,7 +157,7 @@ function inferAuthorType(authorHandle: string | undefined, sourceAccount: string
   if (/(vc|invest|capital|fund|angel)/.test(haystack)) return "investor";
   if (/(journal|news|media|press|reporter)/.test(haystack)) return "media_journalist";
   if (/(popular|explainer|educator|teacher)/.test(haystack)) return "popularizer";
-  return "layperson";
+  return "unknown";
 }
 
 function inferFreshnessBucket(discoveredAt: string): FreshnessBucket {
@@ -181,6 +185,21 @@ function inferDialogueState(params: {
   if (hasQuestionText(params.text)) return "open_dialogue";
   if (params.text.length > 0) return "broadcast_no_dialogue";
   return "unclear";
+}
+
+function deriveBroadcastVsDialogueState(params: {
+  dialogueState: DialogueState;
+  hasParentRef: boolean;
+}): DialogueState {
+  // Canonical dialogueState is the high-level meta classification.
+  // This participation-facing field is a local projection of that state,
+  // refined only by the already-available parent hint.
+  if (params.dialogueState === "adversarial_conflict") return "adversarial_conflict";
+  if (params.dialogueState === "meme_or_irony") return "meme_or_irony";
+  if (params.dialogueState === "closed_social_exchange") return "closed_social_exchange";
+  if (params.dialogueState === "unclear") return "unclear";
+  if (params.hasParentRef) return "narrow_peer_exchange";
+  return "broadcast_no_dialogue";
 }
 
 function inferConversationForm(params: {
@@ -323,7 +342,10 @@ export function assembleSignalProfile(
         : conversationForm === "BROADCAST_NO_DIALOGUE" && words < 12
           ? "MEDIUM"
           : "LOW",
-    broadcastVsDialogueState: signals.dialogueState,
+    broadcastVsDialogueState: deriveBroadcastVsDialogueState({
+      dialogueState: signals.dialogueState,
+      hasParentRef,
+    }),
     lateEntryRisk:
       signals.freshnessBucket === "stale"
         ? "HIGH"
@@ -367,7 +389,7 @@ export function assembleSignalProfile(
 
   const evidenceStatus: SignalEvidenceStatusMap = {
     relevance: hasDialogue || hasTechnical || hasParentRef ? "heuristic" : "unknown",
-    attention: candidate.discoveredAt ? "derived" : "unknown",
+    attention: hasValidTimestamp(candidate.discoveredAt) ? "derived" : "unknown",
     participationFit: hasParentRef || candidate.conversationId ? "heuristic" : "unknown",
     risk: text ? "heuristic" : "unknown",
     meta: signals.authorTypeGuess === "unknown" ? "unknown" : "heuristic",

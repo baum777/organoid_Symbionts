@@ -82,7 +82,7 @@ export function buildRawTriggerInputFromMention(
       tweetId: parentTweetId,
       conversationId: mention.conversation_id ?? undefined,
     }),
-    discoveredAt: mention.created_at ?? new Date().toISOString(),
+    discoveredAt: mention.created_at ?? "unknown",
     rawText: mention.text,
     metadata: {
       source,

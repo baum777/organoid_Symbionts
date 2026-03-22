@@ -186,4 +186,21 @@ describe("candidateBoundary", () => {
     expect(bundle?.parentRef).toBeUndefined();
     expect(bundle?.sourceTweet?.tweetId).toBe("mention-3");
   });
+
+  it("keeps mention discoveredAt conservative when created_at is missing", () => {
+    const mention = {
+      id: "mention-4",
+      text: "Sparse mention",
+      author_id: "author-5",
+      authorUsername: "alice",
+      conversation_id: "conv-4",
+      created_at: null,
+      referenced_tweets: null,
+      in_reply_to_user_id: null,
+    } as const;
+
+    const raw = buildRawTriggerInputFromMention(mention, "mentions");
+
+    expect(raw.discoveredAt).toBe("unknown");
+  });
 });

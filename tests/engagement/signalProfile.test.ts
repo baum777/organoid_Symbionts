@@ -24,7 +24,8 @@ describe("signalProfile", () => {
     expect(profile.relevance.discourseFit).toBe("HIGH");
     expect(profile.attention.freshnessBucket).toBe("very_fresh");
     expect(profile.participationFit.threadOpenness).toBe("HIGH");
-    expect(profile.participationFit.broadcastVsDialogueState).toBe("open_dialogue");
+    expect(profile.meta.dialogueState).toBe("open_dialogue");
+    expect(profile.participationFit.broadcastVsDialogueState).toBe("narrow_peer_exchange");
     expect(profile.risk.opportunisticReplyRisk).toBe("LOW");
     expect(profile.meta.conversationForm).toBe("NARROW_THREAD");
     expect(profile.evidenceStatus?.attention).toBe("derived");
@@ -57,5 +58,27 @@ describe("signalProfile", () => {
     expect(profile.risk.opportunisticReplyRisk).toBe("HIGH");
     expect(profile.meta.conversationForm).toBe("BROADCAST_NO_DIALOGUE");
     expect(profile.evidenceStatus?.participationFit).toBe("unknown");
+  });
+
+  it("stays conservative for a sparse mention candidate with no created_at and weak author evidence", () => {
+    const mention = {
+      id: "mention-2",
+      text: "hello there",
+      author_id: "author-3",
+      authorUsername: "user123",
+      conversation_id: null,
+      created_at: null,
+      referenced_tweets: null,
+      in_reply_to_user_id: null,
+    } as const;
+
+    const raw = buildRawTriggerInputFromMention(mention, "mentions");
+    const candidate = buildEngagementCandidate(raw);
+    const profile = assembleSignalProfile(candidate);
+
+    expect(raw.discoveredAt).toBe("unknown");
+    expect(profile.attention.freshnessBucket).toBe("unknown");
+    expect(profile.evidenceStatus?.attention).toBe("unknown");
+    expect(profile.meta.authorTypeGuess).toBe("unknown");
   });
 });
