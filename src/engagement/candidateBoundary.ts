@@ -1,6 +1,7 @@
 import type { Mention } from "../poller/mentionsMapper.js";
 import type { CanonicalEvent, TriggerType } from "../canonical/types.js";
 import type { TimelineCandidate } from "./types.js";
+import type { ConversationBundle } from "./conversationBundle.js";
 
 export interface RawTriggerInput {
   triggerType: "mention" | "timeline";
@@ -117,9 +118,14 @@ export function buildEngagementCandidate(raw: RawTriggerInput): EngagementCandid
   };
 }
 
-export function toCanonicalExecutionInput(candidate: EngagementCandidate): CanonicalEvent {
+export function toCanonicalExecutionInput(
+  candidate: EngagementCandidate,
+  bundle?: ConversationBundle
+): CanonicalEvent {
   const signals = extractTextSignals(candidate.normalizedText);
   const triggerType: TriggerType = candidate.triggerType === "mention" ? "mention" : "reply";
+  const bundleContext =
+    typeof bundle?.sourceMetadata?.context === "string" ? bundle.sourceMetadata.context : undefined;
 
   return {
     event_id: candidate.candidateId,
@@ -135,5 +141,6 @@ export function toCanonicalExecutionInput(candidate: EngagementCandidate): Canon
     hashtags: signals.hashtags,
     urls: signals.urls,
     timestamp: candidate.discoveredAt,
+    context: bundleContext,
   };
 }
