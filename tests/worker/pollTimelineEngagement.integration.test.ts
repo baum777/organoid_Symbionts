@@ -90,6 +90,7 @@ const maybeBuildConversationBundleMock = vi.fn(
         normalizedText: input.candidate.normalizedText,
         discoveredAt: input.candidate.discoveredAt,
       },
+    parentRef: input.parentRef,
     authorContext: input.authorContext,
     sourceMetadata: input.sourceMetadata ?? input.candidate.sourceMetadata,
   })
@@ -171,6 +172,8 @@ vi.mock("../../src/engagement/candidateBoundary.js", () => ({
 }));
 
 vi.mock("../../src/engagement/conversationBundle.js", () => ({
+  buildConversationParentRef: (hint: { tweetId?: string; conversationId?: string; authorId?: string }) =>
+    hint?.tweetId || hint?.conversationId || hint?.authorId ? hint : undefined,
   maybeBuildConversationBundle: maybeBuildConversationBundleMock,
 }));
 
@@ -334,6 +337,9 @@ describe("timeline engagement worker", () => {
     expect(handleEventMock).toHaveBeenCalledTimes(1);
     expect(replyMock).toHaveBeenCalledTimes(1);
     expect(maybeBuildConversationBundleMock).toHaveBeenCalledTimes(1);
+    expect(maybeBuildConversationBundleMock.mock.calls[0]?.[0].parentRef).toMatchObject({
+      conversationId: "conv-1",
+    });
     expect(buildRawTriggerInputMock).toHaveBeenCalledTimes(1);
     expect(buildEngagementCandidateMock).toHaveBeenCalledTimes(1);
     expect(toCanonicalExecutionInputMock).toHaveBeenCalledTimes(1);

@@ -5,7 +5,10 @@ import {
   buildRawTriggerInputFromTimelineCandidate,
   toCanonicalExecutionInput,
 } from "../../src/engagement/candidateBoundary.js";
-import { maybeBuildConversationBundle } from "../../src/engagement/conversationBundle.js";
+import {
+  buildConversationParentRef,
+  maybeBuildConversationBundle,
+} from "../../src/engagement/conversationBundle.js";
 
 describe("candidateBoundary", () => {
   it("normalizes mention ingress into the shared candidate boundary", () => {
@@ -23,6 +26,10 @@ describe("candidateBoundary", () => {
     const candidate = buildEngagementCandidate(raw);
     const bundle = maybeBuildConversationBundle({
       candidate,
+      parentRef: buildConversationParentRef({
+        tweetId: "parent-mention-1",
+        conversationId: candidate.conversationId,
+      }),
       sourceTweet: {
         tweetId: candidate.tweetId,
         conversationId: candidate.conversationId,
@@ -44,6 +51,7 @@ describe("candidateBoundary", () => {
     expect(candidate.candidateId).toBe("mention-1");
     expect(candidate.normalizedText).toBe("Hello @Gnomes_onchain, can you help?");
     expect(bundle?.sourceTweet?.tweetId).toBe("mention-1");
+    expect(bundle?.parentRef?.tweetId).toBe("parent-mention-1");
     expect(bundle?.authorContext?.authorHandle).toBe("Alice");
     expect(canonical.event_id).toBe("mention-1");
     expect(canonical.trigger_type).toBe("mention");
@@ -92,6 +100,10 @@ describe("candidateBoundary", () => {
     const candidate = buildEngagementCandidate(raw);
     const bundle = maybeBuildConversationBundle({
       candidate,
+      parentRef: buildConversationParentRef({
+        tweetId: "parent-tweet-1",
+        conversationId: candidate.conversationId,
+      }),
       sourceTweet: {
         tweetId: candidate.tweetId,
         conversationId: candidate.conversationId,
@@ -113,6 +125,7 @@ describe("candidateBoundary", () => {
     expect(candidate.candidateId).toBe("timeline:tweet-1");
     expect(candidate.normalizedText).toBe("A thoughtful timeline reply with a clear question?");
     expect(bundle?.sourceTweet?.tweetId).toBe("tweet-1");
+    expect(bundle?.parentRef?.tweetId).toBe("parent-tweet-1");
     expect(bundle?.authorContext?.sourceAccount).toBe("timeline");
     expect(canonical.event_id).toBe("timeline:tweet-1");
     expect(canonical.trigger_type).toBe("reply");
@@ -133,9 +146,16 @@ describe("candidateBoundary", () => {
     };
     const candidate = buildEngagementCandidate(raw);
 
-    const bundle = maybeBuildConversationBundle({ candidate });
+    const bundle = maybeBuildConversationBundle({
+      candidate,
+      parentRef: buildConversationParentRef({
+        tweetId: "parent-2",
+        conversationId: candidate.conversationId,
+      }),
+    });
 
     expect(bundle?.sourceTweet?.tweetId).toBe("mention-2");
+    expect(bundle?.parentRef?.tweetId).toBe("parent-2");
     expect(bundle?.authorContext?.authorId).toBe("author-3");
     expect(bundle?.sourceMetadata?.authorHandle).toBe("alice");
   });

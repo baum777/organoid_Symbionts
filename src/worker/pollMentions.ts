@@ -70,7 +70,10 @@ import {
   buildRawTriggerInputFromMention,
   toCanonicalExecutionInput,
 } from "../engagement/candidateBoundary.js";
-import { maybeBuildConversationBundle } from "../engagement/conversationBundle.js";
+import {
+  buildConversationParentRef,
+  maybeBuildConversationBundle,
+} from "../engagement/conversationBundle.js";
 import {
   runWritePreflight,
   releaseWritePreflight,
@@ -337,6 +340,12 @@ export async function processCanonicalMention(
   const engagementCandidate = buildEngagementCandidate(rawTriggerInput);
   const conversationBundle = maybeBuildConversationBundle({
     candidate: engagementCandidate,
+    parentRef: buildConversationParentRef({
+      tweetId:
+        mention.referenced_tweets?.find((ref) => ref.type === "replied_to" || ref.type === "quoted")
+          ?.id,
+      conversationId: mention.conversation_id ?? undefined,
+    }),
     sourceTweet: {
       tweetId: engagementCandidate.tweetId,
       conversationId: engagementCandidate.conversationId,

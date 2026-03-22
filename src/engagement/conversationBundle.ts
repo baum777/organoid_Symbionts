@@ -38,6 +38,12 @@ export interface ConversationBundleInput {
   sourceMetadata?: Record<string, unknown>;
 }
 
+export interface ConversationParentHint {
+  tweetId?: string;
+  conversationId?: string;
+  authorId?: string;
+}
+
 function readString(metadata: Record<string, unknown> | undefined, key: string): string | undefined {
   const value = metadata?.[key];
   return typeof value === "string" ? value : undefined;
@@ -71,6 +77,24 @@ function buildAuthorContext(input: ConversationBundleInput): ConversationAuthorC
     authorId: input.candidate.authorId,
     authorHandle,
     sourceAccount,
+  };
+}
+
+export function buildConversationParentRef(
+  hint: ConversationParentHint | undefined
+): ConversationParentRef | undefined {
+  if (!hint) {
+    return undefined;
+  }
+
+  if (!hint.tweetId && !hint.conversationId && !hint.authorId) {
+    return undefined;
+  }
+
+  return {
+    tweetId: hint.tweetId,
+    conversationId: hint.conversationId,
+    authorId: hint.authorId,
   };
 }
 

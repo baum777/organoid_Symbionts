@@ -15,7 +15,10 @@ import {
   buildRawTriggerInputFromTimelineCandidate,
   toCanonicalExecutionInput,
 } from "../engagement/candidateBoundary.js";
-import { maybeBuildConversationBundle } from "../engagement/conversationBundle.js";
+import {
+  buildConversationParentRef,
+  maybeBuildConversationBundle,
+} from "../engagement/conversationBundle.js";
 import { logInfo, logWarn } from "../ops/logger.js";
 import { isPostingDisabled } from "../ops/launchGate.js";
 import { withCircuitBreaker } from "../ops/llmCircuitBreaker.js";
@@ -368,6 +371,10 @@ export async function runTimelineEngagementIteration(): Promise<TimelineIteratio
         const engagementCandidate = buildEngagementCandidate(rawTriggerInput);
         const conversationBundle = maybeBuildConversationBundle({
           candidate: engagementCandidate,
+          parentRef: buildConversationParentRef({
+            tweetId: candidate.referencedTweetIds[0],
+            conversationId: candidate.conversationId,
+          }),
           sourceTweet: {
             tweetId: engagementCandidate.tweetId,
             conversationId: engagementCandidate.conversationId,
