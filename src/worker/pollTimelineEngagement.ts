@@ -2,7 +2,7 @@ import { createUnifiedLLMClient } from "../clients/llmClient.unified.js";
 import { createXClient } from "../clients/xClient.js";
 import { invokeXApiRequest } from "../clients/xApi.js";
 import { handleEvent, type PipelineDeps } from "../canonical/pipeline.js";
-import { DEFAULT_CANONICAL_CONFIG, type CanonicalEvent } from "../canonical/types.js";
+import { DEFAULT_CANONICAL_CONFIG } from "../canonical/types.js";
 import { readTimelineEngagementConfig } from "../config/timelineEngagementConfig.js";
 import { readEngagementComplianceConfig } from "../config/engagementComplianceConfig.js";
 import { EngagementMemory } from "../engagement/engagementMemory.js";
@@ -10,6 +10,11 @@ import { normalizeTimelineCandidate } from "../engagement/normalizeTimelineCandi
 import { rankTimelineCandidates, selectTopTimelineCandidates } from "../engagement/rankTimelineCandidates.js";
 import { scoutTimelineCandidates } from "../engagement/timelineScout.js";
 import type { TimelineCandidate } from "../engagement/types.js";
+import {
+  buildEngagementCandidate,
+  buildRawTriggerInputFromTimelineCandidate,
+  toCanonicalExecutionInput,
+} from "../engagement/candidateBoundary.js";
 import { logInfo, logWarn } from "../ops/logger.js";
 import { isPostingDisabled } from "../ops/launchGate.js";
 import { withCircuitBreaker } from "../ops/llmCircuitBreaker.js";
@@ -116,24 +121,6 @@ async function getUserId(): Promise<string> {
     uri: "https://api.x.com/2/users/me",
   });
   return user.data.id;
-}
-
-function toCanonicalEvent(candidate: TimelineCandidate): CanonicalEvent {
-  return {
-    event_id: `timeline:${candidate.tweetId}`,
-    platform: "twitter",
-    trigger_type: "reply",
-    author_handle: `@${candidate.authorUsername}`,
-    author_id: candidate.authorId,
-    text: candidate.text,
-    parent_text: null,
-    quoted_text: null,
-    conversation_context: [],
-    cashtags: (candidate.text.match(/\$[A-Z]{2,10}/gi) ?? []).map((s) => s.toUpperCase()),
-    hashtags: candidate.text.match(/#\w+/g) ?? [],
-    urls: candidate.text.match(/https?:\/\/\S+/gi) ?? [],
-    timestamp: candidate.createdAt,
-  };
 }
 
 function normalizeHandle(handle: string | null | undefined): string {
@@ -376,7 +363,9 @@ export async function runTimelineEngagementIteration(): Promise<TimelineIteratio
         candidate.selectedBecause.push("budget_reserved");
 
         markPipelineEntered();
-        const event = toCanonicalEvent(candidate);
+        const rawTriggerInput = buildRawTriggerInputFromTimelineCandidate(candidate);
+        const engagementCandidate = buildEngagementCandidate(rawTriggerInput);
+        const event = toCanonicalExecutionInput(engagementCandidate);
         const result = await handleEvent(event, deps, {
           ...DEFAULT_CANONICAL_CONFIG,
           model_id: DEFAULT_CANONICAL_CONFIG.model_id,
