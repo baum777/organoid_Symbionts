@@ -405,6 +405,9 @@ describe("timeline engagement worker", () => {
     expect(handleEventMock).toHaveBeenCalledTimes(1);
     expect(replyMock).toHaveBeenCalledTimes(1);
     expect(maybeBuildConversationBundleMock).toHaveBeenCalledTimes(1);
+    expect(maybeBuildConversationBundleMock.mock.calls[0]?.[0].parentRef).toMatchObject({
+      conversationId: "conv-1",
+    });
     expect(maybeBuildConversationBundleMock.mock.calls[0]?.[0].candidate.parentRef).toMatchObject({
       conversationId: "conv-1",
     });

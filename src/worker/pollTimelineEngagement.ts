@@ -371,6 +371,7 @@ export async function runTimelineEngagementIteration(): Promise<TimelineIteratio
         const engagementCandidate = buildEngagementCandidate(rawTriggerInput);
         const conversationBundle = maybeBuildConversationBundle({
           candidate: engagementCandidate,
+          parentRef: rawTriggerInput.parentRef,
           sourceTweet: {
             tweetId: engagementCandidate.tweetId,
             conversationId: engagementCandidate.conversationId,

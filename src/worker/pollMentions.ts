@@ -340,6 +340,7 @@ export async function processCanonicalMention(
   const engagementCandidate = buildEngagementCandidate(rawTriggerInput);
   const conversationBundle = maybeBuildConversationBundle({
     candidate: engagementCandidate,
+    parentRef: rawTriggerInput.parentRef,
     sourceTweet: {
       tweetId: engagementCandidate.tweetId,
       conversationId: engagementCandidate.conversationId,

@@ -26,6 +26,7 @@ describe("candidateBoundary", () => {
     const candidate = buildEngagementCandidate(raw);
     const bundle = maybeBuildConversationBundle({
       candidate,
+      parentRef: raw.parentRef,
       sourceTweet: {
         tweetId: candidate.tweetId,
         conversationId: candidate.conversationId,
@@ -50,10 +51,16 @@ describe("candidateBoundary", () => {
     expect(candidate.parentRef?.tweetId).toBe("parent-mention-1");
     expect(bundle?.sourceTweet?.tweetId).toBe("mention-1");
     expect(bundle?.parentRef?.tweetId).toBe("parent-mention-1");
+    expect(bundle?.parentRef?.authorId).toBe("bot-1");
     expect(bundle?.authorContext?.authorHandle).toBe("Alice");
     expect(canonical.event_id).toBe("mention-1");
     expect(canonical.trigger_type).toBe("mention");
     expect(canonical.author_handle).toBe("@alice");
+    expect(canonical.conversation_context).toEqual([
+      "parent_tweet_id:parent-mention-1",
+      "parent_conversation_id:conv-1",
+      "parent_author_id:bot-1",
+    ]);
     expect(canonical.context).toBeUndefined();
   });
 
@@ -98,6 +105,7 @@ describe("candidateBoundary", () => {
     const candidate = buildEngagementCandidate(raw);
     const bundle = maybeBuildConversationBundle({
       candidate,
+      parentRef: raw.parentRef,
       sourceTweet: {
         tweetId: candidate.tweetId,
         conversationId: candidate.conversationId,
@@ -126,6 +134,10 @@ describe("candidateBoundary", () => {
     expect(canonical.event_id).toBe("timeline:tweet-1");
     expect(canonical.trigger_type).toBe("reply");
     expect(canonical.author_handle).toBe("@bob");
+    expect(canonical.conversation_context).toEqual([
+      "parent_tweet_id:parent-tweet-1",
+      "parent_conversation_id:conv-2",
+    ]);
     expect(canonical.context).toBeUndefined();
   });
 
@@ -154,6 +166,10 @@ describe("candidateBoundary", () => {
     expect(bundle?.parentRef?.tweetId).toBe("parent-2");
     expect(bundle?.authorContext?.authorId).toBe("author-3");
     expect(bundle?.sourceMetadata?.authorHandle).toBe("alice");
+    expect(toCanonicalExecutionInput(candidate, bundle).conversation_context).toEqual([
+      "parent_tweet_id:parent-2",
+      "parent_conversation_id:conv-3",
+    ]);
   });
 
   it("keeps the bundle sparse when no cheap parent hint is present", () => {
@@ -185,6 +201,7 @@ describe("candidateBoundary", () => {
     expect(candidate.parentRef).toBeUndefined();
     expect(bundle?.parentRef).toBeUndefined();
     expect(bundle?.sourceTweet?.tweetId).toBe("mention-3");
+    expect(toCanonicalExecutionInput(candidate, bundle).conversation_context).toEqual([]);
   });
 
   it("keeps mention discoveredAt conservative when created_at is missing", () => {

@@ -22,6 +22,7 @@ const buildRawTriggerInputMock = vi.fn((mention: Mention, source: "mentions" | "
         tweetId: mention.referenced_tweets?.find((ref) => ref.type === "replied_to" || ref.type === "quoted")
           ?.id,
         conversationId: mention.conversation_id ?? undefined,
+        authorId: mention.in_reply_to_user_id ?? undefined,
       }
     : undefined,
   discoveredAt: mention.created_at ?? new Date().toISOString(),
@@ -257,9 +258,15 @@ describe("mention pipeline consent flow", () => {
     expect(buildRawTriggerInputMock).toHaveBeenCalledTimes(1);
     expect(buildEngagementCandidateMock).toHaveBeenCalledTimes(1);
     expect(maybeBuildConversationBundleMock).toHaveBeenCalledTimes(1);
+    expect(maybeBuildConversationBundleMock.mock.calls[0]?.[0].parentRef).toMatchObject({
+      tweetId: "bot-1",
+      conversationId: "conv-1",
+      authorId: "bot-1",
+    });
     expect(maybeBuildConversationBundleMock.mock.calls[0]?.[0].candidate.parentRef).toMatchObject({
       tweetId: "bot-1",
       conversationId: "conv-1",
+      authorId: "bot-1",
     });
     expect(assembleSignalProfileMock).toHaveBeenCalledTimes(1);
     expect(toCanonicalExecutionInputMock).toHaveBeenCalledTimes(1);

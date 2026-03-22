@@ -2,6 +2,7 @@ import type { Mention } from "../poller/mentionsMapper.js";
 import type { CanonicalEvent, TriggerType } from "../canonical/types.js";
 import type { TimelineCandidate } from "./types.js";
 import { buildConversationParentRef, type ConversationBundle } from "./conversationBundle.js";
+import { buildRawConversationContextTokens } from "./conversationContextTransport.js";
 
 export interface RawTriggerInput {
   triggerType: "mention" | "timeline";
@@ -81,6 +82,7 @@ export function buildRawTriggerInputFromMention(
     parentRef: buildConversationParentRef({
       tweetId: parentTweetId,
       conversationId: mention.conversation_id ?? undefined,
+      authorId: mention.in_reply_to_user_id ?? undefined,
     }),
     discoveredAt: mention.created_at ?? "unknown",
     rawText: mention.text,
@@ -138,6 +140,7 @@ export function toCanonicalExecutionInput(
   const triggerType: TriggerType = candidate.triggerType === "mention" ? "mention" : "reply";
   const bundleContext =
     typeof bundle?.sourceMetadata?.context === "string" ? bundle.sourceMetadata.context : undefined;
+  const parentRef = bundle?.parentRef ?? candidate.parentRef;
 
   return {
     event_id: candidate.candidateId,
@@ -148,7 +151,8 @@ export function toCanonicalExecutionInput(
     text: candidate.normalizedText,
     parent_text: null,
     quoted_text: null,
-    conversation_context: [],
+    // Raw transport only: fixed tokens from direct parent fields, no interpretation.
+    conversation_context: buildRawConversationContextTokens({ parentRef }),
     cashtags: signals.cashtags,
     hashtags: signals.hashtags,
     urls: signals.urls,
