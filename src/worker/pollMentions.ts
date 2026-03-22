@@ -23,7 +23,7 @@ import {
   type ActivationConfig,
 } from "../config/botActivationConfig.js";
 import { handleEvent, type PipelineDeps } from "../canonical/pipeline.js";
-import type { CanonicalConfig, CanonicalEvent, PipelineResult } from "../canonical/types.js";
+import type { PipelineResult } from "../canonical/types.js";
 import { DEFAULT_CANONICAL_CONFIG } from "../canonical/types.js";
 import { logError } from "../ops/logger.js";
 import { checkLLMBudget } from "../state/sharedBudgetGate.js";
@@ -65,6 +65,11 @@ import {
   recordConsentDecision,
   recordEngagementDecision,
 } from "../engagement/complianceMetrics.js";
+import {
+  buildEngagementCandidate,
+  buildRawTriggerInputFromMention,
+  toCanonicalExecutionInput,
+} from "../engagement/candidateBoundary.js";
 import {
   runWritePreflight,
   releaseWritePreflight,
@@ -233,32 +238,6 @@ async function fetchMentions(
   }
 }
 
-function mentionToCanonicalEvent(mention: Mention): CanonicalEvent {
-  const authorHandle = mention.authorUsername
-    ? `@${mention.authorUsername.toLowerCase()}`
-    : mention.author_id;
-
-  const cashtags = (mention.text.match(/\$[A-Z]{2,10}/gi) ?? []).map((t) => t.toUpperCase());
-  const hashtags = (mention.text.match(/#\w+/g) ?? []);
-  const urls = (mention.text.match(/https?:\/\/\S+/gi) ?? []);
-
-  return {
-    event_id: mention.id,
-    platform: "twitter",
-    trigger_type: "mention",
-    author_handle: authorHandle,
-    author_id: mention.author_id,
-    text: mention.text,
-    parent_text: null,
-    quoted_text: null,
-    conversation_context: [],
-    cashtags,
-    hashtags,
-    urls,
-    timestamp: mention.created_at ?? new Date().toISOString(),
-  };
-}
-
 function normalizeHandle(handle: string | null | undefined): string {
   return (handle ?? "").toLowerCase().replace(/^@/, "").trim();
 }
@@ -353,7 +332,9 @@ export async function processCanonicalMention(
   const preview = (mention.text ?? "").slice(0, 50);
   console.log(`[NEW] Mention ${mention.id} from @${mention.authorUsername ?? "unknown"}: "${preview}..."`);
 
-  const event = mentionToCanonicalEvent(mention);
+  const rawTriggerInput = buildRawTriggerInputFromMention(mention, source);
+  const engagementCandidate = buildEngagementCandidate(rawTriggerInput);
+  const event = toCanonicalExecutionInput(engagementCandidate);
   const config = configOverride ?? DEFAULT_CANONICAL_CONFIG;
   const compliance = readEngagementComplianceConfig();
   const interactionKey = buildInteractionKey({
