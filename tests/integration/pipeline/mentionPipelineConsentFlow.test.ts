@@ -87,6 +87,17 @@ const maybeBuildConversationBundleMock = vi.fn(
     sourceMetadata: input.sourceMetadata ?? input.candidate.sourceMetadata,
   })
 );
+let hybridRuntimeMode: "legacy" | "shadow" | "assist" | "hybrid" = "legacy";
+const hybridRuntimeMock = vi.fn(async (input: { bundle: { sourceMetadata?: Record<string, unknown> } }) => ({
+  bundle: input.bundle,
+  trace: {
+    mode: hybridRuntimeMode,
+    applied: false,
+    ready: false,
+    blockers: [],
+    warnings: [],
+  },
+}));
 const assembleSignalProfileMock = vi.fn((candidate: { candidateId: string }) => ({
   relevance: {
     topicFit: "MEDIUM",
@@ -181,6 +192,27 @@ vi.mock("../../../src/engagement/conversationBundle.js", () => ({
   maybeBuildConversationBundle: maybeBuildConversationBundleMock,
 }));
 
+vi.mock("../../../src/engagement/hybridRuntime.js", () => ({
+  readHybridRuntimeConfig: () => ({
+    mode: hybridRuntimeMode,
+    storePath: "/tmp/hybrid-memory.json",
+    thresholds: {
+      minMatchScore: 0,
+      maxDiffCount: 99,
+      allowShadowOnly: true,
+    },
+    limits: {
+      maxAtoms: 5,
+      maxEpisodes: 5,
+      maxNotes: 4,
+      maxLoops: 4,
+      maxReasons: 4,
+      maxContextChars: 720,
+    },
+  }),
+  prepareHybridRuntimeConversationBundle: hybridRuntimeMock,
+}));
+
 vi.mock("../../../src/engagement/signalProfile.js", () => ({
   assembleSignalProfile: assembleSignalProfileMock,
 }));
@@ -219,6 +251,7 @@ describe("mention pipeline consent flow", () => {
     vi.clearAllMocks();
     process.env.USE_REDIS = "false";
     resetStoreCache();
+    hybridRuntimeMode = "legacy";
     complianceConfig = {
       aiApproval: true,
       optInHandles: [],
@@ -271,6 +304,55 @@ describe("mention pipeline consent flow", () => {
     expect(assembleSignalProfileMock).toHaveBeenCalledTimes(1);
     expect(toCanonicalExecutionInputMock).toHaveBeenCalledTimes(1);
     expect(toCanonicalExecutionInputMock.mock.calls[0]?.[1].signalProfile).toBeDefined();
+  });
+
+  it("passes a bounded hybrid context through the runtime bundle in assist mode", async () => {
+    complianceConfig = {
+      aiApproval: true,
+      optInHandles: ["alice"],
+      optOutHandles: [],
+    };
+    hybridRuntimeMode = "assist";
+    hybridRuntimeMock.mockImplementationOnce(async (input: { bundle: { sourceMetadata?: Record<string, unknown> } }) => ({
+      bundle: {
+        ...input.bundle,
+        sourceMetadata: {
+          ...(input.bundle.sourceMetadata ?? {}),
+          context: "Hybrid memory: runtime context",
+        },
+      },
+      trace: {
+        mode: "assist" as const,
+        applied: true,
+        ready: true,
+        shadow_status: "match" as const,
+        match_score: 1,
+        diff_count: 0,
+        blockers: [],
+        warnings: [],
+        context_chars: 31,
+      },
+    }));
+
+    const mentionId = `m-${Date.now()}-assist`;
+
+    const { processCanonicalMention } = await import("../../../src/worker/pollMentions.js");
+
+    const deps = { llm: {} as never, botUserId: "bot-1" };
+    await processCanonicalMention(
+      deps,
+      { reply: replyMock } as never,
+      mention({ id: mentionId }),
+      false,
+      "mentions"
+    );
+
+    expect(hybridRuntimeMock).toHaveBeenCalledTimes(1);
+    expect(toCanonicalExecutionInputMock).toHaveBeenCalledTimes(1);
+    expect(typeof toCanonicalExecutionInputMock.mock.calls[0]?.[1].sourceMetadata?.context).toBe("string");
+    expect(toCanonicalExecutionInputMock.mock.calls[0]?.[1].sourceMetadata?.context as string).toContain(
+      "Hybrid memory: runtime context"
+    );
   });
 
   it("holds a valid candidate when budget is exhausted", async () => {

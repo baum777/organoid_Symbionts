@@ -73,6 +73,10 @@ import {
 import {
   maybeBuildConversationBundle,
 } from "../engagement/conversationBundle.js";
+import {
+  prepareHybridRuntimeConversationBundle,
+  readHybridRuntimeConfig,
+} from "../engagement/hybridRuntime.js";
 import { assembleSignalProfile } from "../engagement/signalProfile.js";
 import {
   runWritePreflight,
@@ -362,10 +366,6 @@ export async function processCanonicalMention(
     sourceMetadata: rawTriggerInput.metadata,
   });
   const signalProfile = assembleSignalProfile(engagementCandidate, conversationBundle);
-  const event = toCanonicalExecutionInput(engagementCandidate, {
-    ...conversationBundle,
-    signalProfile,
-  });
   const config = configOverride ?? DEFAULT_CANONICAL_CONFIG;
   const compliance = readEngagementComplianceConfig();
   const interactionKey = buildInteractionKey({
@@ -431,6 +431,49 @@ export async function processCanonicalMention(
     mentionErrorCounts.delete(mention.id);
     return undefined;
   }
+
+  let runtimeConversationBundle = conversationBundle!;
+  const hybridRuntimeConfig = readHybridRuntimeConfig();
+  if (hybridRuntimeConfig.mode !== "legacy") {
+    try {
+      const hybridRuntime = await prepareHybridRuntimeConversationBundle({
+        candidate: engagementCandidate,
+        bundle: conversationBundle!,
+        signalProfile,
+        config: hybridRuntimeConfig,
+      });
+      runtimeConversationBundle = hybridRuntime.bundle;
+
+      const logPayload = {
+        mode: hybridRuntime.trace.mode,
+        applied: hybridRuntime.trace.applied,
+        ready: hybridRuntime.trace.ready,
+        shadowStatus: hybridRuntime.trace.shadow_status,
+        matchScore: hybridRuntime.trace.match_score,
+        diffCount: hybridRuntime.trace.diff_count,
+        blockers: hybridRuntime.trace.blockers,
+        warnings: hybridRuntime.trace.warnings,
+      };
+      if (hybridRuntime.trace.mode === "shadow" || !hybridRuntime.trace.applied) {
+        logWarn("[HYBRID] Runtime fallback or shadow comparison", logPayload);
+      } else {
+        logInfo("[HYBRID] Runtime hybrid context applied", {
+          ...logPayload,
+          contextChars: hybridRuntime.trace.context_chars,
+        });
+      }
+    } catch (error) {
+      logWarn("[HYBRID] Runtime decoration failed, using legacy context", {
+        error: error instanceof Error ? error.message : String(error),
+      });
+      runtimeConversationBundle = conversationBundle!;
+    }
+  }
+
+  const event = toCanonicalExecutionInput(engagementCandidate, {
+    ...runtimeConversationBundle,
+    signalProfile,
+  });
 
   try {
     const result = await handleEvent(event, deps, config);
@@ -556,6 +599,7 @@ export async function runWorkerLoop(): Promise<void> {
   console.log(`[CONFIG] DRY_RUN=${DRY_RUN}`);
   console.log(`[CONFIG] POLL_INTERVAL=${POLL_INTERVAL_MS}ms`);
   console.log(`[CONFIG] Mentions source: ${MENTIONS_SOURCE}`);
+  console.log(`[CONFIG] Hybrid runtime mode: ${readHybridRuntimeConfig().mode}`);
   if (MENTIONS_SOURCE === "search") {
     console.log(`[CONFIG] BOT_USERNAME=@${BOT_USERNAME}`);
   }

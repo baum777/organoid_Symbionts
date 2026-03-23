@@ -18,6 +18,10 @@ import {
 import {
   maybeBuildConversationBundle,
 } from "../engagement/conversationBundle.js";
+import {
+  prepareHybridRuntimeConversationBundle,
+  readHybridRuntimeConfig,
+} from "../engagement/hybridRuntime.js";
 import { assembleSignalProfile } from "../engagement/signalProfile.js";
 import { logInfo, logWarn } from "../ops/logger.js";
 import { isPostingDisabled } from "../ops/launchGate.js";
@@ -190,6 +194,7 @@ export async function runTimelineEngagementIteration(): Promise<TimelineIteratio
     logInfo("[TIMELINE] Engagement disabled");
     return "disabled";
   }
+  const hybridRuntimeConfig = readHybridRuntimeConfig();
 
   let stateFailureObserved = false;
   const noteStateFailure = (): void => {
@@ -393,8 +398,44 @@ export async function runTimelineEngagementIteration(): Promise<TimelineIteratio
           sourceMetadata: rawTriggerInput.metadata,
         });
         const signalProfile = assembleSignalProfile(engagementCandidate, conversationBundle);
+        let runtimeConversationBundle = conversationBundle!;
+        if (hybridRuntimeConfig.mode !== "legacy") {
+          try {
+            const hybridRuntime = await prepareHybridRuntimeConversationBundle({
+              candidate: engagementCandidate,
+              bundle: conversationBundle!,
+              signalProfile,
+              config: hybridRuntimeConfig,
+            });
+            runtimeConversationBundle = hybridRuntime.bundle;
+
+            const logPayload = {
+              mode: hybridRuntime.trace.mode,
+              applied: hybridRuntime.trace.applied,
+              ready: hybridRuntime.trace.ready,
+              shadowStatus: hybridRuntime.trace.shadow_status,
+              matchScore: hybridRuntime.trace.match_score,
+              diffCount: hybridRuntime.trace.diff_count,
+              blockers: hybridRuntime.trace.blockers,
+              warnings: hybridRuntime.trace.warnings,
+            };
+            if (hybridRuntime.trace.mode === "shadow" || !hybridRuntime.trace.applied) {
+              logWarn("[HYBRID] Runtime fallback or shadow comparison", logPayload);
+            } else {
+              logInfo("[HYBRID] Runtime hybrid context applied", {
+                ...logPayload,
+                contextChars: hybridRuntime.trace.context_chars,
+              });
+            }
+          } catch (error) {
+            logWarn("[HYBRID] Runtime decoration failed, using legacy context", {
+              error: error instanceof Error ? error.message : String(error),
+            });
+            runtimeConversationBundle = conversationBundle!;
+          }
+        }
         const event = toCanonicalExecutionInput(engagementCandidate, {
-          ...conversationBundle,
+          ...runtimeConversationBundle,
           signalProfile,
         });
         const result = await handleEvent(event, deps, {
@@ -485,6 +526,9 @@ export async function runTimelineEngagementLoop(): Promise<void> {
     enabled: config.enabled,
     intervalMs: config.intervalMs,
     maxPerRun: config.maxPerRun,
+  });
+  logInfo("[TIMELINE] Hybrid runtime mode", {
+    mode: readHybridRuntimeConfig().mode,
   });
 
   while (true) {

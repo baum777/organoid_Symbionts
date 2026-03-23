@@ -110,5 +110,6 @@ export interface ContextBundle {
     api_calls: Array<{ name: string; ok: boolean; ms: number; meta?: Record<string, unknown> }>;
     warnings: string[];
     semantic?: SemanticSignals;
+    hybrid?: import("./hybridTrace.js").HybridTraceSignals;
   };
 }
