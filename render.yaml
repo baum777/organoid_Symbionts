@@ -1,6 +1,6 @@
-# Render Blueprint — Gnomes Bot
-# Background Worker + optional Health Web Service
-# Node.js/TypeScript project — Python files are legacy and ignored
+# Render Blueprint - Organoid Symbiont
+# Background worker + health web service + daily cron
+# Node.js/TypeScript project - legacy Python files are ignored
 
 services:
   # Background Worker: 24/7 mention poller
@@ -16,6 +16,7 @@ services:
       pnpm build
       echo "Build complete. Output:"
       ls -la dist/
+    preDeployCommand: pnpm deploy-check
     startCommand: node dist/index.js
     disk:
       name: xai-bot-data
@@ -32,7 +33,7 @@ services:
       - key: USE_REDIS
         value: "true"
       - key: KV_URL
-        sync: false  # Set in Render dashboard: redis://default:PASS@HOST.upstash.io:6379
+        sync: false # Set in Render dashboard: redis://default:PASS@HOST.upstash.io:6379
       - key: REDIS_KEY_PREFIX
         value: "GNOMES_ONCHAIN:"
 
@@ -96,6 +97,7 @@ services:
     plan: free
     buildCommand: pnpm install --frozen-lockfile && pnpm build
     startCommand: node dist/server.js
+    healthCheckPath: /health
     envVars:
       - key: NODE_ENV
         value: production
@@ -108,13 +110,12 @@ services:
       - key: KV_URL
         sync: false
 
-  # Daily Persona Snippet Extractor — Cron (täglich 3 Uhr UTC)
+  # Daily Persona Snippet Extractor - Cron (täglich 3 Uhr UTC)
   - type: cron
     name: gnomes-daily-snippets
     runtime: node
     region: frankfurt
-    plan: free
-    branch: main
+    plan: starter
     buildCommand: pnpm install --frozen-lockfile && pnpm build
     startCommand: pnpm exec tsx src/persona/dailySnippetExtractor.ts
     schedule: "0 3 * * *"
