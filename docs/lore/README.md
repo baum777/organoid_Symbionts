@@ -30,6 +30,7 @@ Active surfaces:
 - Compatibility voice mirrors: `prompts/fragments/gnomes/*.md`
 - Shared matrix canon: `prompts/fragments/sharedOrganoidCanon.md`
 - Retrieval units: `memory/lore/lore_units.approved.jsonl`
+- Retrieval candidates: `memory/lore/lore_units.candidates.jsonl`
 - Retrieval mirror: `memory/lore/matrix_units.v1.yaml`
 
 Working rule:

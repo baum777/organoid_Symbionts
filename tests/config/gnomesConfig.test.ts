@@ -2,15 +2,22 @@ import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { getGnomesConfig, resetGnomesConfigCache } from "../../src/config/gnomesConfig.js";
 
 describe("gnomesConfig", () => {
+  let previousGnomesEnabled: string | undefined;
+  let previousLegacyCompat: string | undefined;
+
   beforeEach(() => {
+    previousGnomesEnabled = process.env.GNOMES_ENABLED;
+    previousLegacyCompat = process.env.LEGACY_COMPAT;
     delete process.env.GNOMES_ENABLED;
     delete process.env.LEGACY_COMPAT;
     resetGnomesConfigCache();
   });
 
   afterEach(() => {
-    delete process.env.GNOMES_ENABLED;
-    delete process.env.LEGACY_COMPAT;
+    if (previousGnomesEnabled === undefined) delete process.env.GNOMES_ENABLED;
+    else process.env.GNOMES_ENABLED = previousGnomesEnabled;
+    if (previousLegacyCompat === undefined) delete process.env.LEGACY_COMPAT;
+    else process.env.LEGACY_COMPAT = previousLegacyCompat;
     resetGnomesConfigCache();
   });
 

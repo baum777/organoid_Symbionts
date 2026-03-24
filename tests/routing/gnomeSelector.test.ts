@@ -114,7 +114,7 @@ describe("Gnome Selector", () => {
       { marketEnergy: "HIGH" },
     );
     const result = selectGnome(features, "hard_caution", { enabled: true });
-    expect(result.selectedGnomeId).toBe("wurzelwaechter");
+    expect(result.selectedGnomeId).toBe("muenzhueter");
     expect(result.selectedGnomeId).not.toBe("nebelspieler");
   });
 });
