@@ -5,7 +5,7 @@
  */
 
 export interface EvolutionSignal {
-  gnome_id: string;
+  embodiment_id: string;
   trait_key: string;
   direction: "up" | "down";
   magnitude: number; // 0..1
@@ -14,7 +14,7 @@ export interface EvolutionSignal {
 }
 
 export interface InteractionOutcome {
-  gnome_id: string;
+  embodiment_id: string;
   event_id: string;
   success: boolean;
   bissigkeit_score?: number;

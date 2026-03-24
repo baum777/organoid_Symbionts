@@ -1,5 +1,5 @@
 /**
- * Ensemble Policy — Rules for multi-gnome interaction pacing
+ * Ensemble Policy — Rules for multi-embodiment interaction pacing
  *
  * Phase-4: Enforce ensemble pacing, cameo limits, role switching.
  */
@@ -23,7 +23,7 @@ let cached: EnsemblePolicyConfig | null = null;
 export function getEnsemblePolicy(): EnsemblePolicyConfig {
   if (cached) return cached;
   cached = {
-    maxCameos: Number(process.env.GNOME_MAX_CAMEOS) || DEFAULT.maxCameos,
+    maxCameos: Number(process.env.EMBODIMENT_MAX_CAMEOS) || DEFAULT.maxCameos,
     minEnergyForSwarm: DEFAULT.minEnergyForSwarm,
     minRepliesBetweenSwarm: DEFAULT.minRepliesBetweenSwarm,
     maxSwarmPerUserPerHour: DEFAULT.maxSwarmPerUserPerHour,

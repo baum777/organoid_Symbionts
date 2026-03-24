@@ -1,8 +1,8 @@
 /**
- * Selector Features — Extract features for gnome selection from event context
+ * Selector Features — Extract features for embodiment selection from event context
  *
  * Aggregates intent, aggression, absurdity, sincerity, topic tags, market energy,
- * and user familiarity for the gnome selector.
+ * and user familiarity for the embodiment selector.
  */
 
 import type { ClassifierOutput, ScoreBundle, CanonicalEvent } from "../canonical/types.js";
@@ -24,7 +24,7 @@ export interface SelectorFeatures {
 
 /**
  * Compute selector features from classifier, scores, and event.
- * Used by gnomeSelector for scoring.
+ * Used by embodimentSelector for scoring.
  */
 export function extractSelectorFeatures(
   cls: ClassifierOutput,
@@ -69,7 +69,7 @@ function inferAbsurdity(cls: ClassifierOutput, scores: ScoreBundle): number {
 }
 
 function inferSincerity(cls: ClassifierOutput, scores: ScoreBundle): number {
-  if (cls.intent === "question" || cls.intent === "persona_query" || cls.intent === "lore_query")
+  if (cls.intent === "question" || cls.intent === "embodiment_query" || cls.intent === "lore_query")
     return 0.7;
   if (cls.intent === "bait" || cls.intent === "spam") return 0.1;
   return (scores.confidence ?? 0.5);
@@ -78,7 +78,7 @@ function inferSincerity(cls: ClassifierOutput, scores: ScoreBundle): number {
 function inferTopicTags(cls: ClassifierOutput): string[] {
   const tags: string[] = [];
   if (cls.intent.includes("market") || cls.intent === "market_narrative") tags.push("market");
-  if (cls.intent === "persona_query" || cls.intent === "lore_query") tags.push("lore", "persona");
+  if (cls.intent === "embodiment_query" || cls.intent === "lore_query") tags.push("lore", "embodiment");
   if (cls.intent === "hype_claim" || cls.intent === "performance_claim") tags.push("hype");
   if (cls.intent === "ca_request") tags.push("ca");
   return tags;

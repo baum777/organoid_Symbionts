@@ -1,7 +1,7 @@
 /**
  * Interaction Writeback — Persist routing + interaction results
  *
- * Stores: selected gnome, user, intent, reply mode, reply text, safety, timestamp.
+ * Stores: selected embodiment, user, intent, reply mode, reply text, safety, timestamp.
  * Fire-and-forget: never block publish. Phase-1: in-memory log; Phase-2: DB.
  */
 
@@ -12,7 +12,7 @@ export interface InteractionWritebackParams {
   user_id: string;
   user_handle: string;
   thread_id?: string;
-  selected_gnome_id: string;
+  selected_embodiment_id: string;
   response_mode: string;
   intent: string;
   topic?: string;
@@ -27,7 +27,7 @@ export async function writeInteractionWriteback(
 ): Promise<void> {
   try {
     const store = getUserAffinityStore();
-    await store.recordInteraction(params.user_id, params.selected_gnome_id, {
+    await store.recordInteraction(params.user_id, params.selected_embodiment_id, {
       incrementFamiliarity: params.safety_passed && params.published,
     });
     // Phase-1: affinity update only. Phase-2 will add routing_decisions, interaction_events, reply_outcomes.

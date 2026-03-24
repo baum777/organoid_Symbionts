@@ -5,7 +5,7 @@ import {
   TopicsSchema,
   IntentResultSchema,
   TruthGateSchema,
-  PersonaRouteSchema,
+  EmbodimentRouteSchema,
   CandidatesSchema,
   CandidateSelectionSchema,
   SafetyRewriteSchema,
@@ -46,9 +46,9 @@ describe("Contract: Prompt JSON outputs validate against Zod schemas", () => {
     expect(parsed.truth_level).toBe("FACT");
   });
 
-  it("persona route output", () => {
-    const o = mockLLM.personaRoute("t_001", "market_request", 0);
-    const parsed = parseWithZod(PersonaRouteSchema, o);
+  it("embodiment route output", () => {
+    const o = mockLLM.embodimentRoute("t_001", "market_request", 0);
+    const parsed = parseWithZod(EmbodimentRouteSchema, o);
     expect(parsed.mode).toBeTruthy();
   });
 

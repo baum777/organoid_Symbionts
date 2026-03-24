@@ -37,8 +37,8 @@ The target 5-phase model is:
 
 ## Migration Rule
 
-Legacy GNOMES/GORKY/persona language may still appear in compatibility paths.
-When you must interpret legacy labels, map them into embodiment/glyph/phase language without inventing new unsupported semantics.
+Use the organoid matrix as the canonical semantic frame.
+Do not invent alternate identity layers; map any residual labels into embodiment/glyph/phase language only if they are already supported by the current runtime.
 
 ## Safety Rule
 

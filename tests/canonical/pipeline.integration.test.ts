@@ -6,7 +6,7 @@ import type { LLMClient } from "../../src/clients/llmClient.js";
 import { cacheClear } from "../../src/ops/memoryCache.js";
 import fs from "node:fs";
 import path from "node:path";
-import { hasVoiceSigilMarker, stripVoiceSigils } from "../_helpers/voiceSigils.js";
+import { hasEmbodimentGlyphMarker, stripEmbodimentGlyphs } from "../_helpers/embodimentGlyphs.js";
 
 const AUDIT_FILE = path.join(process.cwd(), "data", "audit_log.jsonl");
 
@@ -55,8 +55,8 @@ describe("pipeline integration", () => {
     const result = await handleEvent(makeEvent(), makeDeps(), DEFAULT_CANONICAL_CONFIG);
     expect(result.action).toBe("publish");
     if (result.action === "publish") {
-      expect(hasVoiceSigilMarker(result.reply_text)).toBe(true);
-      expect(stripVoiceSigils(result.reply_text)).toBe("Zero proof, pure noise.");
+      expect(hasEmbodimentGlyphMarker(result.reply_text)).toBe(true);
+      expect(stripEmbodimentGlyphs(result.reply_text)).toBe("Zero proof, pure noise.");
       expect(result.thesis.primary).toBeTruthy();
       expect(["dry_one_liner", "analyst_meme_lite", "skeptical_breakdown", "soft_deflection"]).toContain(result.mode);
       expect(result.audit.final_action).toBe("publish");

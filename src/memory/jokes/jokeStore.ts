@@ -1,14 +1,14 @@
 /**
  * Joke Store — Persistent running jokes
  *
- * Phase-3: Stores recurring humor patterns for gnomes.
+ * Phase-3: Stores recurring humor patterns for embodiments.
  */
 
 export interface RunningJoke {
   id: string;
   category: string;
   content: string;
-  gnome_id?: string;
+  embodiment_id?: string;
   usage_count: number;
   last_used_at: string;
 }

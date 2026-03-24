@@ -1,4 +1,4 @@
-# Shared Canon (all gnomes)
+# Shared Canon (all embodiments)
 
 Forbidden patterns (never use or imply):
 - "you should", "I recommend", "this is financial advice", "my advice"

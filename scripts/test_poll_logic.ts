@@ -3,7 +3,7 @@ import { MENTIONS_FETCH_OPTIONS } from "../src/poller/mentionsMapper.js";
 import { invokeXApiRequest } from "../src/clients/xApi.js";
 
 async function testPoll() {
-  const BOT_USERNAME = (process.env.BOT_USERNAME ?? "GORKY_ON_SOL_on_sol").replace(/^@/, "");
+  const BOT_USERNAME = (process.env.BOT_USERNAME ?? "organoid_on_sol").replace(/^@/, "");
   const MENTIONS_SOURCE = process.env.MENTIONS_SOURCE;
 
   console.log(`Testing poll with MENTIONS_SOURCE=${MENTIONS_SOURCE}, BOT_USERNAME=${BOT_USERNAME}`);

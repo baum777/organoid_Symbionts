@@ -70,7 +70,7 @@ export const envSchema = z.object({
       "KV_URL must use redis:// or rediss:// protocol"
     ),
 
-  REDIS_KEY_PREFIX: z.string().optional().default("GNOMES_ONCHAIN:"),
+  REDIS_KEY_PREFIX: z.string().optional().default("ORGANOID:"),
 
   // Poll config
   POLL_INTERVAL_MS: pollIntervalSchema,
@@ -82,11 +82,6 @@ export const envSchema = z.object({
     .default("INFO"),
 
   DRY_RUN: z
-    .string()
-    .optional()
-    .default("false")
-    .transform((v: string | undefined) => v === "true"),
-  LEGACY_COMPAT: z
     .string()
     .optional()
     .default("false")
@@ -140,7 +135,6 @@ export function validateEnv(): EnvConfig {
     POLL_INTERVAL_MS: process.env.POLL_INTERVAL_MS,
     LOG_LEVEL: process.env.LOG_LEVEL,
     DRY_RUN: process.env.DRY_RUN,
-    LEGACY_COMPAT: process.env.LEGACY_COMPAT,
     TIMELINE_ENGAGEMENT_ENABLED: process.env.TIMELINE_ENGAGEMENT_ENABLED,
     TIMELINE_ENGAGEMENT_INTERVAL_MS: process.env.TIMELINE_ENGAGEMENT_INTERVAL_MS,
     TIMELINE_ENGAGEMENT_MAX_PER_RUN: process.env.TIMELINE_ENGAGEMENT_MAX_PER_RUN,

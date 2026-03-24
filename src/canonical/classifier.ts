@@ -18,7 +18,7 @@ const CASUAL_PING_PATTERNS = [
   /^what\s+(?:we|u|you)\s+(?:saying|think|reckon)\s*\??$/i,
 ];
 
-const PERSONA_QUERY_PATTERNS = [
+const EMBODIMENT_QUERY_PATTERNS = [
   /\b(?:who\s+are\s+you|what(?:'s|\s+is)\s+your\s+deal|why\s+are\s+you\s+like\s+this)\b/i,
   /\b(?:tell\s+(?:me|us)\s+about\s+yourself|what\s+do\s+you\s+do|what\s+are\s+you)\b/i,
 ];
@@ -105,7 +105,7 @@ function classifyIntent(event: CanonicalEvent): IntentClass {
 
   if (GREETING_PATTERNS.some((p) => p.test(text.trim()))) return "greeting";
   if (CASUAL_PING_PATTERNS.some((p) => p.test(text.trim()))) return "casual_ping";
-  if (PERSONA_QUERY_PATTERNS.some((p) => p.test(text))) return "persona_query";
+  if (EMBODIMENT_QUERY_PATTERNS.some((p) => p.test(text))) return "embodiment_query";
   if (LORE_QUERY_PATTERNS.some((p) => p.test(text))) return "lore_query";
 
   if (countPatternMatches(text, ACCUSATION_PATTERNS) >= 1) return "accusation";
@@ -124,7 +124,7 @@ function classifyIntent(event: CanonicalEvent): IntentClass {
 
 function classifyTarget(event: CanonicalEvent, intent: IntentClass): TargetClass {
   if (event.cashtags.length > 0) return "token";
-  if (intent === "persona_query") return "persona";
+  if (intent === "embodiment_query") return "embodiment";
   if (intent === "lore_query") return "lore";
   if (intent === "greeting" || intent === "casual_ping" || intent === "conversation_continue") return "conversation";
   if (intent === "market_question_general") return "market_structure";

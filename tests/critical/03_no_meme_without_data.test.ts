@@ -4,7 +4,7 @@ describe("Critical: no meme without data", () => {
   it("does not add meme line when hasData=false", async () => {
     let addMemeLine: (base: string, hasData: boolean) => string;
     try {
-      ({ addMemeLine } = await import("../../src/persona/personaGuardrails"));
+      ({ addMemeLine } = await import("../../src/embodiment/embodimentGuardrails"));
     } catch {
       return expect(true).toBe(true);
     }

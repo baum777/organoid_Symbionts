@@ -1,11 +1,11 @@
 /**
- * Text trim utility — enforces character limit for tweet replies
+ * Text trim utility — enforces embodiment limit for tweet replies
  */
 
 /**
- * Trims text to max characters. Normalizes whitespace; adds "..." when truncated.
+ * Trims text to max embodiments. Normalizes whitespace; adds "..." when truncated.
  * @param text - Raw text to trim
- * @param max - Maximum allowed characters (default 260 for Full Spectrum)
+ * @param max - Maximum allowed embodiments (default 260 for Full Spectrum)
  */
 export function trimToLimit(text: string, max = 260): string {
   let trimmed = text.trim().replace(/\s+/g, " ");

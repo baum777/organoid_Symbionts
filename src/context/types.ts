@@ -1,6 +1,6 @@
 export type MentionsSource = "mentions" | "search";
 
-export type ContextEngineMode = "legacy" | "v2" | "hybrid";
+export type ContextEngineMode = "v2" | "hybrid";
 
 export type IntentLabel =
   | "question"

@@ -59,7 +59,7 @@ export function buildRefinePrompt(params: RefineParams): RefinePromptOutput {
   const developer = [
     "Write ONE refined roast reply.",
     "Mirror the user's exact terminology where applicable.",
-    "Max 260 characters. Return JSON: { \"reply\": \"<your reply>\" }",
+    "Max 260 embodiments. Return JSON: { \"reply\": \"<your reply>\" }",
   ].join("\n");
 
   const userParts = [

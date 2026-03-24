@@ -2,7 +2,7 @@
  * User Graph - User Interaction Tracking
  *
  * Tracks relationships with users and their interaction history.
- * Used for personalized responses and relationship management.
+ * Used for embodimentlized responses and relationship management.
  *
  * Relationship types:
  * - new: First-time interaction

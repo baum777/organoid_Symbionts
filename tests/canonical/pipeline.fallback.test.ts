@@ -3,7 +3,7 @@ import { handleEvent, type PipelineDeps } from "../../src/canonical/pipeline.js"
 import { DEFAULT_CANONICAL_CONFIG } from "../../src/canonical/types.js";
 import type { CanonicalEvent, CanonicalConfig } from "../../src/canonical/types.js";
 import type { LLMClient } from "../../src/clients/llmClient.js";
-import { hasVoiceSigilMarker, stripVoiceSigils } from "../_helpers/voiceSigils.js";
+import { hasEmbodimentGlyphMarker, stripEmbodimentGlyphs } from "../_helpers/embodimentGlyphs.js";
 import { cacheClear } from "../../src/ops/memoryCache.js";
 import fs from "node:fs";
 import path from "node:path";
@@ -65,8 +65,8 @@ describe("pipeline fallback scenarios", () => {
     const result = await handleEvent(makeEvent(), makeDeps(llm), DEFAULT_CANONICAL_CONFIG);
     expect(result.action).toBe("publish");
     if (result.action === "publish") {
-      expect(hasVoiceSigilMarker(result.reply_text)).toBe(true);
-      expect(stripVoiceSigils(result.reply_text)).toBe("Hype check: zero substance.");
+      expect(hasEmbodimentGlyphMarker(result.reply_text)).toBe(true);
+      expect(stripEmbodimentGlyphs(result.reply_text)).toBe("Hype check: zero substance.");
     }
   });
 
@@ -75,8 +75,8 @@ describe("pipeline fallback scenarios", () => {
     const result = await handleEvent(makeEvent(), makeDeps(llm), DEFAULT_CANONICAL_CONFIG);
     expect(result.action).toBe("publish");
     if (result.action === "publish") {
-      expect(hasVoiceSigilMarker(result.reply_text)).toBe(true);
-      expect(stripVoiceSigils(result.reply_text)).toBe("Meh.");
+      expect(hasEmbodimentGlyphMarker(result.reply_text)).toBe(true);
+      expect(stripEmbodimentGlyphs(result.reply_text)).toBe("Meh.");
     }
   });
 

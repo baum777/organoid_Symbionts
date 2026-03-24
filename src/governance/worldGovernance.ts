@@ -11,8 +11,8 @@ export interface GovernanceLimits {
 }
 
 const DEFAULT: GovernanceLimits = {
-  maxActiveWorldEvents: Number(process.env.GNOME_MAX_ACTIVE_WORLD_EVENTS) || 2,
-  maxActiveRitualOverlays: Number(process.env.GNOME_MAX_ACTIVE_RITUAL_OVERLAYS) || 1,
+  maxActiveWorldEvents: Number(process.env.EMBODIMENT_MAX_ACTIVE_WORLD_EVENTS) || 2,
+  maxActiveRitualOverlays: Number(process.env.EMBODIMENT_MAX_ACTIVE_RITUAL_OVERLAYS) || 1,
   maxSwarmPerHour: 2,
 };
 

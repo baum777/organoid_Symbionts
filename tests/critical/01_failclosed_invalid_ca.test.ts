@@ -14,7 +14,7 @@ describe("Critical: invalid CA => fail-closed UNVERIFIED_HIGH_RISK", () => {
     }
 
     const res = await auditToken({
-      ticker: "GORKY",
+      ticker: "ORGANOID",
       contract_address: "pl1234ace56hold789er",
       chain: "solana",
     });

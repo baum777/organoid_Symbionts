@@ -7,5 +7,5 @@ input_schema:
 output_schema:
   - summary
 content: |
-  Summarize this conversation in {max_length} characters or less:
+  Summarize this conversation in {max_length} embodiments or less:
   {conversation_history}

@@ -1,21 +1,21 @@
 /**
- * Continuity Resolver — Preserve gnome continuity within threads
+ * Continuity Resolver — Preserve embodiment continuity within threads
  *
- * When GNOMES_ENABLED and GNOME_CONTINUITY_ENABLED are true, prefers to keep
- * the same gnome within a conversation thread to avoid persona flipping.
+ * When EMBODIMENTS_ENABLED and EMBODIMENT_CONTINUITY_ENABLED are true, prefers to keep
+ * the same embodiment within a conversation thread to avoid embodiment flipping.
  * Overrides when thread tone strongly shifts.
  */
 
 export interface ContinuityContext {
   threadId: string;
-  priorGnomeId?: string;
+  priorEmbodimentId?: string;
   priorResponseMode?: string;
   messageCountInThread?: number;
 }
 
 export interface ContinuityResult {
-  /** Gnome ID to use (may override selector when continuity applies) */
-  gnomeId: string;
+  /** Embodiment ID to use (may override selector when continuity applies) */
+  embodimentId: string;
   /** Whether continuity was applied */
   applied: boolean;
   /** Reason for decision */
@@ -23,36 +23,36 @@ export interface ContinuityResult {
 }
 
 /**
- * Resolve gnome continuity. If we have a prior gnome in this thread and
- * we're early in the conversation, prefer to keep the same gnome.
+ * Resolve embodiment continuity. If we have a prior embodiment in this thread and
+ * we're early in the conversation, prefer to keep the same embodiment.
  * Phase-1: Simple pass-through; Phase-2 will add thread lookup.
  */
 export function resolveContinuity(
-  selectedGnomeId: string,
+  selectedEmbodimentId: string,
   context: ContinuityContext,
   opts?: { continuityEnabled?: boolean },
 ): ContinuityResult {
   const enabled = opts?.continuityEnabled ?? false;
 
-  if (!enabled || !context.priorGnomeId) {
+  if (!enabled || !context.priorEmbodimentId) {
     return {
-      gnomeId: selectedGnomeId,
+      embodimentId: selectedEmbodimentId,
       applied: false,
-      reason: enabled ? "no_prior_gnome" : "continuity_disabled",
+      reason: enabled ? "no_prior_embodiment" : "continuity_disabled",
     };
   }
 
   const msgCount = context.messageCountInThread ?? 0;
   if (msgCount > 5) {
     return {
-      gnomeId: selectedGnomeId,
+      embodimentId: selectedEmbodimentId,
       applied: false,
       reason: "thread_long_enough_to_switch",
     };
   }
 
   return {
-    gnomeId: context.priorGnomeId,
+    embodimentId: context.priorEmbodimentId,
     applied: true,
     reason: "continuity_preserved",
   };

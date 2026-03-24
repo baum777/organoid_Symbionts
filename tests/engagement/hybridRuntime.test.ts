@@ -1,7 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { InMemoryHybridStore } from "../../src/memory/hybrid/store.js";
 import { prepareHybridRuntimeConversationBundle, type HybridRuntimeConfig } from "../../src/engagement/hybridRuntime.js";
-import { resetGnomesConfigCache } from "../../src/config/gnomesConfig.js";
 import type { ConversationBundle } from "../../src/engagement/conversationBundle.js";
 import type { EngagementCandidate } from "../../src/engagement/candidateBoundary.js";
 import type { SignalProfile } from "../../src/engagement/signalProfile.js";
@@ -226,31 +225,33 @@ describe("hybrid runtime decoration", () => {
   beforeEach(async () => {
     store = new InMemoryHybridStore();
     await seedStore(store);
-    process.env.LEGACY_COMPAT = "true";
-    resetGnomesConfigCache();
   });
 
-  afterEach(() => {
-    delete process.env.LEGACY_COMPAT;
-    resetGnomesConfigCache();
-  });
+  afterEach(() => {});
 
-  it("leaves the runtime bundle untouched in legacy mode", async () => {
+  it("keeps hybrid mode observational when readiness is too strict", async () => {
     const bundle = sampleBundle();
     const result = await prepareHybridRuntimeConversationBundle({
       candidate: sampleCandidate(),
       bundle,
       signalProfile: sampleSignalProfile(),
-      config: runtimeConfig("legacy"),
+      config: {
+        ...runtimeConfig("hybrid"),
+        thresholds: {
+          minMatchScore: 1,
+          maxDiffCount: 0,
+          allowShadowOnly: false,
+        },
+      },
       store,
       generatedAt: NOW,
     });
 
     expect(result.bundle).toBe(bundle);
-    expect(result.trace.mode).toBe("legacy");
+    expect(result.trace.mode).toBe("hybrid");
     expect(result.trace.applied).toBe(false);
-    expect(result.comparison).toBeUndefined();
-    expect(result.readiness).toBeUndefined();
+    expect(result.comparison).toBeDefined();
+    expect(result.readiness?.ready).toBe(false);
   });
 
   it("builds a bounded shadow comparison without changing the runtime context", async () => {

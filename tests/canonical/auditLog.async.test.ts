@@ -137,7 +137,7 @@ describe("1.4 Async Audit Logging", () => {
             wallet_filter: true,
             unsupported_assertion: true,
             mode_match: true,
-            persona_compliance: true,
+            embodiment_compliance: true,
           },
         },
         final_action: "publish",

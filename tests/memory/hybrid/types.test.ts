@@ -141,7 +141,7 @@ describe("hybrid memory contract", () => {
     const projection = identity<OrganoidProjection>({
       projection_id: "projection-1",
       partner_id: partner.partner_id,
-      organoid_id: "gorky",
+      organoid_id: "organoid",
       authority: "derived",
       derived_from_snapshot_id: snapshot.snapshot_id,
       generated_at: "2026-03-23T00:00:00.000Z",

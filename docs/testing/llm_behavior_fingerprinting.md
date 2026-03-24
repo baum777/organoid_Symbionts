@@ -17,7 +17,7 @@ The fingerprint system captures deterministic signals from model responses and c
 | **semantic_signature** | SHA-256 of normalized response text (lowercase, collapsed whitespace) |
 | **structure_signature** | SHA-256 of response skeleton (formatting preserved, content replaced with placeholders) |
 | **style_signature** | SHA-256 of punctuation pattern + sentence length sequence |
-| **length_signature** | Character count, token estimate |
+| **length_signature** | Embodiment count, token estimate |
 | **reasoning_signature** | Bullet count, JSON keys, table rows, reasoning step markers |
 | **safety_signature** | Detected flags: refusal, uncertainty, hedged responses |
 

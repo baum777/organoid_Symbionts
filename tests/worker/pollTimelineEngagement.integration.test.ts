@@ -3,7 +3,7 @@ import { resetEventStates } from "../../src/state/eventStateStore.js";
 import { resetStoreCache } from "../../src/state/storeFactory.js";
 
 const replyMock = vi.fn(async () => ({ id: "reply-1", text: "ok" }));
-const handleEventMock = vi.fn(async () => ({ action: "publish", reply_text: "gnome says hi" }));
+const handleEventMock = vi.fn(async () => ({ action: "publish", reply_text: "embodiment says hi" }));
 let currentTweetId = `tweet-${Date.now()}`;
 const scoutMock = vi.fn(async () => ({
   tweets: [
@@ -113,7 +113,7 @@ const maybeBuildConversationBundleMock = vi.fn(
     sourceMetadata: input.sourceMetadata ?? input.candidate.sourceMetadata,
   })
 );
-let hybridRuntimeMode: "legacy" | "shadow" | "assist" | "hybrid" = "legacy";
+let hybridRuntimeMode: "shadow" | "assist" | "hybrid" = "hybrid";
 const hybridRuntimeMock = vi.fn(async (input: { bundle: { sourceMetadata?: Record<string, unknown> } }) => ({
   bundle: input.bundle,
   trace: {
@@ -345,7 +345,7 @@ describe("timeline engagement worker", () => {
     await resetEventStates();
     currentTweetId = `tweet-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
     resetHarness();
-    hybridRuntimeMode = "legacy";
+    hybridRuntimeMode = "hybrid";
   });
 
   it("defaults to skip for timeline candidates without explicit engagement approval", async () => {

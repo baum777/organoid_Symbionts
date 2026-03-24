@@ -200,7 +200,7 @@ function buildFixtures() {
   const projection: OrganoidProjection = {
     projection_id: "projection-1",
     partner_id: partner.partner_id,
-    organoid_id: "gorky",
+    organoid_id: "organoid",
     authority: "derived",
     derived_from_snapshot_id: snapshotNewer.snapshot_id,
     generated_at: iso(5),

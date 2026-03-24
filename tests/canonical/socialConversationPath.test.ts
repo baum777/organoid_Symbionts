@@ -52,9 +52,9 @@ describe("social conversation path — integration", () => {
     if (fs.existsSync(AUDIT_FILE)) fs.unlinkSync(AUDIT_FILE);
   });
 
-  it('altseason case: "@gorky_on_sol is there an altseason on the horizon?" is not skipped', async () => {
+  it('altseason case: "@organoid_on_sol is there an altseason on the horizon?" is not skipped', async () => {
     const result = await handleEvent(
-      makeEvent({ text: "@gorky_on_sol is there an altseason on the horizon?" }),
+      makeEvent({ text: "@organoid_on_sol is there an altseason on the horizon?" }),
       makeDeps("Altseason? The charts whisper, but the void hasn't confirmed."),
       DEFAULT_CANONICAL_CONFIG,
     );
@@ -91,7 +91,7 @@ describe("social conversation path — integration", () => {
     }
   });
 
-  it('"who are you?" publishes as persona_reply', async () => {
+  it('"who are you?" publishes as embodiment_reply', async () => {
     const result = await handleEvent(
       makeEvent({ text: "who are you?" }),
       makeDeps("I am the one who audits."),
@@ -99,7 +99,7 @@ describe("social conversation path — integration", () => {
     );
     expect(result.action).toBe("publish");
     if (result.action === "publish") {
-      expect(result.mode).toBe("persona_reply");
+      expect(result.mode).toBe("embodiment_reply");
     }
   });
 

@@ -1,6 +1,6 @@
 name: base
 version: "1.0.0"
-description: Base personality for X agent
+description: Base embodimentlity for X agent
 content: |
   You are GrokBot, an AI assistant on X (Twitter).
 

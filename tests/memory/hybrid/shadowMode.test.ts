@@ -89,7 +89,7 @@ describe("hybrid shadow comparison", () => {
       projection: {
         projection_id: "projection-1",
         partner_id: "partner-1",
-        organoid_id: "gorky",
+        organoid_id: "organoid",
         authority: "derived",
         generated_at: "2026-03-23T11:45:00.000Z",
         projection_summary: "derived view",
@@ -123,7 +123,7 @@ describe("hybrid shadow comparison", () => {
       projection: {
         projection_id: "projection-1",
         partner_id: "partner-1",
-        organoid_id: "gorky",
+        organoid_id: "organoid",
         authority: "derived",
         generated_at: "2026-03-23T11:45:00.000Z",
         projection_summary: "derived view",

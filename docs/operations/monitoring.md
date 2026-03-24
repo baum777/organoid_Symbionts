@@ -23,4 +23,4 @@ Prefer the built-in HTTP endpoints:
 - `GET /ready` (store ping only)
 - `GET /metrics` (basic metrics)
 
-Note: the production runtime is TypeScript/Node. Any legacy Python health scripts should be treated as reference-only unless explicitly wired into your deployment.
+Note: the production runtime is TypeScript/Node. Keep health checks aligned with the current worker and Render services.

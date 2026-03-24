@@ -10,22 +10,22 @@ export type MemeText = {
 };
 
 const DEFAULT_HEADERS: Partial<Record<TemplateKey, string>> = {
-  GORKY_ON_SOL_courtroom: "COURT OF MARKET REALITY",
-  GORKY_ON_SOL_chart_autopsy: "CHART AUTOPSY REPORT",
-  GORKY_ON_SOL_ghost: "LIQUIDITY GHOST DETECTED",
-  GORKY_ON_SOL_certificate: "OFFICIAL CERTIFICATION",
-  GORKY_ON_SOL_trade_screen: "LIVE TRADING FOOTAGE"
+  ORGANOID_ON_SOL_courtroom: "COURT OF MARKET REALITY",
+  ORGANOID_ON_SOL_chart_autopsy: "CHART AUTOPSY REPORT",
+  ORGANOID_ON_SOL_ghost: "LIQUIDITY GHOST DETECTED",
+  ORGANOID_ON_SOL_certificate: "OFFICIAL CERTIFICATION",
+  ORGANOID_ON_SOL_trade_screen: "LIVE TRADING FOOTAGE"
 };
 
 const DEFAULT_FOOTERS: Partial<Record<TemplateKey, string>> = {
-  GORKY_ON_SOL_courtroom: "SENTENCED TO HOLDING",
-  GORKY_ON_SOL_chart_autopsy: "TIME OF DEATH: LIQUIDITY EVENT",
-  GORKY_ON_SOL_certificate: "ISSUED BY GORKY_ON_SOL ENTITY",
-  GORKY_ON_SOL_trade_screen: "EMOTIONAL DAMAGE DETECTED"
+  ORGANOID_ON_SOL_courtroom: "SENTENCED TO HOLDING",
+  ORGANOID_ON_SOL_chart_autopsy: "TIME OF DEATH: LIQUIDITY EVENT",
+  ORGANOID_ON_SOL_certificate: "ISSUED BY ORGANOID_ON_SOL ENTITY",
+  ORGANOID_ON_SOL_trade_screen: "EMOTIONAL DAMAGE DETECTED"
 };
 
 const BANK: Record<TemplateKey, Record<string, string[]>> = {
-  GORKY_ON_SOL_courtroom: {
+  ORGANOID_ON_SOL_courtroom: {
     verdict: [
       "VERDICT: GUILTY OF VIBES-BASED INVESTING.",
       "VERDICT: CONFIDENCE EXCEEDED SKILL.",
@@ -44,7 +44,7 @@ const BANK: Record<TemplateKey, Record<string, string[]>> = {
       "NO PAROLE FROM BAGS"
     ]
   },
-  GORKY_ON_SOL_chart_autopsy: {
+  ORGANOID_ON_SOL_chart_autopsy: {
     title: ["CHART AUTOPSY REPORT", "MEMECOIN MORGUE REPORT", "RUG PULL NECROPSY"],
     cause: [
       "Cause of death: NARRATIVE INFLATION.",
@@ -54,7 +54,7 @@ const BANK: Record<TemplateKey, Record<string, string[]>> = {
     ],
     footer: ["TIME OF DEATH: LIQUIDITY EVENT", "AUTOPSY COMPLETE — R.I.P.", "CAUSE: MARKET SAID NO"]
   },
-  GORKY_ON_SOL_ghost: {
+  ORGANOID_ON_SOL_ghost: {
     title: ["LIQUIDITY GHOST DETECTED", "CHART GRAVEYARD GHOST", "EXIT LIQUIDITY WRAITH"],
     subtitle: [
       "YOUR BAGS ARE HAUNTED FOREVER.",
@@ -63,7 +63,7 @@ const BANK: Record<TemplateKey, Record<string, string[]>> = {
       "YOU SUMMONED VOLATILITY. CONGRATS."
     ]
   },
-  GORKY_ON_SOL_certificate: {
+  ORGANOID_ON_SOL_certificate: {
     title: ["OFFICIAL CERTIFICATION", "DEGENERACY DEGREE AWARDED", "REKT ACADEMY DIPLOMA"],
     body: ["THIS USER IS CERTIFIED", "DEGENERATE STATUS: CONFIRMED", "OFFICIALLY REKT"],
     rank: [
@@ -73,9 +73,9 @@ const BANK: Record<TemplateKey, Record<string, string[]>> = {
       "WASH TRADE DETECTOR",
       "DEAD COIN REVIVER"
     ],
-    footer: ["ISSUED BY GORKY_ON_SOL ENTITY", "VALID UNTIL NEXT RUG", "NO REFUNDS ON DEGENERACY"]
+    footer: ["ISSUED BY ORGANOID_ON_SOL ENTITY", "VALID UNTIL NEXT RUG", "NO REFUNDS ON DEGENERACY"]
   },
-  GORKY_ON_SOL_trade_screen: {
+  ORGANOID_ON_SOL_trade_screen: {
     header: ["LIVE TRADING FOOTAGE", "LIQUIDATION LIVE CAM", "REKT SCREEN CAPTURE"],
     body: [
       "YOU REALLY PRESSED BUY AT ATH.",
@@ -130,7 +130,7 @@ export function buildMemeText(args: {
   }
 
   // ensure mandatory zones with safe fallbacks
-  if (t === "GORKY_ON_SOL_courtroom") {
+  if (t === "ORGANOID_ON_SOL_courtroom") {
     const headerOpts = getBankEntry(t, "header");
     const verdictOpts = getBankEntry(t, "verdict");
     const footerOpts = getBankEntry(t, "footer");
@@ -138,7 +138,7 @@ export function buildMemeText(args: {
     if (verdictOpts) textByZone.verdict = textByZone.verdict || pickOne(verdictOpts, rng);
     if (footerOpts) textByZone.footer = textByZone.footer || pickOne(footerOpts, rng);
   }
-  if (t === "GORKY_ON_SOL_chart_autopsy") {
+  if (t === "ORGANOID_ON_SOL_chart_autopsy") {
     const titleOpts = getBankEntry(t, "title");
     const causeOpts = getBankEntry(t, "cause");
     const footerOpts = getBankEntry(t, "footer");
@@ -146,13 +146,13 @@ export function buildMemeText(args: {
     if (causeOpts) textByZone.cause = textByZone.cause || pickOne(causeOpts, rng);
     if (footerOpts) textByZone.footer = textByZone.footer || pickOne(footerOpts, rng);
   }
-  if (t === "GORKY_ON_SOL_ghost") {
+  if (t === "ORGANOID_ON_SOL_ghost") {
     const titleOpts = getBankEntry(t, "title");
     const subtitleOpts = getBankEntry(t, "subtitle");
     if (titleOpts) textByZone.title = textByZone.title || pickOne(titleOpts, rng);
     if (subtitleOpts) textByZone.subtitle = textByZone.subtitle || pickOne(subtitleOpts, rng);
   }
-  if (t === "GORKY_ON_SOL_certificate") {
+  if (t === "ORGANOID_ON_SOL_certificate") {
     const titleOpts = getBankEntry(t, "title");
     const bodyOpts = getBankEntry(t, "body");
     const rankOpts = getBankEntry(t, "rank");
@@ -162,7 +162,7 @@ export function buildMemeText(args: {
     if (rankOpts) textByZone.rank = textByZone.rank || pickOne(rankOpts, rng);
     if (footerOpts) textByZone.footer = textByZone.footer || pickOne(footerOpts, rng);
   }
-  if (t === "GORKY_ON_SOL_trade_screen") {
+  if (t === "ORGANOID_ON_SOL_trade_screen") {
     const headerOpts = getBankEntry(t, "header");
     const bodyOpts = getBankEntry(t, "body");
     const footerOpts = getBankEntry(t, "footer");

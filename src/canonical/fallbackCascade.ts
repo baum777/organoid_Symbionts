@@ -27,17 +27,17 @@ import {
   buildMasterPrompt,
   buildRefinePromptFullSpectrum,
 } from "./fullSpectrumPromptBuilder.js";
-import { loadPersonaSnippets } from "../persona/memorySnippets.js";
+import { loadEmbodimentSnippets } from "../embodiment/memorySnippets.js";
 import { trimToLimit } from "../utils/textTrim.js";
-import { getGnomesConfig } from "../config/gnomesConfig.js";
-import { loadGnomes } from "../gnomes/loadGnomes.js";
-import { getGnome } from "../gnomes/registry.js";
-import type { GnomeSelectionResult } from "../routing/gnomeSelector.js";
+import { getEmbodimentsConfig } from "../config/embodimentsConfig.js";
+import { loadEmbodiments } from "../embodiments/loadEmbodiments.js";
+import { getEmbodiment } from "../embodiments/registry.js";
+import type { EmbodimentSelectionResult } from "../routing/embodimentSelector.js";
 import { extractSelectorFeatures } from "../routing/selectorFeatures.js";
 import { resolveContinuity } from "../routing/continuityResolver.js";
-import { selectGnome } from "../routing/gnomeSelector.js";
-import { composeGnomePrompt } from "../prompts/composeGnomePrompt.js";
-import { getCharacterMemoryStore } from "../memory/characterMemory.js";
+import { selectEmbodiment } from "../routing/embodimentSelector.js";
+import { composeEmbodimentPrompt } from "../prompts/composeEmbodimentPrompt.js";
+import { getEmbodimentMemoryStore } from "../memory/embodimentMemory.js";
 import { createSharedLoreStore } from "../memory/sharedLoreStore.js";
 import { createLoreStore } from "../memory/loreStore.js";
 
@@ -114,7 +114,7 @@ async function generateFullSpectrum(
   cls: ClassifierOutput,
   initialMode: CanonicalMode,
   promptContext?: FallbackCascadeContext,
-): Promise<{ reply_text: string; model_id: string; prompt_hash: string; finalBissigkeit?: number; selectedGnomeId: string } | null> {
+): Promise<{ reply_text: string; model_id: string; prompt_hash: string; finalBissigkeit?: number; selectedEmbodimentId: string } | null> {
   const budgetCheck = await checkLLMBudget(false);
   if (!budgetCheck.allowed) {
     console.warn(`[BUDGET_GATE] Blocking Full Spectrum LLM for event ${event.event_id}: ${budgetCheck.skipReason}`);
@@ -122,45 +122,45 @@ async function generateFullSpectrum(
   }
   await recordLLMCall(false);
 
-  const gnomesCfg = getGnomesConfig();
-  let selectedGnomeId = gnomesCfg.DEFAULT_SAFE_GNOME;
+  const embodimentsCfg = getEmbodimentsConfig();
+  let selectedEmbodimentId = embodimentsCfg.DEFAULT_SAFE_EMBODIMENT;
 
   let input: { system: string; developer: string; user: string };
 
-  if (gnomesCfg.GNOMES_ENABLED) {
+  if (embodimentsCfg.EMBODIMENTS_ENABLED) {
     try {
-      await loadGnomes();
+      await loadEmbodiments();
       // Use pre-selection from pipeline when available (Phase-2: single selection point)
-      const selection = promptContext?.gnomeSelection ?? (() => {
+      const selection = promptContext?.embodimentSelection ?? (() => {
         const features = extractSelectorFeatures(cls, scores, event, {
           marketEnergy: promptContext?.style?.energyLevel ?? "MEDIUM",
         });
-        return selectGnome(features, initialMode, {
-          defaultSafeGnome: gnomesCfg.DEFAULT_SAFE_GNOME,
+        return selectEmbodiment(features, initialMode, {
+          defaultSafeEmbodiment: embodimentsCfg.DEFAULT_SAFE_EMBODIMENT,
           enabled: true,
         });
       })();
       const continuity = resolveContinuity(
-        selection.selectedGnomeId,
+        selection.selectedEmbodimentId,
         { threadId: event.event_id },
-        { continuityEnabled: gnomesCfg.GNOME_CONTINUITY_ENABLED },
+        { continuityEnabled: embodimentsCfg.EMBODIMENT_CONTINUITY_ENABLED },
       );
-      selectedGnomeId = continuity.gnomeId;
-      const profile = getGnome(selectedGnomeId);
+      selectedEmbodimentId = continuity.embodimentId;
+      const profile = getEmbodiment(selectedEmbodimentId);
 
       if (profile) {
         const sharedLoreStore = createSharedLoreStore(createLoreStore());
         const sharedLore = await sharedLoreStore.getFragments({ limit: 3 });
-        const charMem = getCharacterMemoryStore();
+        const charMem = getEmbodimentMemoryStore();
         const memoryItems = await charMem.getItems({
-          gnomeId: selectedGnomeId,
+          embodimentId: selectedEmbodimentId,
           userId: event.author_id,
           limit: 5,
         });
-        const composed = composeGnomePrompt({
-          selectedGnome: profile,
+        const composed = composeEmbodimentPrompt({
+          selectedEmbodiment: profile,
           sharedLore: sharedLore.map((f) => f.content),
-          characterMemory: memoryItems.map((m) => m.content),
+          embodimentMemory: memoryItems.map((m) => m.content),
           threadContext: event.parent_text ?? undefined,
           responseMode: initialMode,
           event,
@@ -184,8 +184,8 @@ async function generateFullSpectrum(
         );
       }
     } catch (err) {
-      if (gnomesCfg.GNOME_ROUTING_DEBUG) {
-        console.warn("[GNOMES] Fallback to base prompt after error:", err);
+      if (embodimentsCfg.EMBODIMENT_ROUTING_DEBUG) {
+        console.warn("[ORGANOID] Fallback to base prompt after error:", err);
       }
       input = buildMasterPrompt(
         event,
@@ -200,9 +200,9 @@ async function generateFullSpectrum(
   } else {
     let organoidSnippets: string[] | undefined;
     const isStandalone = !event.parent_text && (event.conversation_context?.length ?? 0) === 0;
-    if (isStandalone && gnomesCfg.LEGACY_COMPAT) {
+    if (isStandalone) {
       try {
-        const snippets = await loadPersonaSnippets();
+        const snippets = await loadEmbodimentSnippets();
         if (snippets.length > 0) {
           organoidSnippets = snippets.map((s) => s.text);
         }
@@ -282,7 +282,7 @@ async function generateFullSpectrum(
     model_id: config.model_id,
     prompt_hash,
     finalBissigkeit,
-    selectedGnomeId,
+    selectedEmbodimentId,
   };
 }
 
@@ -296,8 +296,8 @@ export interface FallbackResult {
   attempts: number;
   /** Post-LLM hybrid bissigkeit (Full Spectrum only) */
   finalBissigkeit?: number;
-  /** Selected gnome id (when GNOMES_ENABLED) */
-  selectedGnomeId?: string;
+  /** Selected embodiment id (when EMBODIMENTS_ENABLED) */
+  selectedEmbodimentId?: string;
 }
 
 export interface FallbackCascadeContext {
@@ -310,8 +310,8 @@ export interface FallbackCascadeContext {
   style?: StyleContext;
   /** Pre-LLM estimated bissigkeit for prompt hint */
   estimatedBissigkeit?: number;
-  /** Phase-2: Pre-selected gnome (from pipeline); skips internal selection */
-  gnomeSelection?: GnomeSelectionResult;
+  /** Phase-2: Pre-selected embodiment (from pipeline); skips internal selection */
+  embodimentSelection?: EmbodimentSelectionResult;
 }
 
 export async function fallbackCascade(
@@ -358,7 +358,7 @@ export async function fallbackCascade(
         validation: val,
         attempts,
         finalBissigkeit: gen.finalBissigkeit,
-        selectedGnomeId: gen.selectedGnomeId,
+        selectedEmbodimentId: gen.selectedEmbodimentId,
       };
     }
     const repairEnabled = (config as { repair_enabled?: boolean }).repair_enabled ?? true;
@@ -380,7 +380,7 @@ export async function fallbackCascade(
           validation: repairOut.validation_after,
           attempts,
           finalBissigkeit: gen.finalBissigkeit,
-          selectedGnomeId: gen.selectedGnomeId,
+          selectedEmbodimentId: gen.selectedEmbodimentId,
         };
       }
     }
@@ -393,7 +393,7 @@ export async function fallbackCascade(
       validation: val,
       attempts,
       finalBissigkeit: gen.finalBissigkeit,
-      selectedGnomeId: gen.selectedGnomeId,
+      selectedEmbodimentId: gen.selectedEmbodimentId,
     };
   }
 

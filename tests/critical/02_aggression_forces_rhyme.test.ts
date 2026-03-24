@@ -9,7 +9,7 @@ describe("Critical: aggression => humorMode=rhyme override", () => {
       seedKey?: string;
     }) => string;
     try {
-      ({ selectHumorMode } = await import("../../src/persona/humorModeSelector"));
+      ({ selectHumorMode } = await import("../../src/embodiment/humorModeSelector"));
     } catch {
       return expect(true).toBe(true);
     }
@@ -18,7 +18,7 @@ describe("Critical: aggression => humorMode=rhyme override", () => {
       text: "YOU SUCK!!! SCAM!!!",
       aggression: { isAggressive: true },
       energy: 5,
-      seedKey: "GORKY_ON_SOL",
+      seedKey: "ORGANOID_ON_SOL",
     });
 
     expect(mode).toBe("rhyme");

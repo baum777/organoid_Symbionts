@@ -31,7 +31,6 @@ async function main(): Promise<void> {
     phases: organoid.phases,
     emitTerminal: true,
   });
-  console.log(`[ORGANOID] LEGACY_COMPAT=${organoid.legacyCompat ? "true" : "false"}`);
   console.log(`[ORGANOID] 7-organoid matrix: ${formatOrganoidMatrixSummary(organoid.matrix)}`);
   console.log(`[ORGANOID] 5-phase model: ${organoid.phases.join(" -> ")}`);
   if (organoid.warnings.length > 0) {

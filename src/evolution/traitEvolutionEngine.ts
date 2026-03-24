@@ -8,7 +8,7 @@ import type { EvolutionSignal } from "./evolutionSignals.js";
 import { validateTraitBounds, type TraitBounds } from "./traitBoundsValidator.js";
 
 export interface EvolvedTrait {
-  gnome_id: string;
+  embodiment_id: string;
   trait_key: string;
   old_value: number;
   new_value: number;
@@ -32,7 +32,7 @@ export function applyEvolutionSignals(
     const validation = validateTraitBounds(proposed, current, b);
     const newVal = validation.valid ? proposed : (validation.clamped ?? current);
     results.push({
-      gnome_id: s.gnome_id,
+      embodiment_id: s.embodiment_id,
       trait_key: s.trait_key,
       old_value: current,
       new_value: newVal,

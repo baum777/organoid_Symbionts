@@ -1,8 +1,8 @@
 /**
- * User Affinity Store — User-Gnome relationship signals
+ * User Affinity Store — User-Embodiment relationship signals
  *
- * Lightweight signals for routing: familiarity, preferred gnome, etc.
- * Phase-1: In-memory; Phase-2/3 wire to DB (user_gnome_affinity).
+ * Lightweight signals for routing: familiarity, preferred embodiment, etc.
+ * Phase-1: In-memory; Phase-2/3 wire to DB (user_embodiment_affinity).
  */
 
 /** Phase-3: Relationship arc signals (0..1) */
@@ -15,9 +15,9 @@ export interface RelationshipArcs {
   inside_jokes?: number;
 }
 
-export interface UserGnomeAffinity {
+export interface UserEmbodimentAffinity {
   user_id: string;
-  gnome_id: string;
+  embodiment_id: string;
   familiarity: number;
   last_interaction_at: string;
   interaction_count: number;
@@ -26,33 +26,33 @@ export interface UserGnomeAffinity {
 }
 
 export interface UserAffinityStore {
-  /** Get affinity for user-gnome pair. */
-  getAffinity(userId: string, gnomeId: string): Promise<UserGnomeAffinity | null>;
+  /** Get affinity for user-embodiment pair. */
+  getAffinity(userId: string, embodimentId: string): Promise<UserEmbodimentAffinity | null>;
   /** Update after successful interaction (conservative increment). */
   recordInteraction(
     userId: string,
-    gnomeId: string,
+    embodimentId: string,
     opts?: { incrementFamiliarity?: boolean },
   ): Promise<void>;
 }
 
 class InMemoryUserAffinityStore implements UserAffinityStore {
-  private map = new Map<string, UserGnomeAffinity>();
+  private map = new Map<string, UserEmbodimentAffinity>();
 
-  private key(userId: string, gnomeId: string): string {
-    return `${userId}:${gnomeId}`;
+  private key(userId: string, embodimentId: string): string {
+    return `${userId}:${embodimentId}`;
   }
 
-  async getAffinity(userId: string, gnomeId: string): Promise<UserGnomeAffinity | null> {
-    return this.map.get(this.key(userId, gnomeId)) ?? null;
+  async getAffinity(userId: string, embodimentId: string): Promise<UserEmbodimentAffinity | null> {
+    return this.map.get(this.key(userId, embodimentId)) ?? null;
   }
 
   async recordInteraction(
     userId: string,
-    gnomeId: string,
+    embodimentId: string,
     opts?: { incrementFamiliarity?: boolean },
   ): Promise<void> {
-    const k = this.key(userId, gnomeId);
+    const k = this.key(userId, embodimentId);
     const now = new Date().toISOString();
     const existing = this.map.get(k);
     const inc = opts?.incrementFamiliarity !== false;
@@ -62,7 +62,7 @@ class InMemoryUserAffinityStore implements UserAffinityStore {
     );
     this.map.set(k, {
       user_id: userId,
-      gnome_id: gnomeId,
+      embodiment_id: embodimentId,
       familiarity: newFamiliarity,
       last_interaction_at: now,
       interaction_count: (existing?.interaction_count ?? 0) + 1,

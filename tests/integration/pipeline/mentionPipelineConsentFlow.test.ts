@@ -87,7 +87,7 @@ const maybeBuildConversationBundleMock = vi.fn(
     sourceMetadata: input.sourceMetadata ?? input.candidate.sourceMetadata,
   })
 );
-let hybridRuntimeMode: "legacy" | "shadow" | "assist" | "hybrid" = "legacy";
+let hybridRuntimeMode: "shadow" | "assist" | "hybrid" = "hybrid";
 const hybridRuntimeMock = vi.fn(async (input: { bundle: { sourceMetadata?: Record<string, unknown> } }) => ({
   bundle: input.bundle,
   trace: {
@@ -233,7 +233,7 @@ vi.mock("../../../src/state/sharedBudgetGate.js", () => ({
 function mention(overrides: Partial<Mention> = {}): Mention {
   return {
     id: "m-1",
-    text: "Hi @Gnomes_onchain, can you help?",
+    text: "Hi @organoid_on_sol, can you help?",
     author_id: "author-1",
     authorUsername: "alice",
     conversation_id: "conv-1",
@@ -254,7 +254,7 @@ describe("mention pipeline consent flow", () => {
     delete process.env.BOT_WHITELIST_USERNAMES;
     delete process.env.BOT_WHITELIST_USER_IDS;
     resetStoreCache();
-    hybridRuntimeMode = "legacy";
+    hybridRuntimeMode = "hybrid";
     complianceConfig = {
       aiApproval: true,
       optInHandles: [],

@@ -4,18 +4,18 @@
  * Phase-5: Phrase choice, tone overlays.
  */
 
-import { getFactionForGnome } from "./factionRegistry.js";
+import { getFactionForEmbodiment } from "./factionRegistry.js";
 
 export interface FactionEffect {
-  gnomeId: string;
+  embodimentId: string;
   factionMotif?: string;
   toneHint?: string;
 }
 
-export function getFactionEffects(gnomeId: string): FactionEffect {
-  const faction = getFactionForGnome(gnomeId);
+export function getFactionEffects(embodimentId: string): FactionEffect {
+  const faction = getFactionForEmbodiment(embodimentId);
   return {
-    gnomeId,
+    embodimentId,
     factionMotif: faction?.description,
     toneHint: faction ? `${faction.name} energy` : undefined,
   };

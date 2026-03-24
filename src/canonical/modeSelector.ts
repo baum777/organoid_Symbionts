@@ -12,7 +12,7 @@ const SOCIAL_MODE_MAP: Partial<Record<IntentClass, CanonicalMode>> = {
   greeting: "social_banter",
   casual_ping: "conversation_hook",
   market_question_general: "market_banter",
-  persona_query: "persona_reply",
+  embodiment_query: "embodiment_reply",
   lore_query: "lore_drop",
   conversation_continue: "conversation_hook",
 };

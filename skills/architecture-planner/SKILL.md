@@ -100,7 +100,7 @@ Return a plan using the headings below, in this order.
 - **Wave 0 — alignment & baselines** (docs, invariants, test harness, metrics):
 - **Wave 1 — foundations** (interfaces, scaffolding, compatibility layers):
 - **Wave 2 — migration/feature delivery** (incremental rollouts, data moves):
-- **Wave 3 — hardening & cleanup** (remove legacy paths, tighten policies):
+- **Wave 3 — hardening & cleanup** (remove old paths, tighten policies):
 
 ### Risks
 - **Top risks** (with impact, likelihood, mitigation, detection):

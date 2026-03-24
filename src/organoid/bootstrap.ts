@@ -1,16 +1,6 @@
-import { loadGnomes } from "../gnomes/loadGnomes.js";
-import {
-  getAllOrganoidProfiles,
-  getGnome,
-} from "../gnomes/registry.js";
-import {
-  getLegacyProfileId,
-  getProfileEmbodiment,
-  getProfileGlyph,
-  type OrganoidPhase,
-  type OrganoidEmbodimentProfile,
-} from "../gnomes/types.js";
-import { getGnomesConfig } from "../config/gnomesConfig.js";
+import { loadEmbodiments } from "../embodiments/loadEmbodiments.js";
+import { getAllEmbodiments, getEmbodiment } from "../embodiments/registry.js";
+import { getProfileEmbodiment, getProfileGlyph, type EmbodimentProfile, type OrganoidPhase } from "../embodiments/types.js";
 
 export const ORGANOID_PHASES: readonly OrganoidPhase[] = [
   "Identity Dissolution",
@@ -32,7 +22,6 @@ export const ORGANOID_MATRIX_ORDER = [
 
 export interface OrganoidMatrixNode {
   id: string;
-  legacyId: string;
   embodiment: string;
   glyph: string;
   role: string;
@@ -41,17 +30,15 @@ export interface OrganoidMatrixNode {
 }
 
 export interface OrganoidBootstrapResult {
-  legacyCompat: boolean;
   loadedCount: number;
   matrix: OrganoidMatrixNode[];
   phases: readonly OrganoidPhase[];
   warnings: string[];
 }
 
-function toMatrixNode(profile: OrganoidEmbodimentProfile): OrganoidMatrixNode {
+function toMatrixNode(profile: EmbodimentProfile): OrganoidMatrixNode {
   return {
     id: profile.id,
-    legacyId: getLegacyProfileId(profile),
     embodiment: getProfileEmbodiment(profile),
     glyph: getProfileGlyph(profile).char,
     role: profile.role,
@@ -74,11 +61,10 @@ export function formatOrganoidMatrixSummary(matrix: OrganoidMatrixNode[]): strin
 }
 
 export async function bootstrapOrganoidRuntime(scope: "worker" | "server"): Promise<OrganoidBootstrapResult> {
-  const { LEGACY_COMPAT } = getGnomesConfig();
   const warnings: string[] = [];
 
   try {
-    await loadGnomes();
+    await loadEmbodiments();
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
     const warning = `[ORGANOID] Failed to load matrix profiles during ${scope} bootstrap: ${message}`;
@@ -86,34 +72,31 @@ export async function bootstrapOrganoidRuntime(scope: "worker" | "server"): Prom
     console.warn(warning);
   }
 
-  const loadedProfiles = getAllOrganoidProfiles();
+  const loadedProfiles = getAllEmbodiments();
   const matrix = loadedProfiles.map(toMatrixNode).sort(sortByCanonicalOrder);
 
-  const missingIds = ORGANOID_MATRIX_ORDER.filter(
-    (id) => !matrix.some((node) => node.id === id),
-  );
+  const missingIds = ORGANOID_MATRIX_ORDER.filter((id) => !matrix.some((node) => node.id === id));
   if (missingIds.length > 0) {
     const warning = `[ORGANOID] Incomplete ${scope} matrix. Missing: ${missingIds.join(", ")}`;
     warnings.push(warning);
     console.warn(warning);
   }
 
-  if (!LEGACY_COMPAT && matrix.length === 0) {
+  if (matrix.length === 0) {
     const warning = "[ORGANOID] No organoid profiles were loaded; runtime will proceed in degraded mode.";
     warnings.push(warning);
     console.warn(warning);
   }
 
   for (const id of ORGANOID_MATRIX_ORDER) {
-    if (!getGnome(id)) {
-      const warning = `[ORGANOID] Missing registry alias for ${id}`;
+    if (!getEmbodiment(id)) {
+      const warning = `[ORGANOID] Missing registry entry for ${id}`;
       warnings.push(warning);
       console.warn(warning);
     }
   }
 
   return {
-    legacyCompat: LEGACY_COMPAT,
     loadedCount: loadedProfiles.length,
     matrix,
     phases: ORGANOID_PHASES,

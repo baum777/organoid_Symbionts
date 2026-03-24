@@ -417,40 +417,38 @@ export async function runTimelineEngagementIteration(): Promise<TimelineIteratio
         });
         const signalProfile = assembleSignalProfile(engagementCandidate, conversationBundle);
         let runtimeConversationBundle = conversationBundle!;
-        if (hybridRuntimeConfig.mode !== "legacy") {
-          try {
-            const hybridRuntime = await prepareHybridRuntimeConversationBundle({
-              candidate: engagementCandidate,
-              bundle: conversationBundle!,
-              signalProfile,
-              config: hybridRuntimeConfig,
-            });
-            runtimeConversationBundle = hybridRuntime.bundle;
+        try {
+          const hybridRuntime = await prepareHybridRuntimeConversationBundle({
+            candidate: engagementCandidate,
+            bundle: conversationBundle!,
+            signalProfile,
+            config: hybridRuntimeConfig,
+          });
+          runtimeConversationBundle = hybridRuntime.bundle;
 
-            const logPayload = {
-              mode: hybridRuntime.trace.mode,
-              applied: hybridRuntime.trace.applied,
-              ready: hybridRuntime.trace.ready,
-              shadowStatus: hybridRuntime.trace.shadow_status,
-              matchScore: hybridRuntime.trace.match_score,
-              diffCount: hybridRuntime.trace.diff_count,
-              blockers: hybridRuntime.trace.blockers,
-              warnings: hybridRuntime.trace.warnings,
-            };
-            if (hybridRuntime.trace.mode === "shadow" || !hybridRuntime.trace.applied) {
-              logWarn("[HYBRID] Runtime fallback or shadow comparison", logPayload);
-            } else {
-              logInfo("[HYBRID] Runtime hybrid context applied", {
-                ...logPayload,
-                contextChars: hybridRuntime.trace.context_chars,
-              });
-            }
-          } catch (error) {
-            logWarn("[HYBRID] Runtime decoration failed, using base context", {
-              error: error instanceof Error ? error.message : String(error),
+          const logPayload = {
+            mode: hybridRuntime.trace.mode,
+            applied: hybridRuntime.trace.applied,
+            ready: hybridRuntime.trace.ready,
+            shadowStatus: hybridRuntime.trace.shadow_status,
+            matchScore: hybridRuntime.trace.match_score,
+            diffCount: hybridRuntime.trace.diff_count,
+            blockers: hybridRuntime.trace.blockers,
+            warnings: hybridRuntime.trace.warnings,
+          };
+          if (hybridRuntime.trace.mode === "shadow" || !hybridRuntime.trace.applied) {
+            logWarn("[HYBRID] Runtime fallback or shadow comparison", logPayload);
+          } else {
+            logInfo("[HYBRID] Runtime hybrid context applied", {
+              ...logPayload,
+              contextChars: hybridRuntime.trace.context_chars,
             });
-            runtimeConversationBundle = conversationBundle!;
           }
+        } catch (error) {
+          logWarn("[HYBRID] Runtime decoration failed, using base context", {
+            error: error instanceof Error ? error.message : String(error),
+          });
+          runtimeConversationBundle = conversationBundle!;
         }
         const event = toCanonicalExecutionInput(engagementCandidate, {
           ...runtimeConversationBundle,

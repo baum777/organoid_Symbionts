@@ -5,7 +5,7 @@
 | Verzeichnis | Zweck | Status |
 |-------------|-------|--------|
 | `data/` | **Aktiver Runtime-State** für TypeScript Bot | ✅ Aktiv |
-| `state/` | **Legacy** - Alte Python Runtime SQLite DB | ⚠️ Archiviert |
+| `state/` | Historical Python runtime SQLite DB | ⚠️ Archived |
 
 ---
 
@@ -28,7 +28,7 @@ Das `data/` Verzeichnis ist der **aktive State-Speicher** für die TypeScript/No
 
 ---
 
-## state/ (Legacy)
+## state/ (Historical)
 
 Das `state/` Verzeichnis ist ein **Überbleibsel der alten Python Runtime**:
 
@@ -37,11 +37,11 @@ Das `state/` Verzeichnis ist ein **Überbleibsel der alten Python Runtime**:
 - **Nicht mehr aktiv** - TypeScript Runtime verwendet `data/`
 
 ### Migration
-Die `agent_state.db` in `state/` kann bei Bedarf archiviert werden:
+Die `agent_state.db` in `state/` kann bei Bedarf extern archiviert werden:
 
 ```bash
-# Archivierung (optional)
-mv state/agent_state.db legacy/archives/
+# Archivierung (optional, außerhalb des Repos)
+mv state/agent_state.db /tmp/organoid-archives/
 rmdir state/
 ```
 

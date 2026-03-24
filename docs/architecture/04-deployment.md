@@ -13,15 +13,14 @@ docker run -e X_API_KEY=... -e XAI_API_KEY=... xai-bot
 
 ## Environment Variables
 
-Environment variables are documented in one place:
-
-- `docs/operations/var.README.md` (SSOT)
+Environment variables are defined in `.env.example` and mirrored for operators in
+`docs/operations/var.README.md`.
 
 Operationally important variables include:
-- X credentials: `X_API_KEY`, `X_API_SECRET`, `X_ACCESS_TOKEN`, `X_ACCESS_SECRET`
-- LLM: `XAI_API_KEY`, `XAI_MODEL_PRIMARY`, `XAI_MODEL_FALLBACKS`
-- Launch control: `LAUNCH_MODE` (`off|dry_run|staging|prod`)
-- State store: `USE_REDIS`, `KV_URL`, `REDIS_KEY_PREFIX` (Redis is required for multi-worker)
+- X OAuth: `X_CLIENT_ID`, `X_CLIENT_SECRET`, `X_REFRESH_TOKEN`, `X_ACCESS_TOKEN`
+- LLM: `XAI_API_KEY`, `XAI_BASE_URL`, `XAI_MODEL_PRIMARY`, `XAI_MODEL_FALLBACKS`
+- Launch control: `LAUNCH_MODE`, `BOT_ACTIVATION_MODE`, `BOT_USERNAME`
+- State store: `USE_REDIS`, `KV_URL`, `REDIS_KEY_PREFIX`
 
 ## Health Checks
 

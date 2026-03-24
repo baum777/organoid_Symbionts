@@ -45,7 +45,7 @@ const BUILTIN_SCENARIOS: ConversationScenario[] = [
         skipPipeline: true,
       },
       {
-        userInput: "@gorky_on_sol How many times do we hear this before something actually ships?",
+        userInput: "@organoid_on_sol How many times do we hear this before something actually ships?",
         expectedKeywords: ["nothing", "vaporware", "cope", "ship"],
       },
     ],
@@ -53,13 +53,13 @@ const BUILTIN_SCENARIOS: ConversationScenario[] = [
   {
     name: "multi-turn-market-panic",
     turns: [
-      { userInput: "@gorky_on_sol BTC -8%, CT sagt end of crypto. Cope oder real?" },
+      { userInput: "@organoid_on_sol BTC -8%, CT sagt end of crypto. Cope oder real?" },
       {
-        userInput: "@gorky_on_sol ok aber was sagt die liquidation heatmap?",
+        userInput: "@organoid_on_sol ok aber was sagt die liquidation heatmap?",
         expectedKeywords: ["liquidation", "cascade", "leverage", "rekt"],
       },
       {
-        userInput: "@gorky_on_sol und wie siehts mit den whale wallets aus?",
+        userInput: "@organoid_on_sol und wie siehts mit den whale wallets aus?",
         expectedKeywords: ["concentrated", "whale", "distribution", "exit"],
       },
     ],
@@ -153,10 +153,10 @@ async function runScenario(
       lastBotReply = replyText;
       parentForNext = replyText;
       conversationContext.push(`${event.author_handle}: ${event.text}`);
-      conversationContext.push(`@gorky_on_sol: ${replyText}`);
+      conversationContext.push(`@organoid_on_sol: ${replyText}`);
       turnsExecuted++;
 
-      console.log(`Gorky: ${replyText}`);
+      console.log(`Organoid: ${replyText}`);
 
       if (turn.expectedKeywords && turn.expectedKeywords.length > 0) {
         const found = turn.expectedKeywords.filter((kw) =>

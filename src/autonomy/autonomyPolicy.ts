@@ -1,5 +1,5 @@
 /**
- * Autonomy Policy — Bounded autonomous character response
+ * Autonomy Policy — Bounded autonomous embodiment response
  *
  * Phase-4: Determines if autonomy triggers should activate.
  */

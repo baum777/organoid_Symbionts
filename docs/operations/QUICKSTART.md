@@ -2,8 +2,8 @@
 
 Minimal guide to run the system locally and verify it works.
 
-> Environment variables are documented **only** in `docs/operations/var.README.md`.
-> Do not duplicate variable documentation anywhere else.
+> Environment variables are defined in `.env.example` and summarized in `docs/operations/var.README.md`.
+> Use `.env.example` as the file to copy and fill for local runs.
 
 ---
 
@@ -11,7 +11,7 @@ Minimal guide to run the system locally and verify it works.
 
 - Node.js >= 20.0.0
 - pnpm
-- Required API keys (see `docs/operations/var.README.md`)
+- Required API keys (see `.env.example`)
 
 ---
 
@@ -34,7 +34,7 @@ cp .env.example .env
 2. Open `.env` and configure required variables.
 
 📌 Variable documentation:
-→ [`docs/operations/var.README.md`](../operations/var.README.md) (single source of truth)
+→ [`.env.example`](../../.env.example) and [`docs/operations/var.README.md`](../operations/var.README.md)
 
 ---
 
@@ -73,8 +73,8 @@ If something fails:
 
 | Topic | File |
 |-------|------|
-| Variables | `docs/operations/var.README.md` |
-| Persona | `docs/lore/PERSONA.md` |
+| Variables | `.env.example` |
+| Embodiment | `docs/lore/ORGANOID_EMBODIMENTS.md` |
 | Architecture | `docs/architecture/` |
 | Workflows | `docs/workflows/` |
 | Adaptive Intelligence | `docs/implementation/PHASE2_ADAPTIVE_INTELLIGENCE.md` |
@@ -84,6 +84,6 @@ If something fails:
 
 ## ⚠️ Drift Prevention Rule
 
-* Environment variables → only in `docs/operations/var.README.md`
+* Environment variables → `.env.example` plus `docs/operations/var.README.md`
 * Setup instructions → only in `docs/operations/QUICKSTART.md`
 * Workflows → only in `docs/workflows/`

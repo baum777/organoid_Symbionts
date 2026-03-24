@@ -2,8 +2,6 @@
 
 This runbook covers the **production TypeScript/Node runtime**.
 
-If you are looking at legacy Python material, see `legacy/` (reference only).
-
 ## Start (local)
 
 ```bash
@@ -51,5 +49,5 @@ pnpm simulate:ci
 ## Canonical References
 
 - Setup: `docs/operations/QUICKSTART.md`
-- Env vars (SSOT): `docs/operations/var.README.md`
+- Env vars: `.env.example` and `docs/operations/var.README.md`
 - Launch controls: `docs/operations/launch_runbook.md`

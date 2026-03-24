@@ -1,11 +1,10 @@
 /**
- * Gnomes_onchain Mention Poller
+ * organoid_on_sol Mention Poller
  *
  * Fetches mentions, processes via canonical pipeline.
  * Uses StateStore as single source of truth for cursor, processed mentions, and publish state.
  */
 import "dotenv/config";
-import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { createXClient } from "../clients/xClient.js";
@@ -44,11 +43,8 @@ import {
   isPublished,
   isProcessed,
 } from "../state/eventStateStore.js";
-import { getStateStore, initializeStateStore } from "../state/storeFactory.js";
+import { initializeStateStore } from "../state/storeFactory.js";
 import type { CursorState } from "../state/stateStore.js";
-import { migrateLegacyState } from "./migrateLegacyState.js";
-
-import { DATA_DIR } from "../config/dataDir.js";
 import { isPostingDisabled, shouldPost } from "../ops/launchGate.js";
 import { withCircuitBreaker } from "../ops/llmCircuitBreaker.js";
 import {
@@ -98,7 +94,6 @@ import {
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-const LEGACY_DATA_FILE = path.resolve(DATA_DIR, "processed_mentions.json");
 
 const POLL_INTERVAL_MS = Number(process.env.POLL_INTERVAL_MS) || 30_000;
 const DRY_RUN = process.env.DRY_RUN === "true";
@@ -108,7 +103,7 @@ const MENTIONS_SOURCE = (process.env.MENTIONS_SOURCE ?? "mentions").toLowerCase(
   | "mentions"
   | "search";
 
-const BOT_USERNAME = (process.env.BOT_USERNAME ?? "Gnomes_onchain").replace(/^@/, "");
+const BOT_USERNAME = (process.env.BOT_USERNAME ?? "organoid_on_sol").replace(/^@/, "");
 
 // Track consecutive errors per mention for circuit breaker pattern (in-memory, acceptable per plan)
 const mentionErrorCounts = new Map<string, number>();
@@ -138,20 +133,6 @@ function setupGlobalErrorHandlers(): void {
     await shutdownAuditLog();
     process.exit(0);
   });
-}
-
-/** One-time migration: migrate legacy processed_mentions.json to StateStore (event_state + cursor) */
-async function migrateLegacyStateIfExists(): Promise<void> {
-  try {
-    const result = await migrateLegacyState(LEGACY_DATA_FILE, getStateStore());
-    if (result.migratedCount > 0 || result.cursorSet) {
-      logInfo("[MIGRATION] Migrated legacy state", { ...result });
-    }
-  } catch (error) {
-    logWarn("[MIGRATION] Failed to migrate legacy state, continuing fresh", {
-      error: error instanceof Error ? error.message : String(error),
-    });
-  }
 }
 
 function sleep(ms: number): Promise<void> {
@@ -448,40 +429,38 @@ export async function processCanonicalMention(
 
   let runtimeConversationBundle = conversationBundle!;
   const hybridRuntimeConfig = readHybridRuntimeConfig();
-  if (hybridRuntimeConfig.mode !== "legacy") {
-    try {
-      const hybridRuntime = await prepareHybridRuntimeConversationBundle({
-        candidate: engagementCandidate,
-        bundle: conversationBundle!,
-        signalProfile,
-        config: hybridRuntimeConfig,
-      });
-      runtimeConversationBundle = hybridRuntime.bundle;
+  try {
+    const hybridRuntime = await prepareHybridRuntimeConversationBundle({
+      candidate: engagementCandidate,
+      bundle: conversationBundle!,
+      signalProfile,
+      config: hybridRuntimeConfig,
+    });
+    runtimeConversationBundle = hybridRuntime.bundle;
 
-      const logPayload = {
-        mode: hybridRuntime.trace.mode,
-        applied: hybridRuntime.trace.applied,
-        ready: hybridRuntime.trace.ready,
-        shadowStatus: hybridRuntime.trace.shadow_status,
-        matchScore: hybridRuntime.trace.match_score,
-        diffCount: hybridRuntime.trace.diff_count,
-        blockers: hybridRuntime.trace.blockers,
-        warnings: hybridRuntime.trace.warnings,
-      };
-      if (hybridRuntime.trace.mode === "shadow" || !hybridRuntime.trace.applied) {
-        logWarn("[HYBRID] Runtime fallback or shadow comparison", logPayload);
-      } else {
-        logInfo("[HYBRID] Runtime hybrid context applied", {
-          ...logPayload,
-          contextChars: hybridRuntime.trace.context_chars,
-        });
-      }
-    } catch (error) {
-      logWarn("[HYBRID] Runtime decoration failed, using base context", {
-        error: error instanceof Error ? error.message : String(error),
+    const logPayload = {
+      mode: hybridRuntime.trace.mode,
+      applied: hybridRuntime.trace.applied,
+      ready: hybridRuntime.trace.ready,
+      shadowStatus: hybridRuntime.trace.shadow_status,
+      matchScore: hybridRuntime.trace.match_score,
+      diffCount: hybridRuntime.trace.diff_count,
+      blockers: hybridRuntime.trace.blockers,
+      warnings: hybridRuntime.trace.warnings,
+    };
+    if (hybridRuntime.trace.mode === "shadow" || !hybridRuntime.trace.applied) {
+      logWarn("[HYBRID] Runtime fallback or shadow comparison", logPayload);
+    } else {
+      logInfo("[HYBRID] Runtime hybrid context applied", {
+        ...logPayload,
+        contextChars: hybridRuntime.trace.context_chars,
       });
-      runtimeConversationBundle = conversationBundle!;
     }
+  } catch (error) {
+    logWarn("[HYBRID] Runtime decoration failed, using base context", {
+      error: error instanceof Error ? error.message : String(error),
+    });
+    runtimeConversationBundle = conversationBundle!;
   }
 
   const event = toCanonicalExecutionInput(engagementCandidate, {
@@ -550,7 +529,7 @@ export async function processCanonicalMention(
       event_id: mention.id,
       user_id: event.author_id,
       user_handle: mention.authorUsername ?? event.author_handle,
-      selected_gnome_id: result.selectedGnomeId ?? "stillhalter",
+      selected_embodiment_id: result.selectedEmbodimentId ?? "stillhalter",
       response_mode: result.audit?.response_mode ?? "single_tweet",
       intent: result.intent ?? (result.audit?.classifier_output as { intent?: string } | undefined)?.intent ?? "unknown",
       reply_text: result.reply_text,
@@ -558,25 +537,25 @@ export async function processCanonicalMention(
       published,
     }).catch(() => {});
 
-    // Phase-2: Routing writeback when gnomeSelection available
-    if (result.gnomeSelection) {
+    // Phase-2: Routing writeback when embodimentSelection available
+    if (result.embodimentSelection) {
       writeRoutingDecision({
         event_id: mention.id,
         user_id: event.author_id,
         user_handle: mention.authorUsername ?? event.author_handle,
-        selected_gnome_id: result.gnomeSelection.selectedGnomeId,
-        alternative_candidates: result.gnomeSelection.alternativeCandidates.map((c) => ({
-          gnomeId: c.gnomeId,
+        selected_embodiment_id: result.embodimentSelection.selectedEmbodimentId,
+        alternative_candidates: result.embodimentSelection.alternativeCandidates.map((c) => ({
+          embodimentId: c.embodimentId,
           score: c.score,
         })),
-        response_mode: result.gnomeSelection.responseMode,
-        reasoning: result.gnomeSelection.reasoning,
+        response_mode: result.embodimentSelection.responseMode,
+        reasoning: result.embodimentSelection.reasoning,
       });
       writeInteractionEvent({
         event_id: mention.id,
         user_id: event.author_id,
         user_handle: mention.authorUsername ?? event.author_handle,
-        gnome_id: result.gnomeSelection.selectedGnomeId,
+        embodiment_id: result.embodimentSelection.selectedEmbodimentId,
         intent: result.intent ?? (result.audit?.classifier_output as { intent?: string } | undefined)?.intent,
       });
       writeReplyOutcome({
@@ -609,7 +588,7 @@ export async function processCanonicalMention(
 export async function runWorkerLoop(): Promise<void> {
   setupGlobalErrorHandlers();
 
-  console.log("[START] Gnomes_onchain Mention Poller (canonical pipeline)");
+  console.log("[START] organoid_on_sol Mention Poller (canonical pipeline)");
   console.log(`[CONFIG] DRY_RUN=${DRY_RUN}`);
   console.log(`[CONFIG] POLL_INTERVAL=${POLL_INTERVAL_MS}ms`);
   console.log(`[CONFIG] Mentions source: ${MENTIONS_SOURCE}`);
@@ -670,8 +649,6 @@ export async function runWorkerLoop(): Promise<void> {
   });
   setGauge(GAUGE_NAMES.CURRENT_POLL_INTERVAL_MS, POLL_INTERVAL_MS);
   incrementCounter(COUNTER_NAMES.RECOVERY_RESTART_TOTAL);
-
-  await migrateLegacyStateIfExists();
 
   let lastSinceId: string | null = null;
   const cursor = await store.getCursor();

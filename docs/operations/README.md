@@ -5,7 +5,7 @@ Runbooks, environment setup, deployment, and monitoring.
 ## Canonical Docs
 
 - [QUICKSTART.md](./QUICKSTART.md) — Install, configure, run locally
-- [var.README.md](./var.README.md) — **Single source of truth** for all environment variables
+- [var.README.md](./var.README.md) — Environment reference aligned with `.env.example`
 - [runbook.md](./runbook.md) — Operational runbook
 - [monitoring.md](./monitoring.md) — Monitoring and health
 - [debugging.md](./debugging.md) — Debugging guide

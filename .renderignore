@@ -1,12 +1,12 @@
 # Render Ignore — Prevent Python/Docker detection
 # This is a Node.js/TypeScript project
 
-# Docker files (legacy)
+# Docker files
 Dockerfile*
 docker-compose*
 .dockerignore
 
-# Python files (legacy)
+# Python files
 *.py
 *.pyc
 __pycache__/
@@ -14,12 +14,11 @@ __pycache__/
 .venv/
 venv/
 
-# Legacy Python project
-legacy/python/
+# Archived Python tooling
 llm-terminal-test-bundle/
 tools/behavior_fingerprint/
 
-# Python config (legacy)
+# Python config
 requirements*.txt
 pyproject.toml*
 requirements-dev.txt

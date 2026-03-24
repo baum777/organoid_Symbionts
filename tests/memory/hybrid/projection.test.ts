@@ -69,7 +69,7 @@ describe("hybrid organoid projections", () => {
 
     const projection = buildOrganoidProjection({
       partner_id: "partner-1",
-      organoid_id: "gorky",
+      organoid_id: "organoid",
       snapshot,
       atoms: [
         buildAtom({ atom_id: "atom-1", kind: "preference", statement: "prefers concise replies", support_count: 3 }),
@@ -88,20 +88,20 @@ describe("hybrid organoid projections", () => {
     expect(projection.authority).toBe("derived");
     expect(projection.derived_from_snapshot_id).toBe("snapshot-1");
     expect(projection.partner_id).toBe("partner-1");
-    expect(projection.organoid_id).toBe("gorky");
+    expect(projection.organoid_id).toBe("organoid");
     expect(projection.supporting_core_atom_ids).toEqual(["atom-1", "atom-2", "atom-3"]);
     expect(projection.supporting_episode_ids).toEqual(["episode-1", "episode-2", "episode-3"]);
     expect(projection.best_interaction_modes).toContain("concise");
     expect(projection.best_interaction_modes.length).toBeLessThanOrEqual(4);
     expect(projection.continuity_hooks).toContain("keep continuity hooks");
     expect(projection.caution_signals).toContain("low risk");
-    expect(projection.projection_summary).toContain("organoid gorky");
+    expect(projection.projection_summary).toContain("organoid organoid");
   });
 
   it("invalidates a derived projection without mutating the original", () => {
     const projection = buildOrganoidProjection({
       partner_id: "partner-1",
-      organoid_id: "gorky",
+      organoid_id: "organoid",
       snapshot: {
         snapshot_id: "snapshot-1",
         partner_id: "partner-1",

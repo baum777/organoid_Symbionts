@@ -1,8 +1,8 @@
 import { mkdir, readFile, unlink, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 import { ORGANOID_PHASES, type OrganoidMatrixNode } from "../organoid/bootstrap.js";
-import { getSigilForGnome } from "../gnomes/sigils.js";
-import type { OrganoidPhase } from "../gnomes/types.js";
+import { getGlyphForEmbodiment } from "../embodiments/glyphs.js";
+import type { OrganoidPhase } from "../embodiments/types.js";
 import { getStateStore } from "../state/storeFactory.js";
 import { stableHash } from "../utils/hash.js";
 import { setGauge } from "./metrics.js";
@@ -105,9 +105,8 @@ function fallbackMatrix(ids: string[]): OrganoidMatrixNode[] {
   if (cleaned.length === 0) cleaned.push("stillhalter");
   return cleaned.map((id, index) => ({
     id,
-    legacyId: id,
     embodiment: id,
-    glyph: getSigilForGnome(id),
+    glyph: getGlyphForEmbodiment(id),
     role: index === 0 ? "primary-observer" : "support-observer",
     archetype: "dry_observer",
     phaseAffinities: [],
@@ -332,7 +331,7 @@ export function renderPulseHeartSvg(snapshot: PulseHeartSnapshot): string {
     return `
       <g transform="translate(${x.toFixed(2)} ${y.toFixed(2)})">
         <circle r="${r.toFixed(2)}" fill="${node.active ? palette.accent : "#0f172a"}" opacity="${node.active ? 0.92 : 0.45}" stroke="${node.active ? palette.glow : "#334155"}" stroke-width="2"/>
-        <text text-anchor="middle" dominant-baseline="middle" font-size="${node.active ? 18 : 14}" fill="${node.active ? "#f8fafc" : "#cbd5e1"}">${escapeXml(node.glyph || getSigilForGnome(node.id))}</text>
+        <text text-anchor="middle" dominant-baseline="middle" font-size="${node.active ? 18 : 14}" fill="${node.active ? "#f8fafc" : "#cbd5e1"}">${escapeXml(node.glyph || getGlyphForEmbodiment(node.id))}</text>
       </g>`;
   }).join("");
   const phasePills = snapshot.phaseViews.map((phase, index) => {

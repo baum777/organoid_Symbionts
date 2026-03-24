@@ -1,5 +1,5 @@
 /**
- * Gorky Roast Pattern Library
+ * Organoid Roast Pattern Library
  * Pattern definitions with trigger conditions, sample framing, and safe sarcasm boundaries.
  */
 

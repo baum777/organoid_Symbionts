@@ -62,10 +62,10 @@ describe("eligibility — social path", () => {
     expect(result.skip_reason).toBeNull();
   });
 
-  it("allows persona_query with low evidence", () => {
+  it("allows embodiment_query with low evidence", () => {
     const result = checkEligibility(
       makeScores({ relevance: 0.20, confidence: 0.15, risk: 0.10 }),
-      makeCls({ intent: "persona_query", target: "persona" }),
+      makeCls({ intent: "embodiment_query", target: "embodiment" }),
       DEFAULT_CANONICAL_CONFIG,
     );
     expect(result.eligible).toBe(true);

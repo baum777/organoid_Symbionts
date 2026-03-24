@@ -5,7 +5,7 @@ export const IntentClassSchema = z.enum([
   "casual_ping",
   "question",
   "market_question_general",
-  "persona_query",
+  "embodiment_query",
   "lore_query",
   "conversation_continue",
   "hype_claim",
@@ -30,7 +30,7 @@ export const TargetClassSchema = z.enum([
   "behavior",
   "narrative",
   "market_structure",
-  "persona",
+  "embodiment",
   "lore",
   "conversation",
   "none",
@@ -69,7 +69,7 @@ export const CanonicalModeSchema = z.enum([
   "soft_deflection",
   "social_banter",
   "market_banter",
-  "persona_reply",
+  "embodiment_reply",
   "lore_drop",
   "conversation_hook",
 ]);
@@ -189,7 +189,7 @@ export interface ModeBudget {
 }
 
 export interface PromptContract {
-  persona: string;
+  embodiment: string;
   mode: CanonicalMode;
   thesis: ThesisType;
   supporting_point: string | null;
@@ -226,7 +226,7 @@ export interface ValidationCheck {
   wallet_filter: boolean;
   unsupported_assertion: boolean;
   mode_match: boolean;
-  persona_compliance: boolean;
+  embodiment_compliance: boolean;
 }
 
 export type RepairSuggestion =
@@ -277,10 +277,10 @@ export interface AuditRecord {
   bissigkeit_score?: number;
 }
 
-/** Phase-2: Gnome selection result for routing writeback (avoids routing→canonical import) */
-export interface GnomeSelectionForWriteback {
-  selectedGnomeId: string;
-  alternativeCandidates: Array<{ gnomeId: string; score: number }>;
+/** Phase-2: Embodiment selection result for routing writeback (avoids routing→canonical import) */
+export interface EmbodimentSelectionForWriteback {
+  selectedEmbodimentId: string;
+  alternativeCandidates: Array<{ embodimentId: string; score: number }>;
   reasoning: string[];
   responseMode: string;
 }
@@ -292,12 +292,12 @@ export type PipelineResult =
       thesis: ThesisBundle;
       reply_text: string;
       audit: AuditRecord;
-      /** Selected gnome id (when GNOMES enabled); default stillhalter */
-      selectedGnomeId?: string;
+      /** Selected embodiment id (default stillhalter) */
+      selectedEmbodimentId?: string;
       /** Intent from classifier (for writeback) */
       intent?: string;
-      /** Phase-2: Full gnome selection for routing writeback */
-      gnomeSelection?: GnomeSelectionForWriteback;
+      /** Phase-2: Full embodiment selection for routing writeback */
+      embodimentSelection?: EmbodimentSelectionForWriteback;
     }
   | {
       action: "skip";
@@ -306,7 +306,7 @@ export type PipelineResult =
     };
 
 export interface CanonicalConfig {
-  persona_name: string;
+  embodiment_name: string;
   platform: "twitter";
   thresholds: {
     min_relevance: number;
@@ -353,14 +353,14 @@ export interface CanonicalConfig {
   refine_min_length?: number;
   /** Refine: minimum keywords from claim that should appear in reply (default 1) */
   refine_keyword_min_count?: number;
-  /** Full Spectrum: use StructuredRoast + self-critique + refine loop instead of legacy prompt */
+  /** Full Spectrum: use StructuredRoast + self-critique + refine loop instead of the basic prompt */
   full_spectrum_prompt?: boolean;
   /** Full Spectrum: max refine attempts (default 2) */
   max_refine_attempts?: number;
 }
 
 export const DEFAULT_CANONICAL_CONFIG: CanonicalConfig = {
-  persona_name: "Organoid Entities as Semantic Symbiont",
+  embodiment_name: "Organoid Entities as Semantic Symbiont",
   platform: "twitter",
   thresholds: {
     min_relevance: 0.45,

@@ -1,16 +1,16 @@
 # Documentation Index
 
-Central entry point for the **Gnomes** project docs.
+Central entry point for the **Embodiments** project docs.
 
 ## Primary docs
 
 - `docs/architecture/README.md` — system architecture and flows
 - `docs/operations/README.md` — runtime, deployment, and runbooks
-- `docs/lore/README.md` — world/lore references and voice context
+- `docs/lore/README.md` — world/lore references and embodiment context
 - `docs/testing/README.md` — testing strategy and suites
 
 ## Notes
 
-- Active bot handle: **Gnomes_onchain**
-- Product identity: **Gnomes**
-- Legacy GORKY docs under `docs/archive/` remain historical references.
+- Active bot handle: **organoid_on_sol**
+- Product identity: **Embodiments**
+- Legacy ORGANOID docs under `docs/archive/` remain historical references.

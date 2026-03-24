@@ -21,9 +21,8 @@ import {
   type HybridShadowReadinessResult,
 } from "../memory/hybrid/shadowGate.js";
 import type { RetrievalContextPack } from "../memory/hybrid/types.js";
-import { getGnomesConfig } from "../config/gnomesConfig.js";
 
-export type HybridRuntimeMode = "legacy" | "shadow" | "assist" | "hybrid";
+export type HybridRuntimeMode = "shadow" | "assist" | "hybrid";
 
 export interface HybridRuntimeThresholds {
   minMatchScore: number;
@@ -92,10 +91,8 @@ const DEFAULT_LIMITS: HybridRuntimeLimits = {
 
 function normalizeMode(raw: string | undefined): HybridRuntimeMode {
   const mode = raw?.trim().toLowerCase();
-  const { LEGACY_COMPAT } = getGnomesConfig();
   if (mode === "shadow" || mode === "assist" || mode === "hybrid") return mode;
-  if (mode === "full") return "hybrid";
-  return LEGACY_COMPAT ? "legacy" : "hybrid";
+  return "hybrid";
 }
 
 function parseNumber(raw: string | undefined, fallback: number, min: number, max: number): number {
@@ -155,7 +152,7 @@ function readString(metadata: Record<string, unknown> | undefined, key: string):
   return typeof value === "string" ? value : undefined;
 }
 
-function buildLegacyRuntimeComparisonPack(input: {
+function buildBaselineRuntimeComparisonPack(input: {
   candidate: EngagementCandidate;
   bundle: ConversationBundle;
   signalProfile: SignalProfile;
@@ -383,24 +380,9 @@ export async function prepareHybridRuntimeConversationBundle(
   input: PrepareHybridRuntimeConversationBundleInput
 ): Promise<PrepareHybridRuntimeConversationBundleResult> {
   const config = input.config ?? readHybridRuntimeConfig();
-  const { LEGACY_COMPAT } = getGnomesConfig();
-  const effectiveMode: HybridRuntimeMode =
-    config.mode === "legacy" && !LEGACY_COMPAT ? "hybrid" : config.mode;
+  const effectiveMode: HybridRuntimeMode = config.mode;
   const generatedAt = input.generatedAt ?? new Date().toISOString();
   const baseBundle = input.bundle;
-
-  if (effectiveMode === "legacy") {
-    return {
-      bundle: baseBundle,
-      trace: {
-        mode: effectiveMode,
-        applied: false,
-        ready: false,
-        blockers: [],
-        warnings: [],
-      },
-    };
-  }
 
   const partnerId =
     input.candidate.authorId ??
@@ -419,7 +401,7 @@ export async function prepareHybridRuntimeConversationBundle(
     generatedAt,
     limits: config.limits,
   });
-  const legacyPack = buildLegacyRuntimeComparisonPack({
+  const baselinePack = buildBaselineRuntimeComparisonPack({
     candidate: input.candidate,
     bundle: input.bundle,
     signalProfile: input.signalProfile,
@@ -428,7 +410,7 @@ export async function prepareHybridRuntimeConversationBundle(
   });
 
   const comparison = buildHybridShadowComparisonReport({
-    baseline: legacyPack,
+    baseline: baselinePack,
     candidate: hybridPack,
     generated_at: generatedAt,
     limits: {

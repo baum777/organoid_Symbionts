@@ -34,16 +34,16 @@ import {
   estimateBissigkeitProxy,
   resolveStyle,
 } from "../style/styleResolver.js";
-import { getGnomesConfig } from "../config/gnomesConfig.js";
-import { loadGnomes } from "../gnomes/loadGnomes.js";
-import { getAllGnomes } from "../gnomes/registry.js";
-import { deriveActivatedVoices, renderVoiceSigils } from "../output/renderVoiceSigils.js";
+import { getEmbodimentsConfig } from "../config/embodimentsConfig.js";
+import { loadEmbodiments } from "../embodiments/loadEmbodiments.js";
+import { getAllEmbodiments } from "../embodiments/registry.js";
+import { deriveActivatedEmbodiments, renderEmbodimentGlyphs } from "../output/renderEmbodimentGlyphs.js";
 import { getUserAffinityStore } from "../memory/userAffinityStore.js";
 import { extractSelectorFeatures } from "../routing/selectorFeatures.js";
 import { resolveContinuity } from "../routing/continuityResolver.js";
-import { buildSemanticSelectionInputs } from "../persona/retrieval/runtimeSemantic.js";
-import { selectGnome, computeRuleBasedScores } from "../routing/gnomeSelector.js";
-import type { GnomeSelectionResult } from "../routing/gnomeSelector.js";
+import { buildSemanticSelectionInputs } from "../embodiment/retrieval/runtimeSemantic.js";
+import { selectEmbodiment, computeRuleBasedScores } from "../routing/embodimentSelector.js";
+import type { EmbodimentSelectionResult } from "../routing/embodimentSelector.js";
 
 export interface PipelineDeps {
   llm: LLMClient;
@@ -55,7 +55,7 @@ const SOCIAL_INTENTS: IntentClass[] = [
   "casual_ping",
   "question",
   "market_question_general",
-  "persona_query",
+  "embodiment_query",
   "lore_query",
   "conversation_continue",
 ];
@@ -278,48 +278,48 @@ export async function handleEvent(
     return makeSkipResult(event, "skip_format_decision", cls, scores, config);
   }
 
-  let gnomeSelection: GnomeSelectionResult | undefined;
-  const gnomesCfg = getGnomesConfig();
-  if (gnomesCfg.GNOMES_ENABLED) {
+  let embodimentSelection: EmbodimentSelectionResult | undefined;
+  const embodimentsCfg = getEmbodimentsConfig();
+  if (embodimentsCfg.EMBODIMENTS_ENABLED) {
     try {
-      await loadGnomes();
+      await loadEmbodiments();
       const affinityStore = getUserAffinityStore();
-      const gnomes = getAllGnomes();
-      const userAffinityByGnome: Record<string, number> = {};
-      for (const g of gnomes) {
+      const embodiments = getAllEmbodiments();
+      const userAffinityByEmbodiment: Record<string, number> = {};
+      for (const g of embodiments) {
         const a = await affinityStore.getAffinity(event.author_id, g.id);
-        userAffinityByGnome[g.id] = a?.familiarity ?? 0;
+        userAffinityByEmbodiment[g.id] = a?.familiarity ?? 0;
       }
       const features = extractSelectorFeatures(cls, scores, event, {
         marketEnergy: styleContext?.energyLevel ?? "MEDIUM",
       });
-      const ruleBasedScores = computeRuleBasedScores(features, userAffinityByGnome, mode);
+      const ruleBasedScores = computeRuleBasedScores(features, userAffinityByEmbodiment, mode);
       const semanticInputs = await buildSemanticSelectionInputs({
-        voices: gnomes,
+        embodiments: embodiments,
         features,
         ruleBasedScores,
       });
-      const selection = selectGnome(features, mode, {
-        defaultSafeGnome: gnomesCfg.DEFAULT_SAFE_GNOME,
+      const selection = selectEmbodiment(features, mode, {
+        defaultSafeEmbodiment: embodimentsCfg.DEFAULT_SAFE_EMBODIMENT,
         enabled: true,
-        userAffinityByGnome,
-        semanticFitByGnome: semanticInputs.semanticFitByGnome,
-        continuityBonusByGnome: semanticInputs.continuityBonusByGnome,
-        semanticExplainByGnome: semanticInputs.semanticExplainByGnome,
-        swarmEnabled: gnomesCfg.GNOME_SWARM_ENABLED,
-        maxCameos: gnomesCfg.GNOME_SWARM_ENABLED ? 2 : 0,
+        userAffinityByEmbodiment,
+        semanticFitByEmbodiment: semanticInputs.semanticFitByEmbodiment,
+        continuityBonusByEmbodiment: semanticInputs.continuityBonusByEmbodiment,
+        semanticExplainByEmbodiment: semanticInputs.semanticExplainByEmbodiment,
+        swarmEnabled: embodimentsCfg.EMBODIMENT_SWARM_ENABLED,
+        maxCameos: embodimentsCfg.EMBODIMENT_SWARM_ENABLED ? 2 : 0,
       });
       const continuity = resolveContinuity(
-        selection.selectedGnomeId,
+        selection.selectedEmbodimentId,
         { threadId: event.event_id },
-        { continuityEnabled: gnomesCfg.GNOME_CONTINUITY_ENABLED },
+        { continuityEnabled: embodimentsCfg.EMBODIMENT_CONTINUITY_ENABLED },
       );
-      gnomeSelection = {
+      embodimentSelection = {
         ...selection,
-        selectedGnomeId: continuity.gnomeId,
+        selectedEmbodimentId: continuity.embodimentId,
       };
     } catch {
-      // Keep gnomeSelection undefined; fallbackCascade will select internally
+      // Keep embodimentSelection undefined; fallbackCascade will select internally
     }
   }
 
@@ -330,7 +330,7 @@ export async function handleEvent(
     style: styleContext,
     relevanceResult,
     estimatedBissigkeit: bissigkeit,
-    gnomeSelection,
+    embodimentSelection,
   };
 
   const result = await fallbackCascade(
@@ -367,11 +367,11 @@ export async function handleEvent(
     return { action: "skip", skip_reason: "skip_validation_failure", audit };
   }
 
-  const activatedVoices = deriveActivatedVoices(
-    result.selectedGnomeId ?? gnomesCfg.DEFAULT_SAFE_GNOME,
-    gnomeSelection?.cameoCandidates,
+  const activatedEmbodiments = deriveActivatedEmbodiments(
+    result.selectedEmbodimentId ?? embodimentsCfg.DEFAULT_SAFE_EMBODIMENT,
+    embodimentSelection?.cameoCandidates,
   );
-  const finalizedReply = renderVoiceSigils(result.reply_text, activatedVoices);
+  const finalizedReply = renderEmbodimentGlyphs(result.reply_text, activatedEmbodiments);
   if (!finalizedReply) {
     return makeSkipResult(event, "skip_validation_failure", cls, scores, config);
   }
@@ -414,9 +414,9 @@ export async function handleEvent(
     thesis,
     reply_text: finalizedReply,
     audit,
-    selectedGnomeId: result.selectedGnomeId ?? "stillhalter",
+    selectedEmbodimentId: result.selectedEmbodimentId ?? "stillhalter",
     intent: cls.intent,
-    gnomeSelection,
+    embodimentSelection,
   };
 }
 

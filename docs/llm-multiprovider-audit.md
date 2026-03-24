@@ -14,7 +14,7 @@ Das Repo hat bereits ein internes LLM-Interface (`LLMClient`) und nutzt dieses i
 - **Adapter/Clients:**
   - `llmClient.xai.ts` mit xAI-spezifischer HTTP-Implementierung inkl. Modell-TTL-Fallback bei 403.
   - `llmClient.unified.ts` mit OpenAI-SDK und ENV-Provider-Umschaltung (`xai|openai|anthropic`), aber ohne echten Anthropic-Adapter.
-- **Instanziierung:** Worker und Persona-Pfade erzeugen den Client über `createUnifiedLLMClient()` und wrappen via `withCircuitBreaker(...)`.
+- **Instanziierung:** Worker und Embodiment-Pfade erzeugen den Client über `createUnifiedLLMClient()` und wrappen via `withCircuitBreaker(...)`.
 - **Prompt-Übersetzung:** PromptBuilder produziert internes LLM-Input (`system/developer/user`), das in der Cascade genutzt wird.
 - **Response-Normalisierung:** Pipeline erwartet primär strukturierte Felder (z. B. `reply`), toleriert aber teils `reply_text`-Fallbacks in einzelnen Schichten.
 
@@ -118,7 +118,7 @@ Das Repo hat bereits ein internes LLM-Interface (`LLMClient`) und nutzt dieses i
 8. `src/config/env.ts` und `src/config/envSchema.ts`
    - LLM-Env-Felder konsistent machen, Provider-spezifische Validierung ergänzen.
 
-9. `src/worker/pollMentions.ts`, `src/worker/pollTimelineEngagement.ts`, `src/persona/dailySnippetExtractor.ts`
+9. `src/worker/pollMentions.ts`, `src/worker/pollTimelineEngagement.ts`, `src/embodiment/dailySnippetExtractor.ts`
    - nur Factory-Aufruf beibehalten/umstellen; Business-Logik bleibt unverändert.
 
 ## 7. Env / Runtime Plan

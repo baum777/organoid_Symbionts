@@ -13,7 +13,7 @@ async function testPipeline() {
     trigger_type: "mention" as const,
     author_handle: "@TestUser",
     author_id: "123456789",
-    text: "@GORKY_ON_SOL wie wird das wetter im markt ? bullish oder bearish ?",
+    text: "@ORGANOID_ON_SOL wie wird das wetter im markt ? bullish oder bearish ?",
     parent_text: null,
     quoted_text: null,
     conversation_context: [],

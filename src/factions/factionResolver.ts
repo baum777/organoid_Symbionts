@@ -1,21 +1,21 @@
 /**
- * Faction Resolver — Resolve gnome faction context for routing
+ * Faction Resolver — Resolve embodiment faction context for routing
  *
  * Phase-5: Influences tone, cameo patterns.
  */
 
-import { getFactionForGnome } from "./factionRegistry.js";
+import { getFactionForEmbodiment } from "./factionRegistry.js";
 
 export interface FactionContext {
-  gnomeId: string;
+  embodimentId: string;
   factionId: string | null;
   factionName: string | null;
 }
 
-export function resolveFactionContext(gnomeId: string): FactionContext {
-  const faction = getFactionForGnome(gnomeId);
+export function resolveFactionContext(embodimentId: string): FactionContext {
+  const faction = getFactionForEmbodiment(embodimentId);
   return {
-    gnomeId,
+    embodimentId,
     factionId: faction?.id ?? null,
     factionName: faction?.name ?? null,
   };

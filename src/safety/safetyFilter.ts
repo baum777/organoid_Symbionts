@@ -1,6 +1,6 @@
 /**
  * Pre-generation Safety Filter — Blocks unsafe content before LLM invocation.
- * Per Gorky spec: identity-targeted, harassment bait, hate speech, personal abuse,
+ * Per Organoid spec: identity-targeted, harassment bait, hate speech, embodimentl abuse,
  * financial advice requests, token promotion, spam, meaningless bait.
  */
 
@@ -19,7 +19,7 @@ const IDENTITY_TARGET_PATTERNS = [
   /\b(?:kill\s+yourself|kys)\b/i,
   /\b(?:go\s+die|hope\s+you\s+die)\b/i,
   /\bdox\b/i,
-  /\b(?:real\s+name|home\s+address|personal\s+info)\b/i,
+  /\b(?:real\s+name|home\s+address|embodimentl\s+info)\b/i,
 ];
 
 const HARASSMENT_BAIT_PATTERNS = [

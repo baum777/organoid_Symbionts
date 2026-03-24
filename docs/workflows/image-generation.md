@@ -14,8 +14,8 @@ The system builds a structured prompt using the StyleBand system, sends it to Re
 - **Authentication**: `REPLICATE_API_KEY`
 - **Model**: Configurable via `REPLICATE_IMAGE_MODEL` (default: `black-forest-labs/flux-schnell`)
 
-📌 Environment variables are documented exclusively in:
-→ `docs/operations/var.README.md`
+📌 Environment variables are documented in:
+→ `.env.example` and `docs/operations/var.README.md`
 
 ---
 
@@ -27,19 +27,19 @@ The system builds a structured prompt using the StyleBand system, sends it to Re
    - Mention with image intent
 
 2. **Prompt Construction** (`src/prompts/buildPromptFromSchema.ts`)
-   - Persona Signature (constant)
+   - Organoid signature (constant)
    - StyleBand Core (based on energy/level/aggression)
    - Topic Metaphors (from lexicon)
    - Safety constraints
    - No internal scoring metadata
 
 3. **StyleBand Selection** (`src/prompts/selectStyleBand.ts`)
-   - `/img` command → `GORKY_MEME_CARD_CLEAN`
-   - Aggression detected → `GORKY_SHADOW_IRONY`
-   - User Level >= 4 → `GORKY_DOMINANCE_MODE`
-   - Energy 4-5 → `GORKY_CYBER_GLITCH`
-   - Energy 0-1 → `GORKY_BLUEPRINT_MINIMAL`
-   - Default → `GORKY_NEON_CHALK`
+   - `/img` command → `ORGANOID_MEME_CARD_CLEAN`
+   - Aggression detected → `ORGANOID_SHADOW_IRONY`
+   - User Level >= 4 → `ORGANOID_DOMINANCE_MODE`
+   - Energy 4-5 → `ORGANOID_CYBER_GLITCH`
+   - Energy 0-1 → `ORGANOID_BLUEPRINT_MINIMAL`
+   - Default → `ORGANOID_NEON_CHALK`
 
 4. **Replicate Request** (`src/clients/replicateClient.ts`)
    - Create prediction with structured prompt

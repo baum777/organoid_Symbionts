@@ -14,5 +14,5 @@ Testing guides, LLM fingerprinting, and harness usage.
 | `llm-terminal-test-bundle/` | Python LLM test harness |
 | `llm_test_database_bundle/` | Prompt database (smoke, stress, regression) |
 | `scripts/scenarios/README.md` | Conversation scenario format |
-| `tests/gorkypf/fixtures/README.md` | Test fixtures |
+| `tests/organoid/fixtures/README.md` | Test fixtures |
 | `tests/hardening/` | Hardening test reports |

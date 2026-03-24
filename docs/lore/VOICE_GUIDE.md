@@ -1,4 +1,4 @@
-# Voice Rules
+# Embodiment Rules
 
 Always:
 - short punchy replies (tweet-length)

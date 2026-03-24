@@ -1,29 +1,29 @@
 import { describe, it, expect } from "vitest";
 import {
-  loadGorkySystemPrompt,
-  loadGorkyDeveloperPrompt,
-  loadGorkyUserTemplate,
+  loadOrganoidSystemPrompt,
+  loadOrganoidDeveloperPrompt,
+  loadOrganoidUserTemplate,
   renderUserPrompt,
   type PromptVariables,
 } from "../../src/context/prompts/promptLoader.js";
 
 describe("promptLoader", () => {
   it("loads system prompt", () => {
-    const content = loadGorkySystemPrompt();
-    expect(content).toContain("GORKY");
+    const content = loadOrganoidSystemPrompt();
+    expect(content).toContain("ORGANOID");
     expect(content).toContain("crypto-native");
     expect(content).toContain("280");
   });
 
   it("loads developer prompt", () => {
-    const content = loadGorkyDeveloperPrompt();
+    const content = loadOrganoidDeveloperPrompt();
     expect(content).toContain("reply_text");
     expect(content).toContain("style_label");
     expect(content).toContain("JSON");
   });
 
   it("loads user template", () => {
-    const content = loadGorkyUserTemplate();
+    const content = loadOrganoidUserTemplate();
     expect(content).toContain("{{mention_text}}");
     expect(content).toContain("{{thread_summary}}");
     expect(content).toContain("{{entities}}");

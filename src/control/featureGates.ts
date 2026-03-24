@@ -1,7 +1,7 @@
 /**
- * Feature Gates — Operator control for GNOMES features
+ * Feature Gates — Operator control for organoid embodiment features.
  *
- * Phase-5: Enable/disable world events, lore expansion, safe mode.
+ * Phase-5: Enable/disable world events, lore expansion, and safe mode.
  */
 
 export interface FeatureGates {
@@ -12,8 +12,8 @@ export interface FeatureGates {
 
 export function getFeatureGates(): FeatureGates {
   return {
-    worldEventsEnabled: process.env.GNOME_WORLD_EVENTS_ENABLED === "true",
-    loreExpansionEnabled: process.env.GNOME_LORE_EXPANSION_ENABLED === "true",
-    safeMode: process.env.GNOME_SAFE_MODE === "true",
+    worldEventsEnabled: process.env.EMBODIMENT_WORLD_EVENTS_ENABLED === "true",
+    loreExpansionEnabled: process.env.EMBODIMENT_LORE_EXPANSION_ENABLED === "true",
+    safeMode: process.env.EMBODIMENT_SAFE_MODE === "true",
   };
 }

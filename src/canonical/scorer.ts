@@ -12,7 +12,7 @@ function computeRelevance(event: CanonicalEvent, cls: ClassifierOutput): number 
   let score = 0.3;
 
   if (cls.intent === "greeting" || cls.intent === "casual_ping") score += 0.05;
-  if (cls.intent === "persona_query" || cls.intent === "lore_query") score += 0.15;
+  if (cls.intent === "embodiment_query" || cls.intent === "lore_query") score += 0.15;
   if (cls.intent === "market_question_general") score += 0.20;
   if (cls.intent === "conversation_continue") score += 0.10;
   if (cls.intent === "hype_claim" || cls.intent === "performance_claim") score += 0.25;
@@ -34,7 +34,7 @@ function computeRelevance(event: CanonicalEvent, cls: ClassifierOutput): number 
 function computeConfidence(event: CanonicalEvent, cls: ClassifierOutput): number {
   let score = 0.3;
 
-  const isSocial = ["greeting", "casual_ping", "market_question_general", "persona_query", "lore_query", "conversation_continue"].includes(cls.intent);
+  const isSocial = ["greeting", "casual_ping", "market_question_general", "embodiment_query", "lore_query", "conversation_continue"].includes(cls.intent);
 
   if (cls.evidence_class === "self_contained_strong") score += 0.4;
   else if (cls.evidence_class === "contextual_medium") score += 0.25;
@@ -75,7 +75,7 @@ function computeOpportunity(event: CanonicalEvent, cls: ClassifierOutput): numbe
   let score = 0.35;
 
   if (cls.intent === "greeting" || cls.intent === "casual_ping") score += 0.15;
-  if (cls.intent === "persona_query" || cls.intent === "lore_query") score += 0.25;
+  if (cls.intent === "embodiment_query" || cls.intent === "lore_query") score += 0.25;
   if (cls.intent === "market_question_general") score += 0.25;
   if (cls.intent === "conversation_continue") score += 0.15;
   if (cls.intent === "hype_claim" || cls.intent === "performance_claim") score += 0.25;

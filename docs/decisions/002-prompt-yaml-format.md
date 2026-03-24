@@ -19,7 +19,7 @@ Store prompts as YAML files in `prompts/` directory with structure:
 ```yaml
 name: base
 version: "1.0.0"
-description: Base personality
+description: Base embodimentlity
 content: |
   Prompt text with {variables}
 input_schema: []

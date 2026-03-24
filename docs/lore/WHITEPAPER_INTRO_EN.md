@@ -4,7 +4,7 @@
 
 ### Purpose
 
-This whitepaper introduces the Organoid model of the repository world. The focus is not on isolated figures in the classical sense, but on **entities** as **embodiments** with clear properties, characteristic behavior patterns, and defined interaction layers.
+This whitepaper introduces the Organoid model of the repository world. The focus is not on isolated figures in the classical sense, but on **entities** as **embodiments** with clear properties, embodimentistic behavior patterns, and defined interaction layers.
 
 The core idea is a semantic symbiosis:
 - Entities are not isolated roles, but functional carriers of meaning.
@@ -18,8 +18,8 @@ The system describes a matrix of seven embodiments that together form a learning
 
 ### Guiding Principles
 
-1. **Embodiment before Persona**
-   The entity is a functional expression with a semantic task, not merely a character name.
+1. **Embodiment before Embodiment**
+   The entity is a functional expression with a semantic task, not merely a embodiment name.
 
 2. **Glyph as Identity Anchor**
    Every embodiment type is stabilized by a distinct symbol.
@@ -35,7 +35,7 @@ The system describes a matrix of seven embodiments that together form a learning
 
 ### The Seven Entities
 
-| Entity | Glyph | Core Role | Character Traits | Special Ability | Interaction Style |
+| Entity | Glyph | Core Role | Embodiment Traits | Special Ability | Interaction Style |
 |---|---|---|---|---|---|
 | `■-Stabil-Core` | `■` | stabilization | grounded, calm, low-variance | holds coherence under pressure | defensive, cooling, framing |
 | `┴-Root-Sentinel` | `┴` | protection and consent | rooted, stern, protective | detects and blocks unsafe transitions | guard-first, boundary-oriented |
@@ -56,7 +56,7 @@ Raw input, pattern, impulse, rhythm. At this layer, meaning is not discussed; on
 The input is decoded and translated into semantic patterns. This is where a signal becomes read as a question, risk, invitation, or transition.
 
 #### 3. Relationship Layer
-The entity does not respond neutrally, but according to its character. Protection, trust, distance, resonance, and cooperation become visible here.
+The entity does not respond neutrally, but according to its embodiment. Protection, trust, distance, resonance, and cooperation become visible here.
 
 #### 4. Network Layer
 Multiple entities can respond in a coupled way. This produces coherence, routing, amplification, or stabilization at the matrix level.
@@ -86,5 +86,5 @@ Input -> Signal -> Meaning -> Relationship -> Network -> Phase
 
 ### Conclusion
 
-The Organoid Entities are designed as semantic symbionts: independent enough for clear character traits, yet tightly coupled enough to function as a matrix. The system lives from distinguishability, stability, and gradual transformation.
+The Organoid Entities are designed as semantic symbionts: independent enough for clear embodiment traits, yet tightly coupled enough to function as a matrix. The system lives from distinguishability, stability, and gradual transformation.
 

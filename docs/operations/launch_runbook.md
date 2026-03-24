@@ -1,4 +1,4 @@
-# Launch Runbook — GORKY_ON_SOL Bot
+# Launch Runbook — ORGANOID_ON_SOL Bot
 
 ## Staging Deploy Steps
 

@@ -1,7 +1,7 @@
 /**
  * Lore Safety Guard — Reject unsafe lore
  *
- * Phase-5: No defamation, no personal claims, no politics.
+ * Phase-5: No defamation, no embodimentl claims, no politics.
  */
 
 export interface SafetyCheckResult {

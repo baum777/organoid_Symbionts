@@ -7,14 +7,14 @@
 import type { ActiveEvent } from "./worldEventScheduler.js";
 
 export interface EventRoutingInfluence {
-  gnomeId: string;
+  embodimentId: string;
   weightDelta: number;
 }
 
-/** Get routing weight deltas for gnomes based on active events. */
+/** Get routing weight deltas for embodiments based on active events. */
 export function resolveEventInfluence(
   activeEvents: ActiveEvent[],
-  _gnomeIds: string[],
+  _embodimentIds: string[],
 ): EventRoutingInfluence[] {
   return [];
 }

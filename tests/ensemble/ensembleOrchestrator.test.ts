@@ -1,17 +1,17 @@
 /**
- * Phase-4: Ensemble orchestrator and character graph tests
+ * Phase-4: Ensemble orchestrator and embodiment graph tests
  */
 import { describe, it, expect } from "vitest";
 import { orchestrate } from "../../src/ensemble/ensembleOrchestrator.js";
-import { getRelationship, getCameoLikelihood } from "../../src/ensemble/characterInteractionGraph.js";
+import { getRelationship, getCameoLikelihood } from "../../src/ensemble/embodimentInteractionGraph.js";
 
 describe("ensembleOrchestrator", () => {
   it("returns single mode when energy low", () => {
     const r = orchestrate({
-      primaryGnomeId: "stillhalter",
+      primaryEmbodimentId: "stillhalter",
       conversationEnergy: 0.5,
       absurdityScore: 0.8,
-      availableGnomes: ["stillhalter", "nebelspieler", "pilzarchitekt"],
+      availableEmbodiments: ["stillhalter", "nebelspieler", "pilzarchitekt"],
       cameoCandidates: ["nebelspieler"],
     });
     expect(r.responseMode).toBe("single");
@@ -20,10 +20,10 @@ describe("ensembleOrchestrator", () => {
 
   it("returns swarm when energy high and cameos available", () => {
     const r = orchestrate({
-      primaryGnomeId: "stillhalter",
+      primaryEmbodimentId: "stillhalter",
       conversationEnergy: 0.85,
       absurdityScore: 0.7,
-      availableGnomes: ["stillhalter", "nebelspieler", "pilzarchitekt"],
+      availableEmbodiments: ["stillhalter", "nebelspieler", "pilzarchitekt"],
       cameoCandidates: ["nebelspieler", "pilzarchitekt"],
     });
     expect(r.responseMode).toBe("swarm");
@@ -32,7 +32,7 @@ describe("ensembleOrchestrator", () => {
   });
 });
 
-describe("characterInteractionGraph", () => {
+describe("embodimentInteractionGraph", () => {
   it("returns relationship for known pair", () => {
     const r = getRelationship("stillhalter", "nebelspieler");
     expect(r).not.toBeNull();
@@ -46,7 +46,7 @@ describe("characterInteractionGraph", () => {
 
   it("getCameoLikelihood returns higher score for known pairs", () => {
     const known = getCameoLikelihood("glutkern", "nebelspieler");
-    const unknown = getCameoLikelihood("glutkern", "unknown_gnome");
+    const unknown = getCameoLikelihood("glutkern", "unknown_embodiment");
     expect(known).toBeGreaterThanOrEqual(unknown);
   });
 });

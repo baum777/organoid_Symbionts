@@ -66,13 +66,13 @@ describe("CRITICAL: Policy Layer - CA Validation", () => {
       expect(result.flags).toContain("TEST_PATTERN_DETECTED");
     });
 
-    it("rejects repeated character patterns", () => {
+    it("rejects repeated embodiment patterns", () => {
       const result = validateCA("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
       expect(result.valid).toBe(false);
       expect(result.flags).toContain("TEST_PATTERN_DETECTED");
     });
 
-    it("rejects ambiguous characters (0, O, I, l)", () => {
+    it("rejects ambiguous embodiments (0, O, I, l)", () => {
       // 44 chars with ambiguous char at position 43 - use valid base58 chars except one ambiguous
       const result = validateCA("SoL11111111111111111111111111111111111111O");
       expect(result.valid).toBe(false);
@@ -102,7 +102,7 @@ describe("CRITICAL: Policy Layer - CA Validation", () => {
     });
 
     it("accepts valid EVM addresses", () => {
-      // Valid EVM address: 0x + 40 hex characters = 42 chars total
+      // Valid EVM address: 0x + 40 hex embodiments = 42 chars total
       const result = validateCA("0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbD");
       expect(result.valid).toBe(true);
       expect(result.chain).toBe("evm");
@@ -218,9 +218,9 @@ describe("CRITICAL: Policy Layer - Spoof Detection", () => {
       expect(decoy1).toBe(decoy2);
     });
 
-    it("generates decoy containing non-base58 characters", () => {
+    it("generates decoy containing non-base58 embodiments", () => {
       const decoy = generateDeterministicDecoy("any-seed");
-      // Decoy should contain characters not valid in base58
+      // Decoy should contain embodiments not valid in base58
       expect(decoy).toMatch(/[0OIl_-]/);
     });
 
@@ -280,7 +280,7 @@ describe("CRITICAL: Policy Layer - Address Sanitization", () => {
       expect(result.modifications[0].type).toBe("DECOY_INJECTED");
     });
 
-    it("truncates text exceeding 280 characters", () => {
+    it("truncates text exceeding 280 embodiments", () => {
       const longText = "A".repeat(300);
       const result = addressGateSanitize({
         text: longText,

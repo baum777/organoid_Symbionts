@@ -9,15 +9,15 @@ import { appendFile, mkdir, access } from "node:fs/promises";
 import { join } from "node:path";
 import { DATA_DIR } from "../../config/dataDir.js";
 
-const ROUTING_FILE = "gnomes_routing.jsonl";
+const ROUTING_FILE = "embodiments_routing.jsonl";
 
 export interface RoutingDecisionRecord {
   type: "routing_decision";
   event_id: string;
   user_id?: string;
   user_handle?: string;
-  selected_gnome_id: string;
-  alternative_candidates: Array<{ gnomeId: string; score: number }>;
+  selected_embodiment_id: string;
+  alternative_candidates: Array<{ embodimentId: string; score: number }>;
   response_mode: string;
   reasoning: string[];
   created_at: string;
@@ -28,7 +28,7 @@ export interface InteractionEventRecord {
   event_id: string;
   user_id?: string;
   user_handle?: string;
-  gnome_id?: string;
+  embodiment_id?: string;
   intent?: string;
   topic?: string;
   created_at: string;
@@ -60,13 +60,13 @@ async function appendLine(record: object): Promise<void> {
   }
 }
 
-/** Persist routing decision (call after gnome selection, before generation). */
+/** Persist routing decision (call after embodiment selection, before generation). */
 export function writeRoutingDecision(params: {
   event_id: string;
   user_id?: string;
   user_handle?: string;
-  selected_gnome_id: string;
-  alternative_candidates: Array<{ gnomeId: string; score: number }>;
+  selected_embodiment_id: string;
+  alternative_candidates: Array<{ embodimentId: string; score: number }>;
   response_mode: string;
   reasoning: string[];
 }): void {
@@ -75,7 +75,7 @@ export function writeRoutingDecision(params: {
     event_id: params.event_id,
     user_id: params.user_id,
     user_handle: params.user_handle,
-    selected_gnome_id: params.selected_gnome_id,
+    selected_embodiment_id: params.selected_embodiment_id,
     alternative_candidates: params.alternative_candidates,
     response_mode: params.response_mode,
     reasoning: params.reasoning,
@@ -89,7 +89,7 @@ export function writeInteractionEvent(params: {
   event_id: string;
   user_id?: string;
   user_handle?: string;
-  gnome_id?: string;
+  embodiment_id?: string;
   intent?: string;
   topic?: string;
 }): void {
@@ -98,7 +98,7 @@ export function writeInteractionEvent(params: {
     event_id: params.event_id,
     user_id: params.user_id,
     user_handle: params.user_handle,
-    gnome_id: params.gnome_id,
+    embodiment_id: params.embodiment_id,
     intent: params.intent,
     topic: params.topic,
     created_at: ts(),

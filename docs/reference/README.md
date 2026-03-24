@@ -8,7 +8,6 @@ Blueprints, bundles, external specs, and low-change background material.
 |----------|----------|------|
 | `organoid-matrixv1.md` | Repository root | Primary migration-era target matrix reference; still hybrid and should be treated as source material rather than final SSOT |
 | `update/grok-organoid-full-introduction.txt` | `update/` | Raw bundle/source dump for the organoid target system |
-| `gnomes_master_spec_bundle.zip` | Repository root | LEGACY-ARTIFACT: historical GNOMES master spec bundle |
 | `onchain-blueprint/` | Repository root | Solana truth layer (contracts, endpoints) |
 
 ## Docs in this Directory
@@ -25,4 +24,3 @@ Blueprints, bundles, external specs, and low-change background material.
 ## Other Reference
 
 - `memes/docs/MEME_SYSTEM.md` — Meme template system
-- `legacy/README.md` — Legacy Python code note

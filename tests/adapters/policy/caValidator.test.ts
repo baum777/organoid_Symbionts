@@ -18,7 +18,7 @@ describe("caValidator", () => {
     expect(result.normalized).toBe(address.toLowerCase());
   });
 
-  it("should reject an address with ambiguous Solana characters (0, O, I, l)", () => {
+  it("should reject an address with ambiguous Solana embodiments (0, O, I, l)", () => {
     // We need an address that is long enough but contains ambiguous chars
     const address = "DezXAZ8z7PnrnMcqzS2S6onBRShZCHshZxhXNoyoAnB0"; // Ends with 0
     const result = validateCA(address);

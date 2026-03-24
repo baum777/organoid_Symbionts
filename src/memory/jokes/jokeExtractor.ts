@@ -13,7 +13,7 @@ export interface JokeCandidate {
 /** Extract joke candidates from reply text (stub). */
 export function extractJokeCandidates(
   _replyText: string,
-  _gnomeId: string,
+  _embodimentId: string,
   _opts?: { enabled?: boolean },
 ): JokeCandidate[] {
   return [];

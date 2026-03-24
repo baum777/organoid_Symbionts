@@ -42,7 +42,7 @@ Most social automation tools and scripts suffer from a common set of failures th
 
 # Product Overview
 
-This platform is an **autonomous social agent system** that polls a social feed (X/Twitter mentions), processes events through a configurable pipeline, and posts replies under a defined persona. It is built for:
+This platform is an **autonomous social agent system** that polls a social feed (X/Twitter mentions), processes events through a configurable pipeline, and posts replies under a defined embodiment. It is built for:
 
 - **Reliability**: No duplicate publishes under normal or failure conditions
 - **Observability**: Health and readiness checks, heartbeat-based worker status
@@ -176,7 +176,7 @@ The platform is designed for production under explicit deployment rules.
 
 **Customer and support triage.** Agents can acknowledge mentions, route conversations, and provide initial responses. The system’s reliability (no duplicates, restart-safe) protects brand reputation and avoids embarrassing double-replies.
 
-**Branded AI presence.** Companies that want an AI voice on social media need a platform that can scale, fail safely, and be monitored. This system provides the infrastructure; persona and content logic are configurable.
+**Branded AI presence.** Companies that want an AI embodiment on social media need a platform that can scale, fail safely, and be monitored. This system provides the infrastructure; embodiment and content logic are configurable.
 
 **Agency and operator tooling.** Agencies managing multiple clients or high-volume accounts need automation that does not double-post, lose state, or hide failures. Runbooks and deployment discipline make the system manageable for operational teams.
 
@@ -192,7 +192,7 @@ The platform is designed for production under explicit deployment rules.
 
 **Operational maturity.** Staged launch modes, health/readiness semantics, and runbook documentation show that the system is built for real operations, not only development.
 
-**Extensibility.** The pipeline, persona, and domain logic are modular. The platform can be adapted for different personas, content policies, and use cases while retaining the core reliability guarantees.
+**Extensibility.** The pipeline, embodiment, and domain logic are modular. The platform can be adapted for different embodiments, content policies, and use cases while retaining the core reliability guarantees.
 
 ---
 
@@ -211,7 +211,7 @@ Buyers should expect to:
 - Deploy using provided blueprints (e.g. Render, Docker) or equivalent infrastructure
 - Configure Redis for multi-worker production
 - Add their own alerting and dashboards (metrics exposure is a documented improvement area)
-- Customize persona, prompts, and domain logic for their use case
+- Customize embodiment, prompts, and domain logic for their use case
 
 ---
 
@@ -235,7 +235,7 @@ Natural extensions that would increase commercial value:
 
 - **Metrics endpoint**: Expose counters and gauges in Prometheus format for standard monitoring and alerting
 - **Alert configuration**: Provide example Prometheus rules or equivalent aligned with the runbook
-- **Multi-tenant packaging**: Support for multiple personas or accounts within a single deployment
+- **Multi-tenant packaging**: Support for multiple embodiments or accounts within a single deployment
 - **Expanded platform integrations**: Additional social platforms beyond X/Twitter
 - **Managed deployment option**: Hosted or managed offering for buyers who prefer not to operate infrastructure
 

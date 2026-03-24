@@ -63,7 +63,7 @@ export function scoreTimelineCandidate(input: TimelineCandidate): TimelineCandid
   const spamRisk = containsAny(candidate.text, ["100x", "airdrop now", "dm me"]) ? 50 : 10;
   const repetitionRisk = containsAny(candidate.text, ["gm", "lfg", "moon"]) ? 20 : 5;
 
-  const { recommendedVoice, recommendedMode, recommendedIntent, voiceFitScore } = selectVoice(candidate.text);
+  const { recommendedEmbodiment, recommendedMode, recommendedIntent, embodimentFitScore } = selectEmbodiment(candidate.text);
 
   candidate.contextStrengthScore = clamp(context);
   candidate.threadPotentialScore = clamp(thread);
@@ -71,15 +71,15 @@ export function scoreTimelineCandidate(input: TimelineCandidate): TimelineCandid
   candidate.policyRiskScore = clamp(risk);
   candidate.spamRiskScore = clamp(spamRisk);
   candidate.repetitionRiskScore = clamp(repetitionRisk);
-  candidate.voiceFitScore = clamp(voiceFitScore);
-  candidate.recommendedVoice = recommendedVoice;
+  candidate.embodimentFitScore = clamp(embodimentFitScore);
+  candidate.recommendedEmbodiment = recommendedEmbodiment;
   candidate.recommendedMode = recommendedMode;
   candidate.recommendedIntent = recommendedIntent;
 
   candidate.finalScore = clamp(
     candidate.contextStrengthScore +
       candidate.threadPotentialScore +
-      candidate.voiceFitScore +
+      candidate.embodimentFitScore +
       candidate.noveltyScore -
       candidate.spamRiskScore -
       candidate.repetitionRiskScore -
@@ -89,7 +89,7 @@ export function scoreTimelineCandidate(input: TimelineCandidate): TimelineCandid
   candidate.scoreBreakdown = {
     contextStrength: candidate.contextStrengthScore,
     threadPotential: candidate.threadPotentialScore,
-    voiceFit: candidate.voiceFitScore,
+    embodimentFit: candidate.embodimentFitScore,
     novelty: candidate.noveltyScore,
     spamRisk: candidate.spamRiskScore,
     repetitionRisk: candidate.repetitionRiskScore,
@@ -100,41 +100,41 @@ export function scoreTimelineCandidate(input: TimelineCandidate): TimelineCandid
   return candidate;
 }
 
-function selectVoice(text: string): {
-  recommendedVoice: string;
+function selectEmbodiment(text: string): {
+  recommendedEmbodiment: string;
   recommendedMode: "proactive_timeline_reply" | "thread_interjection" | "narrative_intercept";
   recommendedIntent: string;
-  voiceFitScore: number;
+  embodimentFitScore: number;
 } {
   const lower = text.toLowerCase();
   if (containsAny(lower, ["architecture", "design", "builder", "implementation"])) {
     return {
-      recommendedVoice: "pilzarchitekt",
+      recommendedEmbodiment: "pilzarchitekt",
       recommendedMode: "thread_interjection",
       recommendedIntent: "builder_response",
-      voiceFitScore: 80,
+      embodimentFitScore: 80,
     };
   }
   if (containsAny(lower, ["macro", "valuation", "liquidity", "risk"])) {
     return {
-      recommendedVoice: "stillhalter",
+      recommendedEmbodiment: "stillhalter",
       recommendedMode: "narrative_intercept",
       recommendedIntent: "market_structure_response",
-      voiceFitScore: 75,
+      embodimentFitScore: 75,
     };
   }
   if (containsAny(lower, ["moon", "100x", "degen", "pump"])) {
     return {
-      recommendedVoice: "nebelspieler",
+      recommendedEmbodiment: "nebelspieler",
       recommendedMode: "proactive_timeline_reply",
       recommendedIntent: "skeptical_hype_check",
-      voiceFitScore: 70,
+      embodimentFitScore: 70,
     };
   }
   return {
-    recommendedVoice: "wurzelwaechter",
+    recommendedEmbodiment: "wurzelwaechter",
     recommendedMode: "proactive_timeline_reply",
     recommendedIntent: "contextual_conversation",
-    voiceFitScore: 60,
+    embodimentFitScore: 60,
   };
 }

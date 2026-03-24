@@ -1,6 +1,6 @@
 /**
- * TODO(ORGANOID-MIGRATION): permission rules still depend on the legacy agent-router role model.
- * PHASE-MAPPING-NEEDED: do not hard-map these roles/phases onto embodiments without a separate control-plane migration.
+ * Permission rules belong to the control-plane role model, not to embodiment identities.
+ * Keep operational phases separate until a deliberate mapping is defined.
  */
 
 /**

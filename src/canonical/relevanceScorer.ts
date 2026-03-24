@@ -1,5 +1,5 @@
 /**
- * Relevance Scorer — Gorky spec formula for response-worthiness.
+ * Relevance Scorer — Organoid spec formula for response-worthiness.
  * relevance_score = w1*mention_signal + w2*narrative_relevance + w3*roastability
  *   + w4*analytical_opportunity + w5*sentiment_intensity - w6*risk_penalty
  */

@@ -1,18 +1,18 @@
 /**
- * Ensemble Orchestrator — Decide single vs multi-gnome reply
+ * Ensemble Orchestrator — Decide single vs multi-embodiment reply
  *
  * Phase-4: Uses interaction graph, energy, narrative arc.
  */
 
 import { getEnsemblePolicy } from "./ensemblePolicy.js";
-import { getCameoLikelihood } from "./characterInteractionGraph.js";
+import { getCameoLikelihood } from "./embodimentInteractionGraph.js";
 
 export interface OrchestrationInput {
-  primaryGnomeId: string;
+  primaryEmbodimentId: string;
   conversationEnergy: number;
   absurdityScore: number;
   narrativeArc?: string;
-  availableGnomes: string[];
+  availableEmbodiments: string[];
   cameoCandidates?: string[];
 }
 
@@ -23,7 +23,7 @@ export interface OrchestrationResult {
   responseMode: "single" | "swarm";
 }
 
-/** Decide if reply is single-gnome or swarm. */
+/** Decide if reply is single-embodiment or swarm. */
 export function orchestrate(input: OrchestrationInput): OrchestrationResult {
   const policy = getEnsemblePolicy();
   const useSwarm =
@@ -33,7 +33,7 @@ export function orchestrate(input: OrchestrationInput): OrchestrationResult {
 
   if (!useSwarm) {
     return {
-      primarySpeaker: input.primaryGnomeId,
+      primarySpeaker: input.primaryEmbodimentId,
       cameoSpeakers: [],
       narrativeArc: input.narrativeArc,
       responseMode: "single",
@@ -41,13 +41,13 @@ export function orchestrate(input: OrchestrationInput): OrchestrationResult {
   }
 
   const ranked = (input.cameoCandidates ?? [])
-    .map((id) => ({ id, score: getCameoLikelihood(input.primaryGnomeId, id) }))
+    .map((id) => ({ id, score: getCameoLikelihood(input.primaryEmbodimentId, id) }))
     .sort((a, b) => b.score - a.score)
     .slice(0, policy.maxCameos)
     .map((x) => x.id);
 
   return {
-    primarySpeaker: input.primaryGnomeId,
+    primarySpeaker: input.primaryEmbodimentId,
     cameoSpeakers: ranked,
     narrativeArc: input.narrativeArc,
     responseMode: "swarm",

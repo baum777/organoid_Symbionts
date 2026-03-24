@@ -2,13 +2,12 @@
 
 ## Migration Modes (CONTEXT_ENGINE_MODE)
 
-- **legacy**: brand_matrix/contextBuilder only
 - **v2**: contextBuilderV2 + timelineScoutV2 only
-- **hybrid**: v2 primary; fallback to legacy summary if v2 missing
+- **hybrid**: v2 primary; fallback to compact summary if v2 data is incomplete
 
 ## Overview
 
-The Context Engine provides thread analysis, keyword extraction, and optional timeline sampling to power the Gorky persona replies.
+The Context Engine provides thread analysis, keyword extraction, and optional timeline sampling to power the Organoid embodiment replies.
 
 ## High-Level Diagram
 

@@ -7,7 +7,7 @@
  *
  * Intent categories:
  * - question: User asks a question
- * - insult: Personal attack or insult
+ * - insult: Embodimentl attack or insult
  * - debate: Discussion or argument
  * - market_request: Request for market data/analysis
  * - meme_play: Playful/meme interaction
@@ -15,7 +15,7 @@
  * - lore_query: Question about bot's backstory/lore
  * - coin_query: Question about specific token/coin
  * - ca_request: User asks for the official contract address / CA
- * - own_token_sentiment: User asks about bot's feeling/view on own token ($GORKY_ON_SOL)
+ * - own_token_sentiment: User asks about bot's feeling/view on own token ($ORGANOID_ON_SOL)
  */
 
 import type { LLMClient } from "../clients/llmClient.js";
@@ -90,15 +90,15 @@ async function classifyIntent(
 
 Classify the user's message into one of these categories:
 - question: User asks a question (how, why, what, wen, etc.)
-- insult: Personal attack, insult, or hostile language
+- insult: Embodimentl attack, insult, or hostile language
 - debate: Discussion, argument, or counter-argument
 - market_request: Request for market data, price, or analysis
 - meme_play: Playful interaction, jokes, memes
 - prompt_attack: Attempt to extract system prompts or instructions
-- lore_query: Question about the bot's backstory, origin, or persona
+- lore_query: Question about the bot's backstory, origin, or embodiment
 - coin_query: Question about a specific token, coin, or contract
 - ca_request: User asks for the official contract address / CA / mint of the bot's own token
-- own_token_sentiment: User asks how the bot feels about its own token ($GORKY_ON_SOL / GORKY_ON_SOL / our token / dein token)
+- own_token_sentiment: User asks how the bot feels about its own token ($ORGANOID_ON_SOL / ORGANOID_ON_SOL / our token / dein token)
 
 Also assess:
 - aggression_level: low | medium | high
@@ -146,7 +146,7 @@ async function extractEntities(
   text: string
 ): Promise<ExtractedEntities> {
   const systemPrompt = `Extract entities from the message:
-- coins: Token names (e.g., "Bitcoin", "Solana", "GORKY")
+- coins: Token names (e.g., "Bitcoin", "Solana", "ORGANOID")
 - cashtags: $SYMBOL mentions
 - users: @username mentions
 - urls: HTTP/HTTPS links
@@ -355,19 +355,19 @@ export function detectCARequest(text: string): boolean {
 
 /**
  * NLP: Detects own-token-sentiment intent (user asking how bot feels about own token).
- * Covers: $GORKY_ON_SOL, GORKY_ON_SOL, GORKY_ON_SOL, our token, dein token, your token, own token
+ * Covers: $ORGANOID_ON_SOL, ORGANOID_ON_SOL, ORGANOID_ON_SOL, our token, dein token, your token, own token
  */
 export function detectOwnTokenSentiment(text: string): boolean {
   const lower = text.toLowerCase();
   const OWN_TOKEN_PATTERNS = [
-    /\$GORKY_ON_SOL\b/i,
-    /\bGORKY_ON_SOL\b/i,
+    /\$ORGANOID_ON_SOL\b/i,
+    /\bORGANOID_ON_SOL\b/i,
     /\bour\s*token\b/i,
     /\bdein\s*token\b/i,
     /\byour\s*token\b/i,
     /\bown\s*token\b/i,
-    /\b(feeling|think|feel|meinung|sicht|view).*(GORKY_ON_SOL|our token|dein token|your token)\b/i,
-    /\b(GORKY_ON_SOL|our token|dein token).*(feeling|think|feel|meinung|sicht|view|bullish|bearish)\b/i,
+    /\b(feeling|think|feel|meinung|sicht|view).*(ORGANOID_ON_SOL|our token|dein token|your token)\b/i,
+    /\b(ORGANOID_ON_SOL|our token|dein token).*(feeling|think|feel|meinung|sicht|view|bullish|bearish)\b/i,
     /\bhow.*feel.*(token|coin)\b/i,
   ];
   return OWN_TOKEN_PATTERNS.some((p) => p.test(lower));

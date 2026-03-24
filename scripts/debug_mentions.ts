@@ -2,7 +2,7 @@ import "dotenv/config";
 import { invokeXApiRequest } from "../src/clients/xApi.js";
 
 async function checkMentions() {
-  const BOT_USERNAME = process.env.BOT_USERNAME || "gorky_on_sol";
+  const BOT_USERNAME = process.env.BOT_USERNAME || "organoid_on_sol";
   const me = await invokeXApiRequest<{ data: { id: string; username?: string } }>({
     method: "GET",
     uri: "https://api.x.com/2/users/me",

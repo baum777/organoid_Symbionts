@@ -46,7 +46,7 @@ describe("mentionsMapper", () => {
           data: [
             {
               id: "tweet_123",
-              text: "Hello @gorky_on_sol",
+              text: "Hello @organoid_on_sol",
               author_id: "user_456",
               created_at: "2024-01-15T12:00:00Z",
               conversation_id: "conv_789",
@@ -78,7 +78,7 @@ describe("mentionsMapper", () => {
       expect(result.mentions).toHaveLength(1);
       expect(result.mentions[0]).toMatchObject({
         id: "tweet_123",
-        text: "Hello @gorky_on_sol",
+        text: "Hello @organoid_on_sol",
         author_id: "user_456",
         authorUsername: "alice",
         conversation_id: "conv_789",
@@ -354,20 +354,20 @@ describe("mentionsMapper", () => {
         data: {
           data: [
             { id: "1000000000000000001",
-              text: "@gorky_on_sol help",
+              text: "@organoid_on_sol help",
               author_id: "user_twim",
               created_at: "2024-01-15T10:00:00Z",
             } as unknown as TweetV2,
             {
               id: "2000000000000000002",
-              text: "@gorky_on_sol hello",
+              text: "@organoid_on_sol hello",
               author_id: "user_nira",
               created_at: "2024-01-15T11:00:00Z",
             } as unknown as TweetV2,
           ],
           includes: {
             users: [
-              { id: "user_twim", username: "gorky_on_sol" } as unknown as UserV2,
+              { id: "user_twim", username: "organoid_on_sol" } as unknown as UserV2,
               { id: "user_nira", username: "nirapump_" } as unknown as UserV2,
             ],
           } as ApiV2Includes,
@@ -380,10 +380,10 @@ describe("mentionsMapper", () => {
       const result = mapMentionsResponse(mockResponse);
 
       // Verify usernames are resolved for whitelist matching
-      expect(result.mentions[0]?.authorUsername).toBe("gorky_on_sol");
+      expect(result.mentions[0]?.authorUsername).toBe("organoid_on_sol");
       expect(result.mentions[1]?.authorUsername).toBe("nirapump_");
 
-      // These usernames would match the default whitelist: @gorky_on_sol,@nirapump_
+      // These usernames would match the default whitelist: @organoid_on_sol,@nirapump_
     });
   });
 
@@ -410,7 +410,7 @@ describe("mentionsMapper", () => {
           ],
           includes: {
             users: [
-              { id: botUserId, username: "gorky_on_sol" } as unknown as UserV2,
+              { id: botUserId, username: "organoid_on_sol" } as unknown as UserV2,
               { id: "user_abc", username: "regularuser" } as unknown as UserV2,
             ],
           } as ApiV2Includes,
@@ -441,9 +441,9 @@ describe("mentionsMapper", () => {
       // Test the poller's redundant self-author skip logic
       const authedUserId = "bot_987654321";
       const mentions = [
-        { id: "t1", author_id: authedUserId, authorUsername: "serGorky", text: "self" },
+        { id: "t1", author_id: authedUserId, authorUsername: "serOrganoid", text: "self" },
         { id: "t2", author_id: "user_1", authorUsername: "alice", text: "hello" },
-        { id: "t3", author_id: authedUserId, authorUsername: "serGorky", text: "another self" },
+        { id: "t3", author_id: authedUserId, authorUsername: "serOrganoid", text: "another self" },
       ];
 
       // Simulate poller filtering

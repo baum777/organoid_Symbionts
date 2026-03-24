@@ -12,7 +12,6 @@ function sampleMatrix(): OrganoidMatrixNode[] {
   return [
     {
       id: "stillhalter",
-      legacyId: "stillhalter",
       embodiment: "■ Stabil Core",
       glyph: "■",
       role: "anchor",
@@ -21,7 +20,6 @@ function sampleMatrix(): OrganoidMatrixNode[] {
     },
     {
       id: "nebelspieler",
-      legacyId: "nebelspieler",
       embodiment: "◌ Nebel Player",
       glyph: "◌",
       role: "echo",
@@ -30,7 +28,6 @@ function sampleMatrix(): OrganoidMatrixNode[] {
     },
     {
       id: "glutkern",
-      legacyId: "glutkern",
       embodiment: "▲ Glut Kernel",
       glyph: "▲",
       role: "spark",
@@ -108,7 +105,7 @@ describe("pulseHeart", () => {
 
     const snapshot = observePulseHeart({
       surface: "render",
-      label: "voice-sigils",
+      label: "embodiment-glyphs",
       text: "glyphs",
       activeOrganoidIds: ["stillhalter", "glutkern"],
       advancePhase: false,

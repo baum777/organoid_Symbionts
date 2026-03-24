@@ -17,7 +17,7 @@ export interface WorldEvent {
   id: string;
   type: WorldEventType;
   triggerConditions?: string[];
-  affectedGnomes?: string[];
+  affectedEmbodiments?: string[];
   toneEffect?: string;
 }
 
@@ -25,19 +25,19 @@ const EVENTS: WorldEvent[] = [
   {
     id: "ev_chart_funeral",
     type: "chart_funeral_rite",
-    affectedGnomes: ["stillhalter", "wurzelwaechter"],
+    affectedEmbodiments: ["stillhalter", "wurzelwaechter"],
     toneEffect: "stabilize drawdown narratives before adding commentary",
   },
   {
     id: "ev_liquidity",
     type: "liquidity_festival",
-    affectedGnomes: ["muenzhueter", "pilzarchitekt"],
+    affectedEmbodiments: ["muenzhueter", "pilzarchitekt"],
     toneEffect: "frame liquidity as reserves, throughput, and network coupling",
   },
   {
     id: "ev_fake_builder",
     type: "fake_builder_trial",
-    affectedGnomes: ["erzlauscher", "glutkern"],
+    affectedEmbodiments: ["erzlauscher", "glutkern"],
     toneEffect: "verify claims, then compress the verdict",
   },
 ];

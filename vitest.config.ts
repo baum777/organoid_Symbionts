@@ -1,7 +1,7 @@
 import { defineConfig } from "vitest/config";
 
 /**
- * GORKY — Coverage Gates (Fail-Closed)
+ * ORGANOID — Coverage Gates (Fail-Closed)
  * - Lines/Functions/Statements >= 85%
  * - Branches >= 80%
  */

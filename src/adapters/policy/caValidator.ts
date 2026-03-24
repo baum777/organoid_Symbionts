@@ -9,10 +9,10 @@
 
 import type { ChainType, CAValidationResult } from "../../types/tools.js";
 
-/** Base58 alphabet without ambiguous characters (0, O, I, l) */
+/** Base58 alphabet without ambiguous embodiments (0, O, I, l) */
 const BASE58_REGEX = /^[1-9A-HJ-NP-Za-km-z]{32,44}$/;
 
-/** EVM address regex: 0x + 40 hex characters */
+/** EVM address regex: 0x + 40 hex embodiments */
 const EVM_REGEX = /^0x[a-fA-F0-9]{40}$/;
 
 /** Detects if string contains ambiguous base58 chars */
@@ -168,7 +168,7 @@ function validateSolanaAddress(
     };
   }
 
-  // Check for ambiguous characters
+  // Check for ambiguous embodiments
   if (hasAmbiguousChars) {
     return {
       valid: false,

@@ -1,5 +1,5 @@
 /**
- * Narrative Labels — Gorky narrative taxonomy for roast pattern mapping.
+ * Narrative Labels — Organoid narrative taxonomy for roast pattern mapping.
  * Used by narrativeMapper and patternEngine to classify crypto Twitter content.
  */
 

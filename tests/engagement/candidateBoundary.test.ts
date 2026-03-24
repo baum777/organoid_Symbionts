@@ -13,7 +13,7 @@ describe("candidateBoundary", () => {
   it("normalizes mention ingress into the shared candidate boundary", () => {
     const mention = {
       id: "mention-1",
-      text: "Hello @Gnomes_onchain, can you help?",
+      text: "Hello @organoid_on_sol, can you help?",
       author_id: "author-1",
       authorUsername: "Alice",
       conversation_id: "conv-1",
@@ -46,7 +46,7 @@ describe("candidateBoundary", () => {
     expect(raw.triggerType).toBe("mention");
     expect(raw.sourceEventId).toBe("mention-1");
     expect(candidate.candidateId).toBe("mention-1");
-    expect(candidate.normalizedText).toBe("Hello @Gnomes_onchain, can you help?");
+    expect(candidate.normalizedText).toBe("Hello @organoid_on_sol, can you help?");
     expect(raw.parentRef?.tweetId).toBe("parent-mention-1");
     expect(candidate.parentRef?.tweetId).toBe("parent-mention-1");
     expect(bundle?.sourceTweet?.tweetId).toBe("mention-1");
@@ -86,13 +86,13 @@ describe("candidateBoundary", () => {
       riskSignals: [],
       contextStrengthScore: 0,
       threadPotentialScore: 0,
-      voiceFitScore: 0,
+      embodimentFitScore: 0,
       noveltyScore: 0,
       spamRiskScore: 0,
       policyRiskScore: 0,
       repetitionRiskScore: 0,
       finalScore: 12,
-      recommendedVoice: "stillhalter",
+      recommendedEmbodiment: "stillhalter",
       recommendedMode: "proactive_timeline_reply",
       recommendedIntent: "proactive_timeline_reply",
       selectedBecause: ["ranked"],

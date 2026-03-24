@@ -9,7 +9,7 @@ export const MODE_BUDGETS: Record<Exclude<CanonicalMode, "ignore">, ModeBudget> 
   soft_deflection: { soft_target: 80, hard_max: 160, confidence_floor: 0.25 },
   social_banter: { soft_target: 80, hard_max: 160, confidence_floor: 0.0 },
   market_banter: { soft_target: 120, hard_max: 220, confidence_floor: 0.10 },
-  persona_reply: { soft_target: 120, hard_max: 200, confidence_floor: 0.0 },
+  embodiment_reply: { soft_target: 120, hard_max: 200, confidence_floor: 0.0 },
   lore_drop: { soft_target: 150, hard_max: 240, confidence_floor: 0.0 },
   conversation_hook: { soft_target: 80, hard_max: 160, confidence_floor: 0.0 },
 };

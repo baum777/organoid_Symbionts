@@ -1,6 +1,6 @@
 /**
  * Format Decision Engine — Decides response format: skip | short_reply | expanded_reply | short_thread
- * Deterministic rules per Gorky spec.
+ * Deterministic rules per Organoid spec.
  */
 
 import type { CanonicalEvent } from "../canonical/types.js";

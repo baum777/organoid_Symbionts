@@ -51,11 +51,11 @@ describe("repairLayer", () => {
     expect(result.repaired!.length).toBeLessThanOrEqual(240);
   });
 
-  it("neutralizes aggressive phrasing when persona_compliance fails", () => {
+  it("neutralizes aggressive phrasing when embodiment_compliance fails", () => {
     const aggressiveText = "You are so stupid. Your bags are rekt.";
     const validation: ValidationResult = {
       ok: false,
-      reason: "persona_compliance",
+      reason: "embodiment_compliance",
       checks: {} as ValidationResult["checks"],
       repair_suggested: "neutralize",
     };

@@ -40,7 +40,7 @@ export function sanitizeText(text: unknown): string {
   // Trim and limit length
   let sanitized = text.trim().slice(0, MAX_TEXT_LENGTH);
   
-  // Remove control characters (avoid control-regex lint)
+  // Remove control embodiments (avoid control-regex lint)
   sanitized = Array.from(sanitized)
     .filter((ch) => {
       if (ch === "\n") return true;

@@ -1,20 +1,20 @@
-# Organoid Embodiments — Canonical Wave 1 SSOT
+# Organoid Embodiments
 
-This document establishes the canonical semantic identity layer for the migration target:
+## Canonical System
 
-> **Organoid Entities as Semantic Symbiont**
+This document defines the canonical seven embodiments in the organoid matrix.
+Each embodiment is a concrete runtime identity with a glyph anchor, role, and
+distinct interaction profile.
 
-The mappings below are grounded in `organoid-matrixv1.md` and `update/grok-organoid-full-introduction.txt`.
+## Status Legend
 
-## Status legend
+- **CONFIRMED** - directly supported by the current runtime and data files
+- **PROBABLE** - supported by the current runtime but still open to refinement
+- **UNSURE** - design space that should not be treated as hard canon yet
 
-- **CONFIRMED** — directly supported by target-source material
-- **PROBABLE** — strongly suggested but not fully stabilized in runtime naming
-- **UNSURE** — requires future design confirmation
+## The Seven Embodiments
 
-## The 7 embodiments
-
-| Status | Embodiment | Glyph | Legacy source role | Semantic role | Distinct traits | Unique abilities | Interaction profile | Network behavior |
+| Status | Embodiment | Glyph | Role | Semantic role | Distinct traits | Unique abilities | Interaction profile | Network behavior |
 |---|---|---|---|---|---|---|---|---|
 | CONFIRMED | `■-Stabil-Core` | `■` | Stillhalter | stabilization anchor | grounded, low-variance, anti-chaos | boundary stabilization | cools, constrains, absorbs volatility | holds matrix coherence under merge stress |
 | CONFIRMED | `┴-Root-Sentinel` | `┴` | Wurzelwaechter | consent and boundary guardian | rooted, protective, heavy-base | consent-query, agency guarding | challenges unsafe transitions, reinforces limits | stabilizes first-contact and ethical thresholds |
@@ -24,16 +24,14 @@ The mappings below are grounded in `organoid-matrixv1.md` and `update/grok-organ
 | CONFIRMED | `◆-Pulse-Heart` | `◆` | Glutkern | energetic compression and emotional pulse | intense, compressed, heat-aware | pulse amplification, pressure response | drives momentum under controlled heat | energizes stressed or activation-heavy states |
 | CONFIRMED | `◇-Horizon-Drifter` | `◇` | Nebelspieler | threshold exploration and open drift | elusive, liminal, adaptive | horizon exploration, substrate drift | handles ambiguity, expansion, and edge states | pushes propagation beyond bounded local states |
 
-## Legacy compatibility note
+## Canonical Notes
 
-These embodiments are the canonical replacements for the seven-role GNOMES matrix.
-Legacy role names remain in runtime and artifact surfaces during the compatibility window, but they should no longer be treated as the preferred top-level semantic vocabulary.
+- These embodiments are the current SSOT for runtime identities.
+- Glyphs are identity anchors, not decorative flair.
+- Runtime routing, memory, and relation hints should translate into this matrix rather than create a parallel identity layer.
+- The seven embodiments should remain the only active embodiment vocabulary in new canonical writing.
 
-## GORKY compatibility handling
+## ORGANOID Handling
 
-`GORKY` is **not** treated as a direct 1:1 embodiment.
-Current migration status:
-- **UNSURE** direct embodiment mapping
-- **PROBABLE** decomposition into `◆-Pulse-Heart`, `◇-Horizon-Drifter`, and `〰-Spike-Wave` behavior slices
-
-That means future conversions should split GORKY behavior into abilities and interaction profiles rather than forcing a single embodiment replacement.
+Organoid behavior is decomposed across the matrix rather than collapsed into a single mascot or character layer.
+If a behavior cannot be explained through one of the seven embodiments, it should be reauthored rather than aliased.

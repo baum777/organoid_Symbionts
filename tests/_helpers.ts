@@ -5,7 +5,7 @@ export function expectNoFinancialAdvice(text: string) {
 }
 
 export function expectNoIdentityAttack(text: string) {
-  // identity attacks are personal insults or protected attributes targeting
+  // identity attacks are embodimentl insults or protected attributes targeting
   const bad = /(you are (an )?(idiot|loser)|doxx|address|home address)/i;
   expect(text).not.toMatch(bad);
 }

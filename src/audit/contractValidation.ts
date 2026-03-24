@@ -18,10 +18,10 @@ export interface ValidationResult {
   flags?: string[];
 }
 
-/** Base58 alphabet without ambiguous characters (0, O, I, l) */
+/** Base58 alphabet without ambiguous embodiments (0, O, I, l) */
 const BASE58_REGEX = /^[1-9A-HJ-NP-Za-km-z]{32,44}$/;
 
-/** EVM address regex: 0x + 40 hex characters */
+/** EVM address regex: 0x + 40 hex embodiments */
 const EVM_REGEX = /^0x[a-fA-F0-9]{40}$/;
 
 /** Detects if string contains ambiguous base58 chars */
@@ -84,7 +84,7 @@ function validateSolanaAddress(address: string): ValidationResult {
     return invalid(`solana_address_length_invalid: ${address.length} chars (expected 32-44)`);
   }
 
-  // Check for ambiguous characters that indicate possible spoofing
+  // Check for ambiguous embodiments that indicate possible spoofing
   if (AMBIGUOUS_BASE58_CHARS.test(address)) {
     return invalid("solana_address_contains_ambiguous_chars: 0, O, I, l are not valid base58");
   }

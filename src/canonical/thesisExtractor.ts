@@ -11,7 +11,7 @@ const SOCIAL_INTENTS: IntentClass[] = [
   "greeting",
   "casual_ping",
   "market_question_general",
-  "persona_query",
+  "embodiment_query",
   "lore_query",
   "conversation_continue",
 ];

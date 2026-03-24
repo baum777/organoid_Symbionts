@@ -11,12 +11,11 @@
 3. `mentions.yaml` — mention handling prompt
 4. `posting.yaml` — autonomous posting prompt
 5. `commands.yaml` — command handling prompt
-6. `gorkypf_persona.md` — LEGACY-PERSONA compatibility prompt, pending retirement
 
 ## Available Prompts
 
 ### organoid_system.md
-Canonical Organoid embodiment/glyph/phase guidance for migration-era prompt work.
+Canonical Organoid embodiment, glyph, and phase guidance.
 
 ### base.yaml
 Base system behavior, tone, and safety rules.

@@ -42,7 +42,7 @@ vi.mock("../../src/engagement/targetLookup.js", () => ({
 function makeMention(overrides: Partial<Mention> = {}): Mention {
   return {
     id: `post_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
-    text: "@gorky_on_sol is there an altseason on the horizon?",
+    text: "@organoid_on_sol is there an altseason on the horizon?",
     author_id: "user_1",
     authorUsername: "testuser",
     conversation_id: null,

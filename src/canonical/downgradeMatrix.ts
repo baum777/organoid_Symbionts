@@ -9,7 +9,7 @@ const DOWNGRADE_MAP: Record<string, CanonicalMode> = {
   soft_deflection: "ignore",
   social_banter: "conversation_hook",
   market_banter: "dry_one_liner",
-  persona_reply: "social_banter",
+  embodiment_reply: "social_banter",
   lore_drop: "social_banter",
   conversation_hook: "ignore",
 };

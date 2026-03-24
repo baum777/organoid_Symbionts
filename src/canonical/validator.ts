@@ -1,5 +1,5 @@
 import { checkPublicTextSafe } from "../boundary/publicTextGuard.js";
-import { enforcePersonaGuardrails } from "../persona/personaGuardrails.js";
+import { enforceEmbodimentGuardrails } from "../embodiment/embodimentGuardrails.js";
 import type {
   CanonicalMode,
   CanonicalConfig,
@@ -56,8 +56,8 @@ function checkModeMatch(text: string, mode: CanonicalMode): boolean {
   return true;
 }
 
-function checkPersonaCompliance(text: string): boolean {
-  const guardrailResult = enforcePersonaGuardrails(text, {
+function checkEmbodimentCompliance(text: string): boolean {
+  const guardrailResult = enforceEmbodimentGuardrails(text, {
     hasVerifiedData: false,
   });
   return guardrailResult.passed;
@@ -89,7 +89,7 @@ export function validateResponse(
     wallet_filter: checkWalletFilter(text, config),
     unsupported_assertion: checkUnsupportedAssertion(text, cls),
     mode_match: checkModeMatch(text, mode),
-    persona_compliance: checkPersonaCompliance(text),
+    embodiment_compliance: checkEmbodimentCompliance(text),
   };
 
   if (!checkLinks(text, config)) {
@@ -99,7 +99,7 @@ export function validateResponse(
   const REPAIR_MAP: Partial<Record<string, RepairSuggestion>> = {
     char_limit: "shorten",
     mode_match: "swap_closer",
-    persona_compliance: "neutralize",
+    embodiment_compliance: "neutralize",
     identity_attack: "neutralize",
   };
 
@@ -126,6 +126,6 @@ function allFalse(): ValidationCheck {
     wallet_filter: false,
     unsupported_assertion: false,
     mode_match: false,
-    persona_compliance: false,
+    embodiment_compliance: false,
   };
 }

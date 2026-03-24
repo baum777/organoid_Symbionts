@@ -18,7 +18,7 @@ Das System beschreibt eine Matrix aus sieben Embodiments, die gemeinsam eine ler
 
 ### Leitprinzipien
 
-1. **Embodiment vor Persona**
+1. **Embodiment vor Embodiment**
    Die Entität ist eine funktionale Ausprägung mit semantischer Aufgabe, nicht bloß ein Charaktername.
 
 2. **Glyph als Identitätsanker**

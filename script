@@ -9,7 +9,8 @@ param(
 
     [string]$RedirectUri = "http://127.0.0.1:8080/callback",
     [string]$Scopes = "tweet.read tweet.write users.read offline.access",
-    [string]$TokenOutputPath = ".\x-gnome-tokens.json"
+    [string]$TokenOutputPath = ".\x-oauth-tokens.json"
+)
 
 Set-StrictMode -Version Latest
 $ErrorActionPreference = "Stop"
@@ -90,7 +91,7 @@ Write-Host ""
 Write-Host "Authorize URL:"
 Write-Host $authorizeUrl
 Write-Host ""
-Write-Host "Öffne Browser. Bitte dort mit dem BOT-ACCOUNT (@gnome) einloggen und autorisieren..."
+Write-Host "Öffne Browser. Bitte dort mit dem BOT-ACCOUNT (@organoid_on_sol) einloggen und autorisieren..."
 Write-Host "Listener: $callbackPrefix"
 Write-Host ""
 

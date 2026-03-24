@@ -66,7 +66,7 @@ describe("auditLog", () => {
       thesis: { primary: "claim_exceeds_evidence", supporting_point: null, evidence_bullets: [] },
       prompt_hash: "abc123",
       model_id: "grok-3",
-      validation: { ok: true, reason: "passed", checks: { char_limit: true, identity_attack: true, financial_advice: true, wallet_filter: true, unsupported_assertion: true, mode_match: true, persona_compliance: true } },
+      validation: { ok: true, reason: "passed", checks: { char_limit: true, identity_attack: true, financial_advice: true, wallet_filter: true, unsupported_assertion: true, mode_match: true, embodiment_compliance: true } },
       final_action: "publish",
       skip_reason: null,
       reply_text: "Nice hype.",

@@ -38,11 +38,11 @@ const MODE_STYLE_HINTS: Record<Exclude<CanonicalMode, "ignore">, string> = {
   hard_caution: "Flag serious manipulation or deception with controlled, crisp language. Speak in signals and patterns.",
   neutral_clarification: "Correct the record with minimal heat. Clean, short, slight edge allowed.",
   soft_deflection: "Dismiss without overcommitting. Sparse, non-committal, safe.",
-  social_banter: "Reply casually and in-character. Warm but concise. Match the energy of the greeting.",
+  social_banter: "Reply casually and in-embodiment. Warm but concise. Match the energy of the greeting.",
   market_banter: "Share a brief, opinionated market take. Crypto-native tone, no financial advice. Keep it punchy.",
-  persona_reply: "Answer in-character about who you are. Stay embodiment-consistent, brief, slightly mysterious.",
-  lore_drop: "Share a piece of lore or backstory. In-character, evocative, compact.",
-  conversation_hook: "Reply with a short hook that invites further conversation. Casual, in-character.",
+  embodiment_reply: "Answer in-embodiment about who you are. Stay embodiment-consistent, brief, slightly mysterious.",
+  lore_drop: "Share a piece of lore or backstory. In-embodiment, evocative, compact.",
+  conversation_hook: "Reply with a short hook that invites further conversation. Casual, in-embodiment.",
 };
 
 export interface PromptBuilderContext {
@@ -66,7 +66,7 @@ export function buildPrompt(
 
   const rules = [
     ...BASE_RULES,
-    `Max ${charBudget} characters.`,
+    `Max ${charBudget} embodiments.`,
   ];
 
   if (mode !== "ignore") {
@@ -79,7 +79,7 @@ export function buildPrompt(
   }
 
   const prompt: PromptContract = {
-    persona: config.persona_name,
+    embodiment: config.embodiment_name,
     mode,
     thesis: thesis.primary,
     supporting_point: thesis.supporting_point,
@@ -129,7 +129,7 @@ export function promptToLLMInput(prompt: PromptContract): {
   }
 
   const systemParts = systemOverride ? [systemOverride] : [
-    `You are ${prompt.persona}, an organoid-first crypto-native analytical commentator.`,
+    `You are ${prompt.embodiment}, an organoid-first crypto-native analytical commentator.`,
     "Identity: dry, detached, mildly sarcastic. Meme-aware but subtle.",
     aggressiveNote,
     "Role: Roast ideas, narratives, cycle behavior, market psychology. Never people.",
@@ -174,7 +174,7 @@ export function promptToLLMInput(prompt: PromptContract): {
     "Write exactly one reply matching the selected mode.",
     "Use the thesis provided. Do not add unsupported claims.",
     isAggressive ? "STRICT MIRRORING: Use the user's EXACT terminology from the target tweet. Avoid all synonyms. If they used a specific term, that term MUST appear in your response." : null,
-    `Stay under ${prompt.char_budget} characters.`,
+    `Stay under ${prompt.char_budget} embodiments.`,
     "Return JSON: { \"reply\": \"<your reply text>\" }",
   ].filter(Boolean).join("\n");
 

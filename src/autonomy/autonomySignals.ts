@@ -1,7 +1,7 @@
 /**
- * Autonomy Signals — Triggers for autonomous multi-gnome behavior
+ * Autonomy Signals — Triggers for autonomous multi-embodiment behavior
  *
- * Phase-4: Detects when characters may respond beyond explicit routing.
+ * Phase-4: Detects when embodiments may respond beyond explicit routing.
  */
 
 export interface AutonomySignals {

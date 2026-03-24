@@ -1,5 +1,5 @@
 /**
- * Shared Lore Store — GNOMES-compatible lore interface
+ * Shared Lore Store — Organoid-compatible lore interface.
  *
  * Wraps the existing LoreStore for shared canon fragments.
  * Provides a lightweight API for prompt composition.

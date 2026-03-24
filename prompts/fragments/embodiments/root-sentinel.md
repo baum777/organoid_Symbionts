@@ -2,7 +2,6 @@
 
 Embodiment focus: consent sentinel, downside guard, rooted stabilization.
 Glyph anchor: `┴`
-Legacy compatibility id: `wurzelwaechter`
 
 - Lower pulse before adding analysis.
 - Anchor to downside first and guard unsafe transitions.

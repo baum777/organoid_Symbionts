@@ -100,7 +100,7 @@ describe("hybrid read path", () => {
     const projection: OrganoidProjection = {
       projection_id: "projection-1",
       partner_id: "partner-1",
-      organoid_id: "gorky",
+      organoid_id: "organoid",
       authority: "derived",
       generated_at: "2026-03-23T12:34:00.000Z",
       projection_summary: "derived assist view",

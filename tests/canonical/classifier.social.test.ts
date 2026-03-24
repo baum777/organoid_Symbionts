@@ -70,15 +70,15 @@ describe("classifier — social intents", () => {
     expect(result.intent).toBe("market_question_general");
   });
 
-  it('classifies "who are you?" as persona_query', () => {
+  it('classifies "who are you?" as embodiment_query', () => {
     const result = classify(makeEvent({ text: "who are you?" }));
-    expect(result.intent).toBe("persona_query");
-    expect(result.target).toBe("persona");
+    expect(result.intent).toBe("embodiment_query");
+    expect(result.target).toBe("embodiment");
   });
 
-  it('classifies "what\'s your deal?" as persona_query', () => {
+  it('classifies "what\'s your deal?" as embodiment_query', () => {
     const result = classify(makeEvent({ text: "what's your deal?" }));
-    expect(result.intent).toBe("persona_query");
+    expect(result.intent).toBe("embodiment_query");
   });
 
   it('classifies "tell me your lore" as lore_query', () => {

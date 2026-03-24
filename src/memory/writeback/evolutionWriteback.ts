@@ -27,7 +27,7 @@ async function appendLine(record: object): Promise<void> {
 }
 
 export function writeTraitEvolution(params: {
-  gnome_id: string;
+  embodiment_id: string;
   trait_key: string;
   old_value: number;
   new_value: number;
@@ -39,7 +39,7 @@ export function writeTraitEvolution(params: {
   }).catch(() => {});
 }
 
-export function writeJokeAddition(params: { category: string; content: string; gnome_id?: string }): void {
+export function writeJokeAddition(params: { category: string; content: string; embodiment_id?: string }): void {
   appendLine({
     type: "joke_addition",
     ...params,

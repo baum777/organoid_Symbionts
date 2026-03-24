@@ -35,13 +35,13 @@ export interface TimelineCandidate {
   riskSignals: string[];
   contextStrengthScore: number;
   threadPotentialScore: number;
-  voiceFitScore: number;
+  embodimentFitScore: number;
   noveltyScore: number;
   spamRiskScore: number;
   policyRiskScore: number;
   repetitionRiskScore: number;
   finalScore: number;
-  recommendedVoice: string;
+  recommendedEmbodiment: string;
   recommendedMode: EngagementMode;
   recommendedIntent: string;
   selectedBecause: string[];

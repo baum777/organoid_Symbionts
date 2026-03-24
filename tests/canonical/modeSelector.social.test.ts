@@ -69,14 +69,14 @@ describe("modeSelector — social routing", () => {
     expect(mode).toBe("market_banter");
   });
 
-  it("persona_query maps to persona_reply", () => {
+  it("embodiment_query maps to embodiment_reply", () => {
     const mode = selectMode(
-      makeCls({ intent: "persona_query" }),
+      makeCls({ intent: "embodiment_query" }),
       makeScores(),
       makeThesis(),
       DEFAULT_CANONICAL_CONFIG,
     );
-    expect(mode).toBe("persona_reply");
+    expect(mode).toBe("embodiment_reply");
   });
 
   it("lore_query maps to lore_drop", () => {
@@ -104,7 +104,7 @@ describe("modeSelector — social routing", () => {
       "greeting",
       "casual_ping",
       "market_question_general",
-      "persona_query",
+      "embodiment_query",
       "lore_query",
       "conversation_continue",
     ] as const;

@@ -186,10 +186,10 @@ export const FactsAvailableSchema = z.object({
 export type FactsAvailable = z.infer<typeof FactsAvailableSchema>;
 
 /**
- * 6) Persona Router output
+ * 6) Embodiment Router output
  */
-export const PersonaModeSchema = z.enum(["analyst", "goblin", "scientist", "prophet", "referee"]);
-export type PersonaMode = z.infer<typeof PersonaModeSchema>;
+export const EmbodimentModeSchema = z.enum(["analyst", "goblin", "scientist", "prophet", "referee"]);
+export type EmbodimentMode = z.infer<typeof EmbodimentModeSchema>;
 
 export const EnergySchema = z.union([z.literal(1), z.literal(2), z.literal(3), z.literal(4), z.literal(5)]);
 export type Energy = z.infer<typeof EnergySchema>;
@@ -197,13 +197,13 @@ export type Energy = z.infer<typeof EnergySchema>;
 export const UserRelationshipSchema = z.enum(["new", "regular", "enemy", "vip", "dev"]);
 export type UserRelationship = z.infer<typeof UserRelationshipSchema>;
 
-export const PersonaRouteSchema = z.object({
-  mode: PersonaModeSchema,
+export const EmbodimentRouteSchema = z.object({
+  mode: EmbodimentModeSchema,
   energy: EnergySchema,
   style_rules: z.array(z.string().min(1).max(60)).min(1).max(8),
 });
 
-export type PersonaRoute = z.infer<typeof PersonaRouteSchema>;
+export type EmbodimentRoute = z.infer<typeof EmbodimentRouteSchema>;
 
 /**
  * Memory types
@@ -265,7 +265,7 @@ export type RecentReplies = z.infer<typeof RecentRepliesSchema>;
 export const CandidateSchema = z.object({
   candidate_id: z.string().min(1).max(12),
   reply_text: z.string().min(1).max(280),
-  mode: PersonaModeSchema,
+  mode: EmbodimentModeSchema,
   truth_level: TruthLevelSchema,
 });
 
@@ -360,7 +360,7 @@ export const ForbiddenTermsSchema = z.object({
 export type ForbiddenTerms = z.infer<typeof ForbiddenTermsSchema>;
 
 // =============================================================================
-// Legacy types for existing Social Persona Engine pipeline compatibility
+// Legacy types for existing Social Embodiment Engine pipeline compatibility
 // =============================================================================
 
 import type { ThreadContext, TimelineBrief, AdaptiveSignals } from "../context/types.js";
@@ -404,8 +404,8 @@ export interface FactVerification {
   expires_at?: string;
 }
 
-export interface PersonaModeConfig {
-  mode: PersonaMode;
+export interface EmbodimentModeConfig {
+  mode: EmbodimentMode;
   description: string;
   tone: "analytical" | "sarcastic" | "playful" | "serious" | "mystical" | "neutral";
   meme_density: "none" | "low" | "medium" | "high";
@@ -413,7 +413,7 @@ export interface PersonaModeConfig {
   system_prompt_prefix: string;
 }
 
-export interface PersonaSelectionCriteria {
+export interface EmbodimentSelectionCriteria {
   intent: Intent;
   aggression_level: "low" | "medium" | "high";
   topic_seriousness: "low" | "medium" | "high";
@@ -483,7 +483,7 @@ export interface MemoryWriteback {
 export interface ReplyCandidate {
   candidate_id: string;
   reply_text: string;
-  mode: PersonaMode;
+  mode: EmbodimentMode;
   risk: "low" | "medium" | "high";
   truth_category: TruthLevel;
   estimated_length: number;
@@ -498,7 +498,7 @@ export interface CandidateScore {
   candidate_id: string;
   scores: {
     context_relevance: number;
-    persona_fit: number;
+    embodiment_fit: number;
     topic_alignment: number;
     anti_repetition: number;
     safety: number;
@@ -512,7 +512,7 @@ export interface GenerationRequest {
   context: ThreadContext;
   timeline?: TimelineBrief | null;
   intent: IntentDetectionResult;
-  persona_mode: PersonaMode;
+  embodiment_mode: EmbodimentMode;
   memory: MemoryRetrievalResult;
   adaptive_signals?: AdaptiveSignals | null;
   candidate_count: number;
@@ -529,7 +529,7 @@ export type PipelineStage =
   | "context_build"
   | "intent_detect"
   | "truth_gate"
-  | "persona_route"
+  | "embodiment_route"
   | "memory_retrieve"
   | "generation"
   | "selection"
@@ -586,7 +586,7 @@ export type SafetyViolation =
   | "UNVERIFIED_FACT"
   | "EXTREME_TOXICITY"
   | "FINANCIAL_ADVICE"
-  | "PERSONA_DRIFT"
+  | "EMBODIMENT_DRIFT"
   | "META_LEAK"
   | "LENGTH_EXCEEDED";
 
