@@ -220,7 +220,10 @@ export async function handleEvent(
     return makeSkipResult(event, "skip_no_thesis", cls, scores, config);
   }
 
-  const mode = selectMode(cls, scores, thesis, config);
+  let mode = selectMode(cls, scores, thesis, config);
+  if (mode === "ignore" && config.test_mode) {
+    mode = "soft_deflection";
+  }
   if (mode === "ignore") {
     return makeSkipResult(event, "skip_low_confidence", cls, scores, config);
   }
@@ -261,12 +264,13 @@ export async function handleEvent(
   const minRelevance = config.thresholds.social && cls.intent && SOCIAL_INTENTS.includes(cls.intent)
     ? (config.thresholds.social.min_relevance ?? config.thresholds.min_relevance)
     : config.thresholds.min_relevance;
+  const effectiveMinRelevance = config.test_mode ? 0 : minRelevance;
   const format = formatDecision({
     event,
     cls,
     narrative,
     relevanceScore: scores.relevance,
-    minRelevanceThreshold: minRelevance,
+    minRelevanceThreshold: effectiveMinRelevance,
     threadEnabled: (config as { thread_enabled?: boolean }).thread_enabled ?? false,
   });
 

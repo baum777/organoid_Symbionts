@@ -28,15 +28,23 @@ import { hasVoiceSigilMarker, stripVoiceSigils } from "../_helpers/voiceSigils.j
 
 const AUDIT_FILE = path.join(process.cwd(), "data", "audit_log.jsonl");
 const DATA_DIR = path.resolve(process.cwd(), "data");
+const ORIGINAL_ENGAGEMENT_AI_APPROVED = process.env.ENGAGEMENT_AI_APPROVED;
+const ORIGINAL_ENGAGEMENT_OPT_IN_HANDLES = process.env.ENGAGEMENT_OPT_IN_HANDLES;
+const ORIGINAL_ENGAGEMENT_OPT_OUT_HANDLES = process.env.ENGAGEMENT_OPT_OUT_HANDLES;
 
 vi.mock("../../src/ops/launchGate.js", () => ({
   shouldPost: () => ({ action: "post" as const }),
 }));
 
+vi.mock("../../src/engagement/targetLookup.js", () => ({
+  targetTweetExists: vi.fn(async () => true),
+}));
+
 function makeMention(overrides: Partial<Mention> = {}): Mention {
   return {
     id: `post_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
-    text: "$SOL mooning 100x gem guaranteed easy money LFG",
+    text:
+      "@Gnomes_onchain can you break down the current SOL setup, explain what evidence supports the move, and tell me whether this is a real breakout or just empty hype? Need the actual signal, not vibes.",
     author_id: "user_1",
     authorUsername: "testuser",
     conversation_id: null,
@@ -65,6 +73,9 @@ describe("pipeline postability integration", () => {
 
   beforeEach(async () => {
     process.env.USE_REDIS = "false";
+    process.env.ENGAGEMENT_AI_APPROVED = "true";
+    process.env.ENGAGEMENT_OPT_IN_HANDLES = "testuser";
+    process.env.ENGAGEMENT_OPT_OUT_HANDLES = "";
     resetStoreCache();
     await cacheClear();
     if (fs.existsSync(AUDIT_FILE)) fs.unlinkSync(AUDIT_FILE);
@@ -75,6 +86,21 @@ describe("pipeline postability integration", () => {
   afterEach(() => {
     persistSpy.mockRestore();
     if (fs.existsSync(AUDIT_FILE)) fs.unlinkSync(AUDIT_FILE);
+    if (ORIGINAL_ENGAGEMENT_AI_APPROVED === undefined) {
+      delete process.env.ENGAGEMENT_AI_APPROVED;
+    } else {
+      process.env.ENGAGEMENT_AI_APPROVED = ORIGINAL_ENGAGEMENT_AI_APPROVED;
+    }
+    if (ORIGINAL_ENGAGEMENT_OPT_IN_HANDLES === undefined) {
+      delete process.env.ENGAGEMENT_OPT_IN_HANDLES;
+    } else {
+      process.env.ENGAGEMENT_OPT_IN_HANDLES = ORIGINAL_ENGAGEMENT_OPT_IN_HANDLES;
+    }
+    if (ORIGINAL_ENGAGEMENT_OPT_OUT_HANDLES === undefined) {
+      delete process.env.ENGAGEMENT_OPT_OUT_HANDLES;
+    } else {
+      process.env.ENGAGEMENT_OPT_OUT_HANDLES = ORIGINAL_ENGAGEMENT_OPT_OUT_HANDLES;
+    }
   });
 
   describe("Case A — happy path publish", () => {
@@ -82,6 +108,7 @@ describe("pipeline postability integration", () => {
       const safeReply = "Zero proof, pure noise.";
       const deps = makeDeps(safeReply);
       const mention = makeMention();
+      const configTestMode = { ...DEFAULT_CANONICAL_CONFIG, test_mode: true };
 
       const replySpy = vi.fn().mockImplementation(async (text: string, _mentionId: string) => {
         assertPublicTextSafe(text, { route: "XClient.reply" });
@@ -89,7 +116,7 @@ describe("pipeline postability integration", () => {
       });
       const xClient = { reply: replySpy } as ReturnType<typeof import("../../src/clients/xClient.js").createXClient>;
 
-      const result = await processCanonicalMention(deps, xClient, mention, false);
+      const result = await processCanonicalMention(deps, xClient, mention, false, "mentions", configTestMode);
 
       expect(result).toBeDefined();
       expect(result!.action).toBe("publish");
@@ -124,12 +151,12 @@ describe("pipeline postability integration", () => {
       const longReply = "A".repeat(300);
       const deps = makeDeps(longReply);
       const mention = makeMention();
-      const configNoRepair = { ...DEFAULT_CANONICAL_CONFIG, repair_enabled: false };
+      const configNoRepair = { ...DEFAULT_CANONICAL_CONFIG, repair_enabled: false, test_mode: true };
 
       const replySpy = vi.fn().mockResolvedValue({ id: "tid", text: "" });
       const xClient = { reply: replySpy } as ReturnType<typeof import("../../src/clients/xClient.js").createXClient>;
 
-      const result = await processCanonicalMention(deps, xClient, mention, false, configNoRepair);
+      const result = await processCanonicalMention(deps, xClient, mention, false, "mentions", configNoRepair);
 
       expect(result).toBeDefined();
       expect(result!.action).toBe("skip");
@@ -150,11 +177,12 @@ describe("pipeline postability integration", () => {
       const guardUnsafeReply = "Your score is 100";
       const deps = makeDeps(guardUnsafeReply);
       const mention = makeMention();
+      const configTestMode = { ...DEFAULT_CANONICAL_CONFIG, test_mode: true };
 
       const replySpy = vi.fn().mockResolvedValue({ id: "tid", text: "" });
       const xClient = { reply: replySpy } as ReturnType<typeof import("../../src/clients/xClient.js").createXClient>;
 
-      const result = await processCanonicalMention(deps, xClient, mention, false);
+      const result = await processCanonicalMention(deps, xClient, mention, false, "mentions", configTestMode);
 
       expect(result).toBeDefined();
       expect(result!.action).toBe("skip");
@@ -174,6 +202,7 @@ describe("pipeline postability integration", () => {
       const safeReply = "Nice hype, zero proof.";
       const deps = makeDeps(safeReply);
       const mention = makeMention();
+      const configTestMode = { ...DEFAULT_CANONICAL_CONFIG, test_mode: true };
 
       const replySpy = vi.fn().mockImplementation(async (text: string) => {
         assertPublicTextSafe(text, { route: "XClient.reply" });
@@ -181,7 +210,7 @@ describe("pipeline postability integration", () => {
       });
       const xClient = { reply: replySpy } as ReturnType<typeof import("../../src/clients/xClient.js").createXClient>;
 
-      const result = await processCanonicalMention(deps, xClient, mention, false);
+      const result = await processCanonicalMention(deps, xClient, mention, false, "mentions", configTestMode);
 
       expect(result).toBeDefined();
       expect(result!.action).toBe("publish");
