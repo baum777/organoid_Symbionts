@@ -12,7 +12,7 @@ describe("refinePromptBuilder", () => {
       expectedKeywords: ["sloppy", "concentrated"],
     });
 
-    expect(result.system).toContain("Gorky");
+    expect(result.system).toContain("Organoid");
     expect(result.system).toContain("REFINE RULES");
     expect(result.system).toContain("sloppy");
     expect(result.system).toContain("concentrated");
