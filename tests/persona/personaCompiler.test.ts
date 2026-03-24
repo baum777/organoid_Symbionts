@@ -50,12 +50,40 @@ describe("persona semantic compiler", () => {
       {
         id: "temp",
         legacy_id: "temp",
-        name: "Temp",
-        embodiment: "Temp-Embodiment",
-        role: "test",
+        name: "■-Temp-Core",
+        embodiment: "■-Temp-Core",
+        role: "test_anchor",
         archetype: "dry_observer",
         sigil: { char: "T", code: "U+0054", fallback: "[T]" },
         glyph: { char: "T", code: "U+0054", fallback: "[T]" },
+        phase_affinities: ["Identity Dissolution"],
+        voice_traits: {
+          tone: "neutral, compact, stable",
+          dryness: 5,
+          sarcasm: 1,
+          warmth: 4,
+          theatricality: 1,
+          meme_density: 0,
+        },
+        language_prefs: {
+          primary: "en",
+          allow_slang: false,
+          preferred_keywords: ["stability", "clarity"],
+        },
+        routing_hints: {
+          preferred_intents: ["question"],
+          preferred_energy: ["low"],
+          aggression_range: [0, 0.2],
+          absurdity_threshold: 0.3,
+        },
+        memory_rules: {
+          track_affinity: false,
+          track_jokes: false,
+          max_items_per_user: 4,
+          lore_status_gate: "active",
+          default_lore_tags: ["test", "anchor"],
+        },
+        safety_boundaries: ["Keep the test profile non-hyping."],
       },
     ]);
     expect(records.some((r) => r.docType === "voice_core")).toBe(true);

@@ -1,7 +1,7 @@
 /**
  * Prompt Fragments — Load global safety, shared canon, organoid/gnome-specific fragments
  *
- * Fragment order: globalSafety -> sharedOrganoidCanon -> sharedCanon -> embodiment-specific -> legacy gnome fallback
+ * Fragment order: globalSafety -> sharedOrganoidCanon -> embodiment-specific -> legacy fallback (compat only)
  */
 
 import { readFileSync, existsSync } from "node:fs";
@@ -9,6 +9,7 @@ import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { dirname } from "node:path";
 import { getLegacyProfileId, getProfileEmbodiment, type GnomeProfile } from "../gnomes/types.js";
+import { getGnomesConfig } from "../config/gnomesConfig.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -60,7 +61,7 @@ export function loadSharedCanon(): string {
   return loadFragment("sharedCanon.md");
 }
 
-/** Load canonical organoid fragment, with `embodiments/` as compatibility fallback. */
+/** Load canonical organoid fragment, preferring the active embodiment fragment. */
 export function loadEmbodimentFragment(profileOrEmbodiment: GnomeProfile | string): string {
   const legacyId = typeof profileOrEmbodiment === "string" ? profileOrEmbodiment : getLegacyProfileId(profileOrEmbodiment);
   const embodiment = typeof profileOrEmbodiment === "string" ? profileOrEmbodiment : getProfileEmbodiment(profileOrEmbodiment);
@@ -68,9 +69,9 @@ export function loadEmbodimentFragment(profileOrEmbodiment: GnomeProfile | strin
   const embodimentSlugValue = embodimentSlug(embodiment);
 
   return (
-    loadFragment(`organoids/${legacySlug}.md`) ||
+    loadFragment(`embodiments/${embodimentSlugValue}.md`) ||
     loadFragment(`organoids/${embodimentSlugValue}.md`) ||
-    loadFragment(`embodiments/${embodimentSlugValue}.md`)
+    loadFragment(`organoids/${legacySlug}.md`)
   );
 }
 
@@ -79,7 +80,13 @@ export function loadGnomeFragment(gnomeId: string): string {
   return loadFragment(`gnomes/${gnomeId}.md`);
 }
 
-/** Prefer organoid fragment, fallback to legacy gnome fragment / embedded persona fragment. */
+/** Prefer organoid fragment, fallback to legacy gnome fragment only when explicitly compatible. */
 export function loadProfileFragment(profile: GnomeProfile): string {
-  return loadEmbodimentFragment(profile) || loadGnomeFragment(profile.id) || profile.persona_fragment || "";
+  const { LEGACY_COMPAT } = getGnomesConfig();
+  const organoidFragment = loadEmbodimentFragment(profile);
+  if (organoidFragment) return organoidFragment;
+  if (LEGACY_COMPAT) {
+    return loadGnomeFragment(profile.id) || profile.persona_fragment || "";
+  }
+  return "";
 }

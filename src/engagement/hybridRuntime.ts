@@ -21,6 +21,7 @@ import {
   type HybridShadowReadinessResult,
 } from "../memory/hybrid/shadowGate.js";
 import type { RetrievalContextPack } from "../memory/hybrid/types.js";
+import { getGnomesConfig } from "../config/gnomesConfig.js";
 
 export type HybridRuntimeMode = "legacy" | "shadow" | "assist" | "hybrid";
 
@@ -91,9 +92,10 @@ const DEFAULT_LIMITS: HybridRuntimeLimits = {
 
 function normalizeMode(raw: string | undefined): HybridRuntimeMode {
   const mode = raw?.trim().toLowerCase();
+  const { LEGACY_COMPAT } = getGnomesConfig();
   if (mode === "shadow" || mode === "assist" || mode === "hybrid") return mode;
   if (mode === "full") return "hybrid";
-  return "legacy";
+  return LEGACY_COMPAT ? "legacy" : "hybrid";
 }
 
 function parseNumber(raw: string | undefined, fallback: number, min: number, max: number): number {
@@ -169,7 +171,7 @@ function buildLegacyRuntimeComparisonPack(input: {
       .filter(Boolean)
       .join(" | "),
     240,
-  ) ?? "legacy runtime context";
+  ) ?? "baseline runtime context";
 
   const selectedEpisodes = unique(
     [
@@ -190,7 +192,7 @@ function buildLegacyRuntimeComparisonPack(input: {
             : input.candidate.normalizedText,
       240,
     ) ?? input.candidate.normalizedText,
-    reason: index === 0 ? "legacy source text" : "legacy parent context",
+    reason: index === 0 ? "baseline source text" : "baseline parent context",
     timestamp: input.candidate.discoveredAt,
   }));
 
@@ -227,7 +229,7 @@ function buildLegacyRuntimeComparisonPack(input: {
   return {
     partner_id: input.candidate.authorId ?? input.bundle.authorContext?.authorId ?? input.candidate.candidateId,
     snapshot: {
-      snapshot_id: `legacy:${input.candidate.candidateId}:snapshot`,
+      snapshot_id: `baseline:${input.candidate.candidateId}:snapshot`,
       summary: snapshotSummary,
       generated_at: input.generatedAt,
       active_atom_ids: [],
@@ -240,7 +242,7 @@ function buildLegacyRuntimeComparisonPack(input: {
     open_loops: openLoops,
     retrieval_reasons: unique(
       [
-        `legacy:${input.candidate.candidateId}`,
+        `baseline:${input.candidate.candidateId}`,
         input.signalProfile.meta.substanceLevel,
         input.signalProfile.meta.authorTypeGuess,
       ],
@@ -381,14 +383,17 @@ export async function prepareHybridRuntimeConversationBundle(
   input: PrepareHybridRuntimeConversationBundleInput
 ): Promise<PrepareHybridRuntimeConversationBundleResult> {
   const config = input.config ?? readHybridRuntimeConfig();
+  const { LEGACY_COMPAT } = getGnomesConfig();
+  const effectiveMode: HybridRuntimeMode =
+    config.mode === "legacy" && !LEGACY_COMPAT ? "hybrid" : config.mode;
   const generatedAt = input.generatedAt ?? new Date().toISOString();
   const baseBundle = input.bundle;
 
-  if (config.mode === "legacy") {
+  if (effectiveMode === "legacy") {
     return {
       bundle: baseBundle,
       trace: {
-        mode: config.mode,
+        mode: effectiveMode,
         applied: false,
         ready: false,
         blockers: [],
@@ -441,7 +446,7 @@ export async function prepareHybridRuntimeConversationBundle(
   );
 
   const trace: HybridRuntimeTrace = {
-    mode: config.mode,
+    mode: effectiveMode,
     applied: false,
     ready: readiness.ready,
     shadow_status: comparison.status,
@@ -452,9 +457,9 @@ export async function prepareHybridRuntimeConversationBundle(
   };
 
   const canApply =
-    config.mode === "assist"
+    effectiveMode === "assist"
       ? readiness.ready
-      : config.mode === "hybrid"
+      : effectiveMode === "hybrid"
         ? readiness.ready && comparison.status === "match"
         : false;
 

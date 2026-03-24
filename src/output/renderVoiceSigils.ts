@@ -1,11 +1,11 @@
-/**
- * TODO(ORGANOID-MIGRATION): visible output still exposes the legacy sigil file path.
- * REPLACE-WITH-ORGANOID: Wave 2 adds glyph-first aliases while preserving the import path for runtime safety.
- */
-
-import { getGlyphForGnome } from "../gnomes/sigils.js";
+import { getSigilForGnome } from "../gnomes/sigils.js";
+import { observePulseHeart } from "../observability/pulseHeart.js";
 import { trimToLimit } from "../utils/textTrim.js";
 
+/**
+ * Legacy output naming remains for compatibility. New code should prefer the embodiment/glyph
+ * aliases exported from this module.
+ */
 export type ActivatedVoiceSet = {
   primary: string;
   secondary?: string;
@@ -13,9 +13,6 @@ export type ActivatedVoiceSet = {
 };
 
 export type ActivatedEmbodimentSet = ActivatedVoiceSet;
-
-export const VOICE_GLYPH_MARKER = "--voice-glyphs--";
-export const LEGACY_VOICE_SIGIL_MARKER = "--voice-sigils--";
 
 function normalizeVoices(voices: ActivatedVoiceSet): string[] {
   return [voices.primary, voices.secondary, voices.tertiary]
@@ -37,6 +34,15 @@ export function renderVoiceGlyphs(text: string, voices: ActivatedEmbodimentSet):
   const active = normalizeVoices(voices);
   if (active.length === 0) return clean;
 
+  observePulseHeart({
+    surface: "render",
+    label: "voice-sigils",
+    text: clean,
+    activeOrganoidIds: active,
+    advancePhase: false,
+    persist: false,
+  });
+
   const [v1, v2, v3] = active;
   if (!v1) return clean;
   const g1 = getGlyphForGnome(v1);
@@ -57,11 +63,11 @@ ${g2}
 ${g3}${marker}`;
 }
 
-export function renderVoiceSigils(text: string, voices: ActivatedVoiceSet): string {
-  return renderVoiceGlyphs(text, voices);
+export function renderEmbodimentGlyphs(text: string, embodiments: ActivatedEmbodimentSet): string {
+  return renderVoiceSigils(text, embodiments);
 }
 
-export function deriveActivatedEmbodiments(selectedGnomeId: string, cameoCandidates?: string[]): ActivatedEmbodimentSet {
+export function deriveActivatedVoices(selectedGnomeId: string, cameoCandidates?: string[]): ActivatedVoiceSet {
   const voices = [selectedGnomeId, ...(cameoCandidates ?? [])]
     .filter(Boolean)
     .map((v) => v.toLowerCase())
@@ -75,10 +81,11 @@ export function deriveActivatedEmbodiments(selectedGnomeId: string, cameoCandida
   };
 }
 
-export function deriveActivatedVoices(selectedGnomeId: string, cameoCandidates?: string[]): ActivatedVoiceSet {
-  return deriveActivatedEmbodiments(selectedGnomeId, cameoCandidates);
+export function deriveActivatedEmbodiments(
+  selectedEmbodimentId: string,
+  coActivatedEmbodiments?: string[],
+): ActivatedEmbodimentSet {
+  return deriveActivatedVoices(selectedEmbodimentId, coActivatedEmbodiments);
 }
 
-export function trimGlyphDecoratedReply(text: string, limit: number): string {
-  return trimToLimit(text, limit);
-}
+export { trimToLimit };

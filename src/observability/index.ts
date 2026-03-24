@@ -6,3 +6,4 @@ export * from "./metricTypes.js";
 export * from "./metrics.js";
 export * from "./health.js";
 export * from "./observabilityContext.js";
+export * from "./pulseHeart.js";

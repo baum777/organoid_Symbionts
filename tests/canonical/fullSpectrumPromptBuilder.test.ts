@@ -49,7 +49,7 @@ describe("buildMasterPrompt", () => {
       mockThesis,
       mockScores,
     );
-    expect(input.system).toContain("GORKY");
+    expect(input.system).toContain("Organoid");
     expect(input.system).toContain("JSON");
     expect(input.system).not.toContain("HORNY-SLANG");
     expect(input.system).not.toContain("SAVAGE");

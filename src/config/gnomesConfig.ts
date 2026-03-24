@@ -6,11 +6,14 @@
 /**
  * GNOMES Feature Config — Feature gates for multi-gnome system
  *
- * All GNOMES features are disabled by default. Enable via env for incremental rollout.
+ * Organoid routing is the default path. Set LEGACY_COMPAT=true to restore the
+ * compatibility-era gating and fallback surfaces.
  */
 
 export interface GnomesConfig {
-  /** Enable multi-gnome routing and prompt composition */
+  /** Keep legacy compatibility surfaces enabled. Defaults to false. */
+  LEGACY_COMPAT: boolean;
+  /** Enable multi-gnome routing and prompt composition. Forced true unless LEGACY_COMPAT=true. */
   GNOMES_ENABLED: boolean;
   /** Safe fallback gnome id when routing uncertain */
   DEFAULT_SAFE_GNOME: string;
@@ -49,6 +52,7 @@ export interface GnomesConfig {
 }
 
 const DEFAULTS: GnomesConfig = {
+  LEGACY_COMPAT: false,
   GNOMES_ENABLED: false,
   DEFAULT_SAFE_GNOME: "stillhalter",
   GNOME_MEMORY_ENABLED: false,
@@ -73,8 +77,10 @@ let cached: GnomesConfig | null = null;
 
 export function getGnomesConfig(): GnomesConfig {
   if (cached) return cached;
+  const legacyCompat = process.env.LEGACY_COMPAT === "true";
   cached = {
-    GNOMES_ENABLED: process.env.GNOMES_ENABLED === "true",
+    LEGACY_COMPAT: legacyCompat,
+    GNOMES_ENABLED: legacyCompat ? process.env.GNOMES_ENABLED === "true" : true,
     DEFAULT_SAFE_GNOME: process.env.DEFAULT_SAFE_GNOME ?? DEFAULTS.DEFAULT_SAFE_GNOME,
     GNOME_MEMORY_ENABLED: process.env.GNOME_MEMORY_ENABLED === "true",
     GNOME_ROUTING_DEBUG: process.env.GNOME_ROUTING_DEBUG === "true",

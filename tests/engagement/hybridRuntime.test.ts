@@ -1,6 +1,7 @@
-import { beforeEach, describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { InMemoryHybridStore } from "../../src/memory/hybrid/store.js";
 import { prepareHybridRuntimeConversationBundle, type HybridRuntimeConfig } from "../../src/engagement/hybridRuntime.js";
+import { resetGnomesConfigCache } from "../../src/config/gnomesConfig.js";
 import type { ConversationBundle } from "../../src/engagement/conversationBundle.js";
 import type { EngagementCandidate } from "../../src/engagement/candidateBoundary.js";
 import type { SignalProfile } from "../../src/engagement/signalProfile.js";
@@ -225,6 +226,13 @@ describe("hybrid runtime decoration", () => {
   beforeEach(async () => {
     store = new InMemoryHybridStore();
     await seedStore(store);
+    process.env.LEGACY_COMPAT = "true";
+    resetGnomesConfigCache();
+  });
+
+  afterEach(() => {
+    delete process.env.LEGACY_COMPAT;
+    resetGnomesConfigCache();
   });
 
   it("leaves the runtime bundle untouched in legacy mode", async () => {

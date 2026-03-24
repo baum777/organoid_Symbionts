@@ -5,8 +5,9 @@
 1. `docs/lore/GNOMES_MATRIX.md` (canonical behavior authority)
 2. `docs/lore/GNOMES_LORE_UNITS.md` (lore unit rules)
 3. `data/gnomes/*.yaml` (runtime profiles; must not redefine canon)
-4. `prompts/fragments/gnomes/*.md` (voice realization; must not conflict with canon/safety)
-5. Retrieval artifacts in `memory/lore/*` (derived operational context)
+4. `prompts/fragments/embodiments/*.md` (active voice realization; must not conflict with canon/safety)
+5. `prompts/fragments/gnomes/*.md` (compatibility mirror only; must not override active embodiment fragments)
+6. Retrieval artifacts in `memory/lore/*` (derived operational context)
 
 ## Change control
 

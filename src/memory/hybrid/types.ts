@@ -245,4 +245,3 @@ export const HYBRID_MEMORY_OBJECT_FIELD_LIMITS = {
   atom_selected_items_min: 0,
   projection_selected_items_min: 0,
 } as const;
-

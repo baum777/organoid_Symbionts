@@ -446,7 +446,7 @@ export async function runTimelineEngagementIteration(): Promise<TimelineIteratio
               });
             }
           } catch (error) {
-            logWarn("[HYBRID] Runtime decoration failed, using legacy context", {
+            logWarn("[HYBRID] Runtime decoration failed, using base context", {
               error: error instanceof Error ? error.message : String(error),
             });
             runtimeConversationBundle = conversationBundle!;

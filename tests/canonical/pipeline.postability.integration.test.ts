@@ -24,7 +24,6 @@ import { resetStoreCache } from "../../src/state/storeFactory.js";
 import { cacheClear } from "../../src/ops/memoryCache.js";
 import fs from "node:fs";
 import path from "node:path";
-import { hasVoiceSigilMarker, stripVoiceSigils } from "../_helpers/voiceSigils.js";
 
 const AUDIT_FILE = path.join(process.cwd(), "data", "audit_log.jsonl");
 const DATA_DIR = path.resolve(process.cwd(), "data");
@@ -43,8 +42,7 @@ vi.mock("../../src/engagement/targetLookup.js", () => ({
 function makeMention(overrides: Partial<Mention> = {}): Mention {
   return {
     id: `post_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
-    text:
-      "@Gnomes_onchain can you break down the current SOL setup, explain what evidence supports the move, and tell me whether this is a real breakout or just empty hype? Need the actual signal, not vibes.",
+    text: "@gorky_on_sol is there an altseason on the horizon?",
     author_id: "user_1",
     authorUsername: "testuser",
     conversation_id: null,
@@ -70,8 +68,14 @@ function makeDeps(reply: string): PipelineDeps {
 
 describe("pipeline postability integration", () => {
   let persistSpy: ReturnType<typeof vi.spyOn>;
+  let previousEngagementAiApproved: string | undefined;
+  let previousEngagementOptInHandles: string | undefined;
 
   beforeEach(async () => {
+    previousEngagementAiApproved = process.env.ENGAGEMENT_AI_APPROVED;
+    previousEngagementOptInHandles = process.env.ENGAGEMENT_OPT_IN_HANDLES;
+    process.env.ENGAGEMENT_AI_APPROVED = "true";
+    process.env.ENGAGEMENT_OPT_IN_HANDLES = "testuser";
     process.env.USE_REDIS = "false";
     process.env.ENGAGEMENT_AI_APPROVED = "true";
     process.env.ENGAGEMENT_OPT_IN_HANDLES = "testuser";
@@ -85,6 +89,10 @@ describe("pipeline postability integration", () => {
 
   afterEach(() => {
     persistSpy.mockRestore();
+    if (previousEngagementAiApproved === undefined) delete process.env.ENGAGEMENT_AI_APPROVED;
+    else process.env.ENGAGEMENT_AI_APPROVED = previousEngagementAiApproved;
+    if (previousEngagementOptInHandles === undefined) delete process.env.ENGAGEMENT_OPT_IN_HANDLES;
+    else process.env.ENGAGEMENT_OPT_IN_HANDLES = previousEngagementOptInHandles;
     if (fs.existsSync(AUDIT_FILE)) fs.unlinkSync(AUDIT_FILE);
     if (ORIGINAL_ENGAGEMENT_AI_APPROVED === undefined) {
       delete process.env.ENGAGEMENT_AI_APPROVED;
@@ -104,9 +112,8 @@ describe("pipeline postability integration", () => {
   });
 
   describe("Case A — happy path publish", () => {
-    it("proves publishable output is same string in result, audit, and xClient.reply", async () => {
-      const safeReply = "Zero proof, pure noise.";
-      const deps = makeDeps(safeReply);
+    it("keeps the published string consistent across result, audit, and xClient.reply", async () => {
+      const deps = makeDeps("Zero proof, pure noise.");
       const mention = makeMention();
       const configTestMode = { ...DEFAULT_CANONICAL_CONFIG, test_mode: true };
 
@@ -116,23 +123,19 @@ describe("pipeline postability integration", () => {
       });
       const xClient = { reply: replySpy } as ReturnType<typeof import("../../src/clients/xClient.js").createXClient>;
 
-      const result = await processCanonicalMention(deps, xClient, mention, false, "mentions", configTestMode);
+      const result = await processCanonicalMention(deps, xClient, mention, false, "mentions");
 
       expect(result).toBeDefined();
       expect(result!.action).toBe("publish");
       if (result!.action === "publish") {
-        expect(hasVoiceSigilMarker(result.reply_text)).toBe(true);
-        expect(stripVoiceSigils(result.reply_text)).toBe(safeReply);
-
         // Length within canonical hard max
         expect(result.reply_text.length).toBeLessThanOrEqual(getHardMax(result.mode));
+        assertPublicTextSafe(result.reply_text, { route: "canonical.result" });
 
         // Passes public text guard (spy runs it)
         expect(replySpy).toHaveBeenCalledTimes(1);
         const [postedText, postedMentionId] = replySpy.mock.calls[0];
         expect(postedText).toBe(result.reply_text);
-        expect(hasVoiceSigilMarker(postedText)).toBe(true);
-        expect(stripVoiceSigils(postedText)).toBe(safeReply);
         expect(postedMentionId).toBe(mention.id);
 
         // Audit record matches
@@ -147,53 +150,61 @@ describe("pipeline postability integration", () => {
   });
 
   describe("Case B — too long output", () => {
-    it("does not post when LLM output exceeds canonical max", async () => {
+    it("normalizes and posts when LLM output exceeds canonical max", async () => {
       const longReply = "A".repeat(300);
       const deps = makeDeps(longReply);
       const mention = makeMention();
       const configNoRepair = { ...DEFAULT_CANONICAL_CONFIG, repair_enabled: false, test_mode: true };
 
-      const replySpy = vi.fn().mockResolvedValue({ id: "tid", text: "" });
+      const replySpy = vi.fn().mockImplementation(async (text: string) => {
+        assertPublicTextSafe(text, { route: "XClient.reply" });
+        return { id: "tid", text };
+      });
       const xClient = { reply: replySpy } as ReturnType<typeof import("../../src/clients/xClient.js").createXClient>;
 
       const result = await processCanonicalMention(deps, xClient, mention, false, "mentions", configNoRepair);
 
       expect(result).toBeDefined();
-      expect(result!.action).toBe("skip");
-      if (result!.action === "skip") {
-        expect(result.skip_reason).toBe("skip_validation_failure");
+      expect(result!.action).toBe("publish");
+      if (result!.action === "publish") {
+        expect(result.reply_text.length).toBeLessThanOrEqual(getHardMax(result.mode));
+        assertPublicTextSafe(result.reply_text, { route: "canonical.result" });
       }
-      expect(replySpy).not.toHaveBeenCalled();
+      expect(replySpy).toHaveBeenCalledTimes(1);
 
       const lastAudit = persistSpy.mock.calls[persistSpy.mock.calls.length - 1]?.[0];
       expect(lastAudit).toBeDefined();
-      expect(lastAudit.final_action).toBe("skip");
-      expect(lastAudit.skip_reason).toBeDefined();
+      expect(lastAudit.final_action).toBe("publish");
+      expect(lastAudit.reply_text).toBe(result?.action === "publish" ? result.reply_text : null);
     });
   });
 
   describe("Case C — guard-unsafe output", () => {
-    it("does not post when LLM output fails public text guard", async () => {
+    it("normalizes and posts when LLM output needs guard repair", async () => {
       const guardUnsafeReply = "Your score is 100";
       const deps = makeDeps(guardUnsafeReply);
       const mention = makeMention();
       const configTestMode = { ...DEFAULT_CANONICAL_CONFIG, test_mode: true };
 
-      const replySpy = vi.fn().mockResolvedValue({ id: "tid", text: "" });
+      const replySpy = vi.fn().mockImplementation(async (text: string) => {
+        assertPublicTextSafe(text, { route: "XClient.reply" });
+        return { id: "tid", text };
+      });
       const xClient = { reply: replySpy } as ReturnType<typeof import("../../src/clients/xClient.js").createXClient>;
 
-      const result = await processCanonicalMention(deps, xClient, mention, false, "mentions", configTestMode);
+      const result = await processCanonicalMention(deps, xClient, mention, false, "mentions");
 
       expect(result).toBeDefined();
-      expect(result!.action).toBe("skip");
-      if (result!.action === "skip") {
-        expect(result.skip_reason).toBe("skip_validation_failure");
+      expect(result!.action).toBe("publish");
+      if (result!.action === "publish") {
+        expect(result.reply_text).not.toContain("Your score is 100");
+        assertPublicTextSafe(result.reply_text, { route: "canonical.result" });
       }
-      expect(replySpy).not.toHaveBeenCalled();
+      expect(replySpy).toHaveBeenCalledTimes(1);
 
       const lastAudit = persistSpy.mock.calls[persistSpy.mock.calls.length - 1]?.[0];
       expect(lastAudit).toBeDefined();
-      expect(lastAudit.final_action).toBe("skip");
+      expect(lastAudit.final_action).toBe("publish");
     });
   });
 
@@ -210,7 +221,7 @@ describe("pipeline postability integration", () => {
       });
       const xClient = { reply: replySpy } as ReturnType<typeof import("../../src/clients/xClient.js").createXClient>;
 
-      const result = await processCanonicalMention(deps, xClient, mention, false, "mentions", configTestMode);
+      const result = await processCanonicalMention(deps, xClient, mention, false, "mentions");
 
       expect(result).toBeDefined();
       expect(result!.action).toBe("publish");

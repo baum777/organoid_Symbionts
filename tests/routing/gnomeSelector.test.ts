@@ -94,4 +94,27 @@ describe("Gnome Selector", () => {
     const result = selectGnome(features, "lore_drop", { enabled: true });
     expect(result.responseMode).toBe("lore_drop");
   });
+
+  it("routes social banter toward Nebelspieler when the mode and energy fit", () => {
+    const features = extractSelectorFeatures(
+      makeClassifier({ intent: "conversation_continue" }),
+      defaultScores,
+      makeEvent(),
+      { marketEnergy: "HIGH" },
+    );
+    const result = selectGnome(features, "social_banter", { enabled: true });
+    expect(result.selectedGnomeId).toBe("nebelspieler");
+  });
+
+  it("keeps Nebelspieler out of hard caution even when the thread is lively", () => {
+    const features = extractSelectorFeatures(
+      makeClassifier({ intent: "conversation_continue" }),
+      defaultScores,
+      makeEvent(),
+      { marketEnergy: "HIGH" },
+    );
+    const result = selectGnome(features, "hard_caution", { enabled: true });
+    expect(result.selectedGnomeId).toBe("muenzhueter");
+    expect(result.selectedGnomeId).not.toBe("nebelspieler");
+  });
 });

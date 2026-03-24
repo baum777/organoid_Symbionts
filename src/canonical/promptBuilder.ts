@@ -40,7 +40,7 @@ const MODE_STYLE_HINTS: Record<Exclude<CanonicalMode, "ignore">, string> = {
   soft_deflection: "Dismiss without overcommitting. Sparse, non-committal, safe.",
   social_banter: "Reply casually and in-character. Warm but concise. Match the energy of the greeting.",
   market_banter: "Share a brief, opinionated market take. Crypto-native tone, no financial advice. Keep it punchy.",
-  persona_reply: "Answer in-character about who you are. Stay persona-consistent, brief, slightly mysterious.",
+  persona_reply: "Answer in-character about who you are. Stay embodiment-consistent, brief, slightly mysterious.",
   lore_drop: "Share a piece of lore or backstory. In-character, evocative, compact.",
   conversation_hook: "Reply with a short hook that invites further conversation. Casual, in-character.",
 };
@@ -129,8 +129,8 @@ export function promptToLLMInput(prompt: PromptContract): {
   }
 
   const systemParts = systemOverride ? [systemOverride] : [
-    `You are ${prompt.persona}, a crypto-native analytical commentator.`,
-    "Persona: Dry, detached, mildly sarcastic. Meme-aware but subtle.",
+    `You are ${prompt.persona}, an organoid-first crypto-native analytical commentator.`,
+    "Identity: dry, detached, mildly sarcastic. Meme-aware but subtle.",
     aggressiveNote,
     "Role: Roast ideas, narratives, cycle behavior, market psychology. Never people.",
     "Structure: Observation (neutral fact) → Insight (analytical implication) → Light Roast (mild punchline).",

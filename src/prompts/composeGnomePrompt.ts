@@ -1,6 +1,7 @@
 /**
- * TODO(ORGANOID-MIGRATION): this prompt composer is still the compatibility surface for legacy gnome/persona language.
- * REPLACE-WITH-ORGANOID: Wave 2 now prefers embodiment/glyph fragments while keeping legacy gnome IDs and prompt contracts stable.
+ * Organoid prompt composer.
+ *
+ * Legacy gnome/persona fragments remain available only behind LEGACY_COMPAT=true.
  */
 
 /**
@@ -27,6 +28,7 @@ import {
   loadSharedOrganoidCanon,
 } from "./promptFragments.js";
 import { getActiveLoreForRole } from "../lore/matrixLoreUnits.js";
+import { getGnomesConfig } from "../config/gnomesConfig.js";
 
 export interface GnomeRuntimeContext {
   selectedGnome: GnomeProfile;
@@ -71,9 +73,10 @@ const MODE_STYLE_HINTS: Record<Exclude<CanonicalMode, "ignore">, string> = {
  */
 export function composeGnomePrompt(ctx: GnomeRuntimeContext): ComposedGnomePrompt {
   const charBudget = getHardMax(ctx.responseMode);
+  const { LEGACY_COMPAT } = getGnomesConfig();
   const globalSafety = loadGlobalSafety();
   const sharedOrganoidCanon = loadSharedOrganoidCanon();
-  const sharedCanon = loadSharedCanon();
+  const sharedCanon = LEGACY_COMPAT ? loadSharedCanon() : "";
   const profileFragment = loadProfileFragment(ctx.selectedGnome);
   const embodiment = getProfileEmbodiment(ctx.selectedGnome);
   const glyph = getProfileGlyph(ctx.selectedGnome).char;

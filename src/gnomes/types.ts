@@ -42,33 +42,34 @@ export interface OrganoidEmbodimentDescriptor {
 }
 
 export interface VoiceTraits {
-  tone?: string;
-  sarcasm?: number;
-  meme_density?: number;
-  warmth?: number;
-  theatricality?: number;
-  dryness?: number;
+  tone: string;
+  sarcasm: number;
+  meme_density: number;
+  warmth: number;
+  theatricality: number;
+  dryness: number;
 }
 
 export interface LanguagePrefs {
-  primary?: string;
-  allow_slang?: boolean;
-  preferred_keywords?: string[];
+  primary: string;
+  allow_slang: boolean;
+  preferred_keywords: string[];
 }
 
 export interface RoutingHints {
-  preferred_intents?: string[];
-  preferred_energy?: string[];
-  aggression_range?: [number, number];
-  absurdity_threshold?: number;
+  /** May include classifier intents and/or canonical response modes for migration-era compatibility. */
+  preferred_intents: string[];
+  preferred_energy: string[];
+  aggression_range: [number, number];
+  absurdity_threshold: number;
 }
 
 export interface MemoryRules {
-  track_affinity?: boolean;
-  track_jokes?: boolean;
-  max_items_per_user?: number;
-  lore_status_gate?: string;
-  default_lore_tags?: string[];
+  track_affinity: boolean;
+  track_jokes: boolean;
+  max_items_per_user: number;
+  lore_status_gate: string;
+  default_lore_tags: string[];
 }
 
 export interface RelationHints {
@@ -84,12 +85,16 @@ export interface GnomeProfile extends OrganoidEmbodimentDescriptor {
   role: string;
   archetype: GnomeArchetype;
   sigil: GnomeSigil;
-  voice_traits?: VoiceTraits;
-  language_prefs?: LanguagePrefs;
-  routing_hints?: RoutingHints;
-  memory_rules?: MemoryRules;
+  embodiment: string;
+  glyph: OrganoidGlyph;
+  legacy_id: string;
+  phase_affinities: OrganoidPhase[];
+  voice_traits: VoiceTraits;
+  language_prefs: LanguagePrefs;
+  routing_hints: RoutingHints;
+  memory_rules: MemoryRules;
   persona_fragment?: string;
-  safety_boundaries?: string[];
+  safety_boundaries: string[];
   semantic_facets?: string[];
   style_anchors?: string[];
   negative_anchors?: string[];
@@ -111,10 +116,62 @@ function isOptionalStringArray(v: unknown): boolean {
   return v === undefined || isStringArray(v);
 }
 
+function isRecord(v: unknown): v is Record<string, unknown> {
+  return !!v && typeof v === "object" && !Array.isArray(v);
+}
+
+function isNumberInRange(v: unknown, min: number, max: number): v is number {
+  return typeof v === "number" && Number.isFinite(v) && v >= min && v <= max;
+}
+
 function isSigilLike(v: unknown): v is GnomeSigil {
   if (!v || typeof v !== "object") return false;
   const obj = v as Record<string, unknown>;
   return typeof obj.char === "string" && typeof obj.code === "string" && typeof obj.fallback === "string";
+}
+
+function isVoiceTraits(v: unknown): v is VoiceTraits {
+  if (!isRecord(v)) return false;
+  return (
+    typeof v.tone === "string" &&
+    isNumberInRange(v.sarcasm, 0, 10) &&
+    isNumberInRange(v.meme_density, 0, 10) &&
+    isNumberInRange(v.warmth, 0, 10) &&
+    isNumberInRange(v.theatricality, 0, 10) &&
+    isNumberInRange(v.dryness, 0, 10)
+  );
+}
+
+function isLanguagePrefs(v: unknown): v is LanguagePrefs {
+  if (!isRecord(v)) return false;
+  return typeof v.primary === "string" && v.primary.length > 0 && typeof v.allow_slang === "boolean" && isStringArray(v.preferred_keywords) && v.preferred_keywords.length > 0;
+}
+
+function isRoutingHints(v: unknown): v is RoutingHints {
+  if (!isRecord(v)) return false;
+  const aggressionRange = v.aggression_range;
+  return (
+    isStringArray(v.preferred_intents) &&
+    isStringArray(v.preferred_energy) &&
+    Array.isArray(aggressionRange) &&
+    aggressionRange.length === 2 &&
+    aggressionRange.every((n) => isNumberInRange(n, 0, 1)) &&
+    isNumberInRange(v.absurdity_threshold, 0, 1)
+  );
+}
+
+function isMemoryRules(v: unknown): v is MemoryRules {
+  if (!isRecord(v)) return false;
+  return (
+    typeof v.track_affinity === "boolean" &&
+    typeof v.track_jokes === "boolean" &&
+    typeof v.max_items_per_user === "number" &&
+    v.max_items_per_user > 0 &&
+    v.max_items_per_user <= 100 &&
+    v.lore_status_gate === "active" &&
+    isStringArray(v.default_lore_tags) &&
+    v.default_lore_tags.length > 0
+  );
 }
 
 export function isGnomeProfile(v: unknown): v is GnomeProfile {
@@ -131,14 +188,17 @@ export function isGnomeProfile(v: unknown): v is GnomeProfile {
     typeof o.role === "string" &&
     typeof o.archetype === "string" &&
     isSigilLike(sigil) &&
-    (glyph === undefined || isSigilLike(glyph)) &&
-    (o.embodiment === undefined || typeof o.embodiment === "string") &&
-    (o.legacy_id === undefined || typeof o.legacy_id === "string") &&
-    isOptionalStringArray(o.phase_affinities) &&
-    (!memoryRules ||
-      (typeof memoryRules === "object" &&
-        (memoryRules.lore_status_gate === undefined || typeof memoryRules.lore_status_gate === "string") &&
-        (memoryRules.default_lore_tags === undefined || isStringArray(memoryRules.default_lore_tags)))) &&
+    isSigilLike(glyph) &&
+    typeof o.embodiment === "string" &&
+    typeof o.legacy_id === "string" &&
+    isStringArray(o.phase_affinities) &&
+    o.phase_affinities.length > 0 &&
+    isVoiceTraits(o.voice_traits) &&
+    isLanguagePrefs(o.language_prefs) &&
+    isRoutingHints(o.routing_hints) &&
+    isMemoryRules(memoryRules) &&
+    isStringArray(o.safety_boundaries) &&
+    o.safety_boundaries.length > 0 &&
     isOptionalStringArray(o.semantic_facets) &&
     isOptionalStringArray(o.style_anchors) &&
     isOptionalStringArray(o.negative_anchors) &&

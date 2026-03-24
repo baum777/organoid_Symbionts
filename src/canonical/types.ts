@@ -199,7 +199,7 @@ export interface PromptContract {
   confidence_stance: "low" | "medium" | "high";
   target_text: string;
   parent_text: string | null;
-  /** Gorky roast pattern (optional) */
+  /** Organoid roast pattern (optional) */
   pattern_id?: string;
   /** Detected narrative label (optional) */
   narrative_label?: string;
@@ -360,7 +360,7 @@ export interface CanonicalConfig {
 }
 
 export const DEFAULT_CANONICAL_CONFIG: CanonicalConfig = {
-  persona_name: "Gnomes",
+  persona_name: "Organoid Entities as Semantic Symbiont",
   platform: "twitter",
   thresholds: {
     min_relevance: 0.45,

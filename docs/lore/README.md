@@ -1,34 +1,39 @@
-# Organoid Lore, Embodiments, and Matrix Summary
+# Organoid Lore And Matrix
 
-## Overview
+This directory contains the canonical Organoid SSOT plus the legacy transition layer that still exists for compatibility.
 
-The canonical worldview for this repository is now **Organoid Entities as Semantic Symbiont**.
+## Canonical Sources
 
-The repo still contains legacy GNOMES/GORKY naming in runtime code, prompts, tests, and historical assets, but the governing semantic layer is shifting to:
-- **embodiments** instead of personas/gnomes as the primary identity abstraction
-- **glyphs** instead of sigils as the symbolic anchor
-- **semantic symbiont orchestration** instead of persona-first orchestration
-- a **dynamic-organized-autonom-neural-network matrix** instead of a folklore-only identity frame
+Use these first for new work:
+- [ORGANOID_EMBODIMENTS.md](./ORGANOID_EMBODIMENTS.md) - confirmed embodiments, glyphs, and the 5-phase model
+- [ORGANOID_ORCHESTRATION.md](./ORGANOID_ORCHESTRATION.md) - orchestration rules and phase mapping guidance
+- [GNOMES_MATRIX.md](./GNOMES_MATRIX.md) - canonical 7-organoid matrix, role blend rules, and dominance controls
+- [GNOMES_GOVERNANCE.md](./GNOMES_GOVERNANCE.md) - canon control, activation, and drift-prevention policy
+- [GNOMES_LORE_UNITS.md](./GNOMES_LORE_UNITS.md) - retrieval unit contract, status lifecycle, and embed/no-embed rules
+- [WHITEPAPER_INTRO.md](./WHITEPAPER_INTRO.md) - canonical framing for the semantic symbiont model
+- [WHITEPAPER_INTRO_EN.md](./WHITEPAPER_INTRO_EN.md) - English companion version of the same framing
 
-> The migration goal is not cosmetic renaming. It is a controlled shift in semantic authority.
+## Transition References
 
-## Canonical Source of Truth
+These remain available for historical context and compatibility only:
+- [LORE.md](./LORE.md) - historical symbolic world logic
+- [PERSONA.md](./PERSONA.md) - compatibility mapping from historic roles to embodiments
+- [GORKY_HUMOR_PATTERNS.md](./GORKY_HUMOR_PATTERNS.md) - legacy style appendix
+- [GORKY_IMAGE_STYLE_GUIDE.md](./GORKY_IMAGE_STYLE_GUIDE.md) - legacy image/style appendix
 
-- [ORGANOID_EMBODIMENTS.md](./ORGANOID_EMBODIMENTS.md) — confirmed embodiments, glyphs, phase model, and uncertain areas
-- [GNOMES_MATRIX.md](./GNOMES_MATRIX.md) — migration-era matrix SSOT, now Organoid-first despite the legacy filename
-- [WHITEPAPER_INTRO.md](./WHITEPAPER_INTRO.md) — introduction whitepaper for entities, traits, interaction layers, and concept framing
-- [WHITEPAPER_INTRO_EN.md](./WHITEPAPER_INTRO_EN.md) — English 1:1 introduction whitepaper for the same canonical content
-- [GNOMES_GOVERNANCE.md](./GNOMES_GOVERNANCE.md) — still legacy-leaning; review in later waves
-- [GNOMES_LORE_UNITS.md](./GNOMES_LORE_UNITS.md) — retrieval unit contract, pending terminology migration
-- [LORE.md](./LORE.md) — symbolic world logic, pending target-system consolidation
-- [PERSONA.md](./PERSONA.md) — compatibility mapping from historic roles to embodiments
+## Runtime Surfaces
 
-## Runtime + Prompt Integration
-
-Current compatibility-era surfaces:
+Active surfaces:
 - Runtime profiles: `data/gnomes/*.yaml`
 - Profile schema: `schemas/gnome_profile.schema.json`
-- Prompt fragments: `prompts/fragments/gnomes/*.md`
-- Lore retrieval units: `memory/lore/lore_units.approved.jsonl`
+- Active voice fragments: `prompts/fragments/embodiments/*.md`
+- Compatibility voice mirrors: `prompts/fragments/gnomes/*.md`
+- Shared matrix canon: `prompts/fragments/sharedOrganoidCanon.md`
+- Retrieval units: `memory/lore/lore_units.approved.jsonl`
+- Retrieval candidates: `memory/lore/lore_units.candidates.jsonl`
+- Retrieval mirror: `memory/lore/matrix_units.v1.yaml`
 
-These are still active, but new canonical writing should be Organoid-first.
+Working rule:
+- prefer **embodiment** over persona/gnome terminology in new canonical writing,
+- prefer **glyph** over sigil where the target system is authoritative,
+- keep legacy sources as compatibility inputs unless they are explicitly promoted.

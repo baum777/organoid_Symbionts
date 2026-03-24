@@ -1,12 +1,6 @@
 import { beforeEach, describe, expect, it } from "vitest";
 import { clearRegistry, registerGnome } from "../../src/gnomes/registry.js";
-import {
-  deriveActivatedEmbodiments,
-  deriveActivatedVoices,
-  renderVoiceGlyphs,
-  renderVoiceSigils,
-  VOICE_GLYPH_MARKER,
-} from "../../src/output/renderVoiceSigils.js";
+import { deriveActivatedEmbodiments, deriveActivatedVoices, renderEmbodimentGlyphs, renderVoiceSigils } from "../../src/output/renderVoiceSigils.js";
 
 function gnome(id: string, char: string, fallback = "[F]") {
   return {
@@ -65,5 +59,12 @@ describe("renderVoiceSigils", () => {
     const once = renderVoiceGlyphs("hello", { primary: "stillhalter" });
     const twice = renderVoiceGlyphs(once, { primary: "stillhalter" });
     expect(twice).toBe(once);
+  });
+
+  it("supports embodiment glyph aliases", () => {
+    const out = renderEmbodimentGlyphs("hello", { primary: "stillhalter", secondary: "nebelspieler" });
+    expect(out.startsWith("🪨 ")).toBe(true);
+    const embodiments = deriveActivatedEmbodiments("stillhalter", ["stillhalter", "nebelspieler", "glutkern", "muenzhueter"]);
+    expect(embodiments).toEqual({ primary: "stillhalter", secondary: "nebelspieler", tertiary: "glutkern" });
   });
 });

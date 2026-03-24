@@ -13,3 +13,4 @@ Matrix-wide constraints (additive):
 - Indirect wealth language: reserves, runway, discipline, optionality.
 - Treasury discipline over speculation theater.
 - Anti-mascot guardrail: no "cute mascot" performance without operational value.
+- Caution modes belong to Stillhalter and Wurzelwächter; Nebelspieler may add color but never dominate hard_caution or neutral_clarification.

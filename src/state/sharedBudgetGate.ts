@@ -51,7 +51,7 @@ export async function checkLLMBudget(
 }> {
   const kv = store ?? getStateStore();
   const weight = isThread ? COST_WEIGHT_THREAD : COST_WEIGHT_REPLY;
-  
+
   const status = await getBudgetStatus(kv);
   const used = status.used;
   const remaining = MAX_LLM_CALLS_PER_MINUTE - used;
