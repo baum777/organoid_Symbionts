@@ -20,9 +20,9 @@ export interface AtomListOptions extends HybridListOptions {
   statuses?: MemoryAtomStatus[];
 }
 
-export interface ProjectionListOptions extends HybridListOptions {}
+export type ProjectionListOptions = HybridListOptions;
 
-export interface RevisionEventListOptions extends HybridListOptions {}
+export type RevisionEventListOptions = HybridListOptions;
 
 export interface ConsolidationJobListOptions extends HybridListOptions {
   partnerId?: string;

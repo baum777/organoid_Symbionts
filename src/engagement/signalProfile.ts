@@ -130,7 +130,7 @@ function hasConflictText(text: string): boolean {
 }
 
 function hasMemeText(text: string): boolean {
-  return /\b(lol|lmao|lmfao|haha|bro|wagmi|gm|ngl|fr|kek|ratio)\b/i.test(text) || /[😂🤣🔥💀]/.test(text);
+  return /\b(lol|lmao|lmfao|haha|bro|wagmi|gm|ngl|fr|kek|ratio)\b/i.test(text) || /[😂🤣🔥💀]/u.test(text);
 }
 
 function hasNewsReactionText(text: string): boolean {
