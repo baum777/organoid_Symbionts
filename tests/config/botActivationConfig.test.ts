@@ -5,7 +5,7 @@
 import { describe, it, expect, beforeEach, afterEach } from "vitest";
 import {
   readActivationConfigFromEnv,
-  type ActivationConfig,
+  isActivationAllowed,
 } from "../../src/config/botActivationConfig.js";
 
 describe("botActivationConfig", () => {
@@ -82,5 +82,23 @@ describe("botActivationConfig", () => {
       whitelistUserIds: ["id1", "id2"],
       denyReplyMode: "tease",
     });
+  });
+
+  it("allows global mode by default", () => {
+    const config = readActivationConfigFromEnv();
+
+    expect(isActivationAllowed(config, { username: "alice", userId: "id-1" })).toBe(true);
+  });
+
+  it("enforces whitelist mode on username or user id match", () => {
+    process.env.BOT_ACTIVATION_MODE = "whitelist";
+    process.env.BOT_WHITELIST_USERNAMES = "@alice";
+    process.env.BOT_WHITELIST_USER_IDS = "id-2";
+
+    const config = readActivationConfigFromEnv();
+
+    expect(isActivationAllowed(config, { username: "alice", userId: "id-1" })).toBe(true);
+    expect(isActivationAllowed(config, { username: "bob", userId: "id-2" })).toBe(true);
+    expect(isActivationAllowed(config, { username: "bob", userId: "id-3" })).toBe(false);
   });
 });

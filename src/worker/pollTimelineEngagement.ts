@@ -5,6 +5,7 @@ import { handleEvent, type PipelineDeps } from "../canonical/pipeline.js";
 import { DEFAULT_CANONICAL_CONFIG } from "../canonical/types.js";
 import { readTimelineEngagementConfig } from "../config/timelineEngagementConfig.js";
 import { readEngagementComplianceConfig } from "../config/engagementComplianceConfig.js";
+import { isActivationAllowed, readActivationConfigFromEnv } from "../config/botActivationConfig.js";
 import { EngagementMemory } from "../engagement/engagementMemory.js";
 import { normalizeTimelineCandidate } from "../engagement/normalizeTimelineCandidate.js";
 import { rankTimelineCandidates, selectTopTimelineCandidates } from "../engagement/rankTimelineCandidates.js";
@@ -223,6 +224,7 @@ export async function runTimelineEngagementIteration(): Promise<TimelineIteratio
   const botUserId = await getUserId();
   const deps: PipelineDeps = { llm, botUserId };
   const memory = new EngagementMemory();
+  const activationConfig = readActivationConfigFromEnv();
   const compliance = readEngagementComplianceConfig();
 
   try {
@@ -232,7 +234,23 @@ export async function runTimelineEngagementIteration(): Promise<TimelineIteratio
     });
     markFunnelCounts({ scouted: scout.tweets.length, normalized: 0, ranked: 0, selected: 0 });
 
-    const normalized = scout.tweets.map((tweet) =>
+    const activationAllowedTweets = scout.tweets.filter((tweet) => {
+      const authorUsername = scout.userMap.get(tweet.author_id) ?? tweet.author_id;
+      const allowed = isActivationAllowed(activationConfig, {
+        username: authorUsername,
+        userId: tweet.author_id,
+      });
+      if (!allowed) {
+        logInfo("[ACTIVATION] Timeline candidate rejected by whitelist gate", {
+          tweetId: tweet.id,
+          authorId: tweet.author_id,
+          authorUsername,
+        });
+      }
+      return allowed;
+    });
+
+    const normalized = activationAllowedTweets.map((tweet) =>
       normalizeTimelineCandidate(
         tweet,
         scout.userMap.get(tweet.author_id) ?? tweet.author_id,

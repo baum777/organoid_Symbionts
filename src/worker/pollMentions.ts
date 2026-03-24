@@ -20,6 +20,7 @@ import {
 } from "../poller/mentionsMapper.js";
 import {
   readActivationConfigFromEnv,
+  isActivationAllowed,
   type ActivationConfig,
 } from "../config/botActivationConfig.js";
 import { handleEvent, type PipelineDeps } from "../canonical/pipeline.js";
@@ -331,6 +332,19 @@ export async function processCanonicalMention(
     incrementCounter(COUNTER_NAMES.MENTIONS_SKIPPED_TOTAL);
     console.log(`[SKIP] Already published reply for ${mention.id}: tweet ${publishCheck.tweetId}`);
     await recordMentionSkipped(mention.id);
+    return undefined;
+  }
+
+  const activationConfig = readActivationConfigFromEnv();
+  if (!isActivationAllowed(activationConfig, { username: mention.authorUsername, userId: mention.author_id })) {
+    incrementCounter(COUNTER_NAMES.MENTIONS_SKIPPED_TOTAL);
+    logWarn("[ACTIVATION] Mention rejected by whitelist gate", {
+      mentionId: mention.id,
+      authorId: mention.author_id,
+      authorUsername: mention.authorUsername,
+    });
+    await recordMentionSkipped(mention.id);
+    mentionErrorCounts.delete(mention.id);
     return undefined;
   }
 

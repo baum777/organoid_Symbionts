@@ -338,6 +338,9 @@ describe("timeline engagement worker", () => {
     process.env.TIMELINE_SOURCE_ACCOUNTS = "alice";
     process.env.TIMELINE_ENGAGEMENT_MAX_PER_RUN = "2";
     process.env.LAUNCH_MODE = "off";
+    process.env.BOT_ACTIVATION_MODE = "global";
+    delete process.env.BOT_WHITELIST_USERNAMES;
+    delete process.env.BOT_WHITELIST_USER_IDS;
     resetStoreCache();
     await resetEventStates();
     currentTweetId = `tweet-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
@@ -419,6 +422,9 @@ describe("timeline engagement worker", () => {
   });
 
   it("enters the canonical path exactly once when lock, policy, and reservation succeed", async () => {
+    process.env.BOT_ACTIVATION_MODE = "whitelist";
+    process.env.BOT_WHITELIST_USERNAMES = "@alice";
+    process.env.BOT_WHITELIST_USER_IDS = "author-1";
     reserveMock.mockResolvedValueOnce({
       status: "reserved",
       used: 1,
@@ -450,6 +456,25 @@ describe("timeline engagement worker", () => {
     expect(buildEngagementCandidateMock).toHaveBeenCalledTimes(1);
     expect(toCanonicalExecutionInputMock).toHaveBeenCalledTimes(1);
     expect(toCanonicalExecutionInputMock.mock.calls[0]?.[1].signalProfile).toBeDefined();
+  });
+
+  it("rejects non-whitelisted timeline candidates before candidate building", async () => {
+    process.env.BOT_ACTIVATION_MODE = "whitelist";
+    process.env.BOT_WHITELIST_USERNAMES = "@someone_else";
+    process.env.BOT_WHITELIST_USER_IDS = "author-9";
+
+    const { runTimelineEngagementIteration } = await import("../../src/worker/pollTimelineEngagement.js");
+
+    await runTimelineEngagementIteration();
+
+    expect(scoutMock).toHaveBeenCalledTimes(1);
+    expect(rankMock).toHaveBeenCalledTimes(1);
+    expect(selectMock).toHaveBeenCalledTimes(1);
+    expect(buildRawTriggerInputMock).not.toHaveBeenCalled();
+    expect(buildEngagementCandidateMock).not.toHaveBeenCalled();
+    expect(maybeBuildConversationBundleMock).not.toHaveBeenCalled();
+    expect(handleEventMock).not.toHaveBeenCalled();
+    expect(replyMock).not.toHaveBeenCalled();
   });
 
   it("passes a bounded hybrid context through the runtime bundle in assist mode", async () => {

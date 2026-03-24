@@ -250,6 +250,9 @@ describe("mention pipeline consent flow", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     process.env.USE_REDIS = "false";
+    process.env.BOT_ACTIVATION_MODE = "global";
+    delete process.env.BOT_WHITELIST_USERNAMES;
+    delete process.env.BOT_WHITELIST_USER_IDS;
     resetStoreCache();
     hybridRuntimeMode = "legacy";
     complianceConfig = {
@@ -304,6 +307,62 @@ describe("mention pipeline consent flow", () => {
     expect(assembleSignalProfileMock).toHaveBeenCalledTimes(1);
     expect(toCanonicalExecutionInputMock).toHaveBeenCalledTimes(1);
     expect(toCanonicalExecutionInputMock.mock.calls[0]?.[1].signalProfile).toBeDefined();
+  });
+
+  it("still engages when whitelist mode explicitly includes the mention author", async () => {
+    process.env.BOT_ACTIVATION_MODE = "whitelist";
+    process.env.BOT_WHITELIST_USERNAMES = "@alice";
+    process.env.BOT_WHITELIST_USER_IDS = "";
+
+    complianceConfig = {
+      aiApproval: true,
+      optInHandles: ["alice"],
+      optOutHandles: [],
+    };
+    const mentionId = `m-${Date.now()}-allow`;
+
+    const { processCanonicalMention } = await import("../../../src/worker/pollMentions.js");
+
+    const deps = { llm: {} as never, botUserId: "bot-1" };
+    const result = await processCanonicalMention(
+      deps,
+      { reply: replyMock } as never,
+      mention({ id: mentionId }),
+      false,
+      "mentions"
+    );
+
+    expect(result).toBeDefined();
+    expect(buildRawTriggerInputMock).toHaveBeenCalledTimes(1);
+    expect(buildEngagementCandidateMock).toHaveBeenCalledTimes(1);
+    expect(maybeBuildConversationBundleMock).toHaveBeenCalledTimes(1);
+    expect(toCanonicalExecutionInputMock).toHaveBeenCalledTimes(1);
+  });
+
+  it("rejects non-whitelisted mentions before candidate building", async () => {
+    process.env.BOT_ACTIVATION_MODE = "whitelist";
+    process.env.BOT_WHITELIST_USERNAMES = "@someone_else";
+    process.env.BOT_WHITELIST_USER_IDS = "author-9";
+
+    const mentionId = `m-${Date.now()}-reject`;
+
+    const { processCanonicalMention } = await import("../../../src/worker/pollMentions.js");
+
+    const deps = { llm: {} as never, botUserId: "bot-1" };
+    const result = await processCanonicalMention(
+      deps,
+      { reply: replyMock } as never,
+      mention({ id: mentionId }),
+      false,
+      "mentions"
+    );
+
+    expect(result).toBeUndefined();
+    expect(replyMock).not.toHaveBeenCalled();
+    expect(buildRawTriggerInputMock).not.toHaveBeenCalled();
+    expect(buildEngagementCandidateMock).not.toHaveBeenCalled();
+    expect(maybeBuildConversationBundleMock).not.toHaveBeenCalled();
+    expect(toCanonicalExecutionInputMock).not.toHaveBeenCalled();
   });
 
   it("passes a bounded hybrid context through the runtime bundle in assist mode", async () => {
