@@ -1,6 +1,6 @@
-# Render Blueprint — Gnomes Bot
-# Background Worker + optional Health Web Service
-# Node.js/TypeScript project — Python files are legacy and ignored
+# Render Blueprint — Organoid Symbiont
+# Background worker + health web service
+# Node.js/TypeScript project — legacy Python files are ignored
 
 services:
   # Background Worker: 24/7 mention poller
@@ -95,7 +95,9 @@ services:
     region: frankfurt
     plan: free
     buildCommand: pnpm install --frozen-lockfile && pnpm build
+    preDeployCommand: pnpm deploy-check
     startCommand: node dist/server.js
+    healthCheckPath: /health
     envVars:
       - key: NODE_ENV
         value: production

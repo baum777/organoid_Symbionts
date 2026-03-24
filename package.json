@@ -22,7 +22,9 @@
     "test:smoke": "vitest run tests/smoke",
     "test:e2e": "vitest run tests/e2e",
     "typecheck": "tsc --noEmit",
-    "lint": "eslint \"src/**/*.ts\" \"tests/**/*.ts\"",
+    "lint": "eslint \"src/**/*.ts\" \"tests/**/*.ts\" \"scripts/**/*.ts\"",
+    "symbiont-health-check": "tsx scripts/symbiont-health-check.ts",
+    "deploy-check": "tsx scripts/deploy-check.ts",
     "ci": "pnpm typecheck && pnpm lint && pnpm test && pnpm build",
     "persona:build-semantic": "tsx scripts/build-persona-semantic-index.ts --split"
   },

@@ -1,313 +1,115 @@
-# Environment Variablen Dokumentation
+# Environment Variables
+
+This document matches the current TypeScript runtime in `src/config/envSchema.ts`, `src/config/env.ts`, and `src/clients/xOAuthToken.ts`.
+
+## Required X OAuth2
+
+These are required for worker and engagement flows:
+
+- `X_CLIENT_ID`
+- `X_CLIENT_SECRET`
+- `X_REFRESH_TOKEN`
+
+## X OAuth2 Runtime
+
+- `X_ACCESS_TOKEN` - optional cached access token
+- `X_REFRESH_BUFFER_SECONDS` - refresh threshold before expiry
+- `X_OAUTH_TOKEN_URL` - OAuth2 token endpoint, default `https://api.x.com/2/oauth2/token`
+- `X_BOT_USER_ID` - optional cached bot user id
+- `X_BOT_USERNAME` - optional bot handle
+- `BOT_USERNAME` - fallback bot handle used by older compatibility paths
+
+## LLM Provider Routing
+
+- `XAI_API_KEY`
+- `XAI_BASE_URL`
+- `XAI_MODEL_PRIMARY`
+- `XAI_MODEL_FALLBACKS`
+- `LLM_API_KEY` - generic provider fallback used by launch env resolution
+- `LLM_PROVIDER` - `xai`, `openai`, or `anthropic`
+- `LLM_FALLBACK_PROVIDER`
+- `LLM_TIMEOUT_MS`
+- `LLM_RETRY_MAX`
+- `LLM_MAX_TOKENS`
+- `LLM_TEMPERATURE`
+- `OPENAI_API_KEY`
+- `OPENAI_MODEL`
+- `OPENAI_BASE_URL`
+- `ANTHROPIC_API_KEY`
+- `ANTHROPIC_MODEL`
+- `ANTHROPIC_BASE_URL`
+
+## Launch Gates
+
+- `LAUNCH_MODE` - `off`, `dry_run`, `staging`, `prod`
+- `DRY_RUN` - legacy compatibility flag, still supported
+- `LEGACY_COMPAT` - enables legacy fallback surfaces
+- `ALLOWLIST_HANDLES` - comma-separated staging allowlist
+- `DEBUG_ARTIFACTS` - enables extra debug artifacts when true
+
+## Persistence and State
+
+- `USE_REDIS` - prefer Redis when `true`
+- `KV_URL` - `redis://` or `rediss://` URL for the state store
+- `REDIS_KEY_PREFIX` - key prefix for Redis-backed state
+- `DATA_DIR` - filesystem state store directory for local runs
+
+## Polling and Timeline Engagement
+
+- `POLL_INTERVAL_MS`
+- `TIMELINE_ENGAGEMENT_ENABLED`
+- `TIMELINE_ENGAGEMENT_INTERVAL_MS`
+- `TIMELINE_ENGAGEMENT_MAX_PER_RUN`
+- `TIMELINE_ENGAGEMENT_MAX_PER_HOUR`
+- `TIMELINE_ENGAGEMENT_MAX_PER_DAY`
+- `TIMELINE_MIN_CONTEXT_SCORE`
+- `TIMELINE_MIN_FINAL_SCORE`
+- `TIMELINE_REQUIRE_THREAD_STRUCTURE`
+- `TIMELINE_SOURCE_ACCOUNTS`
+- `TIMELINE_KEYWORD_FILTERS`
+- `TIMELINE_AUTHOR_COOLDOWN_MINUTES`
+- `TIMELINE_CONVERSATION_COOLDOWN_MINUTES`
+
+## Solana RPC / Onchain
+
+- `SOLANA_RPC_PRIMARY_URL`
+- `SOLANA_RPC_FALLBACK_URL`
+- `BOT_TOKEN_MINT`
+- `BOT_TREASURY_WALLET`
+- `BOT_TICKER`
+- `BOT_PROGRAM_ID`
+
+## Server / Tooling
+
+- `PORT`
+- `NODE_ENV`
+- `SKIP_ENV_VALIDATION`
+
+## Recommended Minimal Setup
 
-Vollständige Übersicht aller verfügbaren Environment Variablen für den GORKY_ON_SOL Bot.
-
----
-
-## 🔴 Erforderlich (Mindest-Setup)
-
-### X API (OAuth 1.0a)
-
-| Variable | Beschreibung | Beispiel |
-|----------|-------------|----------|
-| `X_API_KEY` | X Developer Portal - App Key | `abcd1234...` |
-| `X_API_SECRET` | X Developer Portal - App Secret | `xyz789...` |
-| `X_ACCESS_TOKEN` | OAuth 1.0a User Access Token | `123456-abcdef...` |
-| `X_ACCESS_SECRET` | OAuth 1.0a User Access Secret | `secret123...` |
-
-> **Hinweis:** Diese 4 Werte sind Pflicht für alle Bot-Operationen.
-
----
-
-## 🟡 Optional (Empfohlen)
-
-### xAI API (LLM für Enhanced Replies)
-
-| Variable | Beschreibung | Mögliche Werte | Default |
-|----------|-------------|----------------|---------|
-| `XAI_API_KEY` | xAI API Key für Grok Zugriff | `xai-...` | - |
-| `XAI_BASE_URL` | xAI API Base URL | `https://api.x.ai/v1` | `https://api.x.ai/v1` |
-| `XAI_MODEL_PRIMARY` | Primäres LLM Model | `grok-3`, `grok-3-mini` | `grok-3` |
-| `XAI_MODEL_FALLBACKS` | Fallback Models (CSV) | `grok-3-mini,grok-2` | - |
-
-> **Hinweis:** `XAI_MODEL` ist veraltet, verwende `XAI_MODEL_PRIMARY`.
-
-### Alternative LLM Provider
-
-| Variable | Beschreibung | Mögliche Werte | Default |
-|----------|-------------|----------------|---------|
-| `LLM_API_KEY` | Generischer LLM API Key (Fallback) | `sk-...` | - |
-| `LLM_PROVIDER` | LLM Provider | `xai`, `openai` | `xai` |
-
-### Replicate API (Image Generation)
-
-| Variable | Beschreibung | Mögliche Werte | Default |
-|----------|-------------|----------------|---------|
-| `REPLICATE_API_KEY` | Replicate API Key | `r8_...` | - |
-| `REPLICATE_IMAGE_MODEL` | Image Generation Model | `black-forest-labs/flux-schnell`, `xai/grok-imagine` | `black-forest-labs/flux-schnell` |
-| `REPLICATE_RUN_TIMEOUT_MS` | Timeout für Bild-Generierung (ms) | `30000` - `120000` | `45000` |
-| `REPLICATE_DOWNLOAD_TIMEOUT_MS` | Timeout für Bild-Download (ms) | `10000` - `60000` | `20000` |
-
-> **Modellempfehlung:**
-> - `black-forest-labs/flux-schnell` - Schnell & günstig (Default)
-> - `xai/grok-imagine` - Hohe Qualität (Premium)
-
----
-
-## 🔵 Bot Konfiguration
-
-### Aktivierungs-Modus
-
-| Variable | Beschreibung | Mögliche Werte | Default |
-|----------|-------------|----------------|---------|
-| `LAUNCH_MODE` | Zentraler Launch-Modus | `off`, `dry_run`, `staging`, `prod` | `staging` |
-| `BOT_ACTIVATION_MODE` | Wer darf den Bot nutzen? | `global` (alle), `whitelist` (nur erlaubte) | `global` |
-| `BOT_WHITELIST_USERNAMES` | Erlaubte User (bei whitelist) | `user1,user2,user3` | - |
-| `BOT_WHITELIST_USER_IDS` | Optional: User IDs statt Handles | `123456,789012` | - |
-| `BOT_DENY_REPLY_MODE` | Reaktion bei nicht erlaubten | `silent` (ignorieren), `tease` (spöttische Antwort) | `silent` |
-| `BOT_USERNAME` | Bot's X Handle | `GORKY_ON_SOL_on_sol` | `GORKY_ON_SOL_on_sol` |
-| `ALLOWLIST_HANDLES` | Erlaubte Handles in staging | `alice,bob` | - |
-
-> **Hinweis:** `DRY_RUN` ist veraltet, verwende `LAUNCH_MODE=dry_run`.
-
-### Upload Optimierung
-
-| Variable | Beschreibung | Mögliche Werte | Default |
-|----------|-------------|----------------|---------|
-| `X_UPLOAD_TIMEOUT_MS` | Timeout für X Media Upload | `15000` - `60000` | `30000` |
-| `X_UPLOAD_MAX_DIM` | Maximale Bild-Dimension (px) | `512`, `768`, `1024`, `1280` | `1024` |
-
-> **Hinweis:** Kleinere Dimensionen = schnellerer Upload, aber weniger Detail.
-
----
-
-## 🟣 Context Engine (Phase 2)
-
-### Enhanced Context
-
-| Variable | Beschreibung | Mögliche Werte | Default |
-|----------|-------------|----------------|---------|
-| `USE_ENHANCED_CONTEXT` | Enhanced Context aktivieren | `true`, `false` | `true` |
-| `CONTEXT_ENGINE_MODE` | Context Engine Modus | `legacy` (alt), `v2` (neu), `hybrid` (beides) | `hybrid` |
-| `CONTEXT_MAX_THREAD_DEPTH` | Max Thread-Tiefe für Context | `1` - `10` | `3` |
-
----
-
-## 🟢 Semantic Intelligence (Phase 3)
-
-### Feature Flags
-
-| Variable | Beschreibung | Mögliche Werte | Default |
-|----------|-------------|----------------|---------|
-| `SEMANTIC_ENABLED` | Semantic Intelligence aktivieren | `true`, `false` | `true` |
-| `SEMANTIC_MODE` | Betriebsmodus | `shadow` (nur loggen), `assist` (unterstützen), `full` (ersetzen) | `shadow` |
-
-### Semantic Parameters
-
-| Variable | Beschreibung | Mögliche Werte | Default |
-|----------|-------------|----------------|---------|
-| `SEMANTIC_TOPK` | Top-K ähnliche Ergebnisse | `5` - `50` | `20` |
-| `SEMANTIC_CLUSTER_SIM` | Cluster Similarity Threshold | `0.5` - `0.95` | `0.82` |
-| `SEMANTIC_QUERY_MAX_RESULTS` | Max Query Results | `10` - `100` | `50` |
-| `SEMANTIC_MEMORY_TTL_DAYS` | Memory TTL (Tage) | `1` - `30` | `14` |
-| `SEMANTIC_INDEX_TTL_DAYS` | Index TTL (Tage) | `1` - `30` | `7` |
-| `SEMANTIC_INDEX_MAX_DOCS` | Max Dokumente im Index | `500` - `10000` | `2000` |
-
----
-
-## ⚪ Application Settings
-
-### Debugging & Development
-
-| Variable | Beschreibung | Mögliche Werte | Default |
-|----------|-------------|----------------|---------|
-| `LOG_LEVEL` | Logging Level | `DEBUG`, `INFO`, `WARN`, `ERROR` | `INFO` |
-| `DEBUG_ARTIFACTS` | Debug Artefakte aktivieren | `true`, `false` | `false` |
-| `SKIP_ENV_VALIDATION` | Env-Validation überspringen | `true`, `false` | `false` |
-
-### Polling Configuration
-
-| Variable | Beschreibung | Mögliche Werte | Default |
-|----------|-------------|----------------|---------|
-| `POLL_INTERVAL_MS` | Poll-Intervall in Millisekunden | `5000` - `300000` | `30000` |
-| `ADAPTIVE_POLLING_ENABLED` | Adaptive Polling aktivieren | `true`, `false` | `true` |
-| `MENTIONS_SOURCE` | Quelle für Mentions | `mentions`, `search` | `mentions` |
-| `MIN_POLL_INTERVAL_MS` | Minimales Poll-Intervall | `1000` - `30000` | `5000` |
-| `MAX_POLL_INTERVAL_MS` | Maximales Poll-Intervall | `60000` - `600000` | `300000` |
-
----
-
-## 🔒 Rate Limiting & Budget Gates
-
-| Variable | Beschreibung | Mögliche Werte | Default |
-|----------|-------------|----------------|---------|
-| `MAX_LLM_CALLS_PER_MINUTE` | Max LLM Calls pro Minute | `10` - `100` | `30` |
-| `COST_WEIGHT_THREAD` | Gewichtung für Threads | `1` - `5` | `2` |
-| `COST_WEIGHT_REPLY` | Gewichtung für Replies | `1` - `5` | `1` |
-| `RATE_LIMIT_COOLDOWN_MS` | Cooldown nach Rate-Limit (ms) | `10000` - `120000` | `60000` |
-
----
-
-## 🌐 Fetch & Retry Configuration
-
-| Variable | Beschreibung | Mögliche Werte | Default |
-|----------|-------------|----------------|---------|
-| `FETCH_TIMEOUT_MS` | Timeout für HTTP Requests | `5000` - `60000` | `30000` |
-| `FETCH_BACKOFF_BASE_MS` | Basis Backoff Zeit | `1000` - `10000` | `5000` |
-| `FETCH_BACKOFF_MAX_MS` | Max Backoff Zeit | `60000` - `600000` | `300000` |
-| `FETCH_RETRY_JITTER_MS` | Jitter für Retries | `100` - `1000` | `500` |
-
----
-
-## 📤 Publish Retry Configuration
-
-| Variable | Beschreibung | Mögliche Werte | Default |
-|----------|-------------|----------------|---------|
-| `PUBLISH_RETRY_DELAYS_MS` | Retry Delays (CSV) | `1000,5000,15000` | `1000,5000,15000` |
-| `MAX_PUBLISH_RETRIES` | Max Publish Retries | `1` - `5` | `3` |
-
----
-
-## 💾 State Storage (Redis vs Filesystem)
-
-| Variable | Beschreibung | Mögliche Werte | Default |
-|----------|-------------|----------------|---------|
-| `USE_REDIS` | Redis statt Filesystem verwenden | `true`, `false` | `false` |
-| `KV_URL` | Redis Connection URL | `redis://default:PASS@HOST.upstash.io:6379` | - |
-| `REDIS_KEY_PREFIX` | Prefix für Redis Keys | `GORKY_ON_SOL:` | `GORKY_ON_SOL:` |
-| `DATA_DIR` | Pfad für Filesystem Store | `./data`, `/data` | `./data` |
-
-### TTL Configuration
-
-| Variable | Beschreibung | Mögliche Werte | Default |
-|----------|-------------|----------------|---------|
-| `EVENT_STATE_TTL_DAYS` | Event State TTL (Tage) | `1` - `30` | `7` |
-| `PUBLISHED_TTL_DAYS` | Published Cache TTL (Tage) | `1` - `90` | `30` |
-| `PUBLISH_LOCK_TTL_MS` | Publish Lock TTL (ms) | `10000` - `60000` | `30000` |
-
-### Cursor Persistence
-
-| Variable | Beschreibung | Mögliche Werte | Default |
-|----------|-------------|----------------|---------|
-| `CURSOR_PERSISTENCE_ENABLED` | Cursor Persistence aktivieren | `true`, `false` | `true` |
-| `CURSOR_SYNC_INTERVAL_MS` | Cursor Sync Intervall (ms) | `10000` - `300000` | `60000` |
-
-> **Wichtig:** `KV_URL` muss das `redis://` Protokoll verwenden (NICHT `https://`). Die alte `UPSTASH_REDIS_REST_URL` ist nicht kompatibel mit ioredis.
-
----
-
-## ⛓️ On-Chain / Solana RPC
-
-| Variable | Beschreibung | Mögliche Werte | Default |
-|----------|-------------|----------------|---------|
-| `SOLANA_RPC_PRIMARY_URL` | Primärer Solana RPC Endpoint | `https://api.mainnet-beta.solana.com` | `https://api.mainnet-beta.solana.com` |
-| `SOLANA_RPC_FALLBACK_URL` | Fallback Solana RPC Endpoint | `https://solana-api.projectserum.com` | - |
-| `BOT_TOKEN_MINT` | Bot Token Mint Address | `So11111111111111111111111111111111111111112` | `So11111111111111111111111111111111111111112` |
-| `BOT_TREASURY_WALLET` | Treasury Wallet Address | `...` | - |
-| `BOT_TICKER` | Bot Token Ticker | `GORKY_ON_SOL` | `GORKY_ON_SOL` |
-| `BOT_PROGRAM_ID` | Bot Program ID | `...` | - |
-
----
-
-## ⚡ LLM Circuit Breaker
-
-| Variable | Beschreibung | Mögliche Werte | Default |
-|----------|-------------|----------------|---------|
-| `LLM_TIMEOUT_MS` | Timeout für LLM Requests | `10000` - `60000` | `30000` |
-
----
-
-## 🖥️ Server Configuration
-
-| Variable | Beschreibung | Mögliche Werte | Default |
-|----------|-------------|----------------|---------|
-| `PORT` | HTTP Server Port | `3000` - `65535` | `10000` |
-| `NODE_ENV` | Node Environment | `development`, `production` | `production` |
-
----
-
-## 📋 Empfohlene Setups
-
-### Minimal (Nur Text-Replies)
 ```bash
-X_API_KEY=...
-X_API_SECRET=...
-X_ACCESS_TOKEN=...
-X_ACCESS_SECRET=...
+X_CLIENT_ID=...
+X_CLIENT_SECRET=...
+X_REFRESH_TOKEN=...
+LAUNCH_MODE=dry_run
+USE_REDIS=false
 ```
 
-### Standard (Mit Enhanced Context)
+## Recommended Production Setup
+
 ```bash
-# X API
-X_API_KEY=...
-X_API_SECRET=...
+X_CLIENT_ID=...
+X_CLIENT_SECRET=...
+X_REFRESH_TOKEN=...
 X_ACCESS_TOKEN=...
-X_ACCESS_SECRET=...
-
-# xAI API
-XAI_API_KEY=...
-XAI_MODEL_PRIMARY=grok-3
-
-# Context
-USE_ENHANCED_CONTEXT=true
-CONTEXT_ENGINE_MODE=hybrid
-```
-
-### Full Features (Mit Bild-Generation & Semantic)
-```bash
-# X API
-X_API_KEY=...
-X_API_SECRET=...
-X_ACCESS_TOKEN=...
-X_ACCESS_SECRET=...
-
-# xAI API
-XAI_API_KEY=...
-XAI_MODEL_PRIMARY=grok-3
-XAI_MODEL_FALLBACKS=grok-3-mini
-
-# Replicate
-REPLICATE_API_KEY=...
-REPLICATE_IMAGE_MODEL=black-forest-labs/flux-schnell
-
-# Context & Semantic
-USE_ENHANCED_CONTEXT=true
-CONTEXT_ENGINE_MODE=hybrid
-SEMANTIC_ENABLED=true
-SEMANTIC_MODE=shadow
-
-# Upload Optimierung
-X_UPLOAD_TIMEOUT_MS=30000
-X_UPLOAD_MAX_DIM=1024
-
-# State Storage (optional)
+LAUNCH_MODE=prod
 USE_REDIS=true
-KV_URL=redis://default:PASS@HOST.upstash.io:6379
+KV_URL=redis://...
+SOLANA_RPC_PRIMARY_URL=https://api.mainnet-beta.solana.com
 ```
 
----
+## Notes
 
-## 🚨 Wichtige Hinweise
-
-1. **Sicherheit:** `.env` Datei niemals committen! Sie ist in `.gitignore` eingetragen. Niemals echte Secrets im Repo ablegen. Keys rotieren, falls sie jemals im Repo standen.
-
-2. **API Keys:** 
-   - X API Keys im [Developer Portal](https://developer.twitter.com) erstellen
-   - xAI API Key bei [x.ai](https://x.ai)
-   - Replicate API Key bei [replicate.com](https://replicate.com)
-
-3. **Redis URL:** Muss `redis://` Protokoll verwenden. Die `UPSTASH_REDIS_REST_URL` (HTTPS) ist **nicht kompatibel**.
-
-4. **Timeouts:** Bei langsamer Verbindung `REPLICATE_*_TIMEOUT` erhöhen
-
-5. **Whitelist:** Bei `BOT_ACTIVATION_MODE=whitelist` müssen mindestens 2 User in `BOT_WHITELIST_USERNAMES` sein
-
----
-
-## 🔄 Änderungen nachvollziehen
-
-Siehe [CHANGELOG.md](./CHANGELOG.md) für Änderungen an ENV Variablen.
-
----
-
-*Dokument aktualisiert: 2026-03-09*
+- `X_ACCESS_TOKEN` is cached only; the refresh token is the source of truth for renewal.
+- `LAUNCH_MODE=off` is the safest local default when you are only inspecting the repo.
+- Keep the older `DRY_RUN` flag only for compatibility during the transition.

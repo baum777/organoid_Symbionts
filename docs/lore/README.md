@@ -12,6 +12,7 @@ Use these first for new work:
 - [GNOMES_LORE_UNITS.md](./GNOMES_LORE_UNITS.md) - retrieval unit contract, status lifecycle, and embed/no-embed rules
 - [WHITEPAPER_INTRO.md](./WHITEPAPER_INTRO.md) - canonical framing for the semantic symbiont model
 - [WHITEPAPER_INTRO_EN.md](./WHITEPAPER_INTRO_EN.md) - English companion version of the same framing
+- [../../README_SYMBIONTS.md](../../README_SYMBIONTS.md) - operator cheat sheet and runtime contract summary
 
 ## Transition References
 
@@ -26,9 +27,10 @@ These remain available for historical context and compatibility only:
 Active surfaces:
 - Runtime profiles: `data/gnomes/*.yaml`
 - Profile schema: `schemas/gnome_profile.schema.json`
-- Active voice fragments: `prompts/fragments/embodiments/*.md`
+- Active voice fragments: `prompts/fragments/organoids/*.md`
 - Compatibility voice mirrors: `prompts/fragments/gnomes/*.md`
 - Shared matrix canon: `prompts/fragments/sharedOrganoidCanon.md`
+- Consent / onboarding preset: `prompts/presets/initiate-symbiosis.md`
 - Retrieval units: `memory/lore/lore_units.approved.jsonl`
 - Retrieval candidates: `memory/lore/lore_units.candidates.jsonl`
 - Retrieval mirror: `memory/lore/matrix_units.v1.yaml`

@@ -5,7 +5,6 @@
 import { readdir, readFile } from "node:fs/promises";
 import { join } from "node:path";
 import yaml from "js-yaml";
-import { DATA_DIR } from "../config/dataDir.js";
 import { registerGnome } from "./registry.js";
 import { getProfileGlyph, isGnomeProfile, type GnomeProfile } from "./types.js";
 
@@ -16,7 +15,7 @@ const GNOMES_DATA_DIR = "gnomes";
  * Registers them in the registry. Returns loaded profiles.
  */
 export async function loadGnomes(): Promise<GnomeProfile[]> {
-  const dir = join(DATA_DIR, GNOMES_DATA_DIR);
+  const dir = join(process.cwd(), "data", GNOMES_DATA_DIR);
 
   let entries: string[];
   try {

@@ -41,6 +41,7 @@ The system is easiest to understand as a living loop: organoids act, glyphs show
 Start here for the new top-level semantic model:
 - `docs/lore/ORGANOID_EMBODIMENTS.md`
 - `docs/lore/ORGANOID_ORCHESTRATION.md`
+- `README_SYMBIONTS.md`
 - `docs/audits/organoid-migration-execution-2026-03-18.md`
 - `docs/audits/codebase-audit-2026-03-18-organoid-migration.md`
 
@@ -75,6 +76,13 @@ pnpm install
 cp .env.example .env
 pnpm typecheck
 pnpm test
+```
+
+Operator preflight:
+
+```bash
+pnpm symbiont-health-check
+pnpm deploy-check
 ```
 
 ## Config / Environment

@@ -9,7 +9,7 @@ async function run() {
   console.log("OK user:", me.data?.username, me.data?.id);
 }
 
-run().catch((e: any) => {
-  console.error("SMOKE FAIL:", e?.message || e);
+run().catch((error: unknown) => {
+  console.error("SMOKE FAIL:", error instanceof Error ? error.message : error);
   process.exit(1);
 });
