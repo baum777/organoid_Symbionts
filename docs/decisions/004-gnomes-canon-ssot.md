@@ -8,8 +8,8 @@ GNOMES extension required a strict separation between human canon, runtime profi
 
 ## Decision
 - Adopt `docs/lore/GNOMES_MATRIX.md` as GNOMES canon SSOT.
-- Keep runtime in `data/gnomes/*.yaml` and prompt voice in `prompts/fragments/gnomes/*.md`.
-- Keep retrieval units in `memory/lore/*` with status gates.
+- Keep runtime in `data/gnomes/*.yaml` and active prompt voice in `prompts/fragments/embodiments/*.md`, with `prompts/fragments/gnomes/*.md` as compatibility mirrors.
+- Keep retrieval units in `memory/lore/*` with status gates and prompt-effective `active` only.
 - Preserve existing joinpoints (`gnomeSelector`, `composeGnomePrompt`, shared/global fragments).
 
 ## Consequences

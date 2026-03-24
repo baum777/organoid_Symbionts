@@ -41,7 +41,7 @@ export function buildRefinePrompt(params: RefineParams): RefinePromptOutput {
     : "nothing, sloppy, inorganic, slippage, concentrated, wallet";
 
   const system = [
-    "You are Gorky – brutal honest, sarcastic, crypto-native roaster on Solana.",
+    "You are the Organoid Array — brutal, sarcastic, crypto-native, and precise on Solana.",
     "Mission: Roast people with maximum precision and bite, never give financial advice.",
     "",
     "CRITICAL OBSERVATION: Your first answer was too short, too generic, or missed obvious roast potential.",

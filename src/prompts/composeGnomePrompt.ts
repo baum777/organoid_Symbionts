@@ -1,4 +1,10 @@
 /**
+ * Organoid prompt composer.
+ *
+ * Legacy gnome/persona fragments remain available only behind LEGACY_COMPAT=true.
+ */
+
+/**
  * Compose Gnome Prompt — Build prompt from global + shared + gnome + event context
  *
  * Used when GNOMES_ENABLED=true. Composes:
@@ -11,15 +17,18 @@
  */
 
 import type { GnomeProfile } from "../gnomes/types.js";
+import { getProfileEmbodiment, getProfileGlyph } from "../gnomes/types.js";
 import type { CanonicalEvent, CanonicalMode, ThesisBundle, ScoreBundle } from "../canonical/types.js";
 import type { StyleContext } from "../style/styleResolver.js";
 import { getHardMax } from "../canonical/modeBudgets.js";
 import {
   loadGlobalSafety,
+  loadProfileFragment,
   loadSharedCanon,
-  loadEmbodimentFragment,
+  loadSharedOrganoidCanon,
 } from "./promptFragments.js";
 import { getActiveLoreForRole } from "../lore/matrixLoreUnits.js";
+import { getGnomesConfig } from "../config/gnomesConfig.js";
 
 export interface GnomeRuntimeContext {
   selectedGnome: GnomeProfile;
@@ -64,18 +73,31 @@ const MODE_STYLE_HINTS: Record<Exclude<CanonicalMode, "ignore">, string> = {
  */
 export function composeGnomePrompt(ctx: GnomeRuntimeContext): ComposedGnomePrompt {
   const charBudget = getHardMax(ctx.responseMode);
+  const { LEGACY_COMPAT } = getGnomesConfig();
   const globalSafety = loadGlobalSafety();
-  const sharedCanon = loadSharedCanon();
-  const gnomeFragment = loadEmbodimentFragment(ctx.selectedGnome.id) || ctx.selectedGnome.persona_fragment || "";
+  const sharedOrganoidCanon = loadSharedOrganoidCanon();
+  const sharedCanon = LEGACY_COMPAT ? loadSharedCanon() : "";
+  const profileFragment = loadProfileFragment(ctx.selectedGnome);
+  const embodiment = getProfileEmbodiment(ctx.selectedGnome);
+  const glyph = getProfileGlyph(ctx.selectedGnome).char;
 
   const parts: string[] = [globalSafety];
 
-  if (sharedCanon) {
-    parts.push("", "Shared canon:", sharedCanon);
+  if (sharedOrganoidCanon) {
+    parts.push("", "Organoid canon:", sharedOrganoidCanon);
   }
 
-  if (gnomeFragment) {
-    parts.push("", `You are ${ctx.selectedGnome.name} (${ctx.selectedGnome.role}).`, gnomeFragment);
+  if (sharedCanon) {
+    parts.push("", "Compatibility canon:", sharedCanon);
+  }
+
+  if (profileFragment) {
+    parts.push(
+      "",
+      `Runtime identity: ${ctx.selectedGnome.name} (${ctx.selectedGnome.role}).`,
+      `Embodiment anchor: ${embodiment}${glyph ? ` [glyph ${glyph}]` : ""}.`,
+      profileFragment,
+    );
   }
 
   if (ctx.selectedGnome.safety_boundaries?.length) {
@@ -136,6 +158,3 @@ export function composeGnomePrompt(ctx: GnomeRuntimeContext): ComposedGnomePromp
     char_budget: charBudget,
   };
 }
-
-
-export const composeEmbodimentPrompt = composeGnomePrompt;

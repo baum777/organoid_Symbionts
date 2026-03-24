@@ -19,6 +19,11 @@ export type ActivationConfig = {
   denyReplyMode: DenyReplyMode;
 };
 
+export type ActivationTarget = {
+  username?: string | null;
+  userId?: string | null;
+};
+
 function normalizeUsername(raw: string): string {
   let u = raw.trim().toLowerCase();
   if (u && !u.startsWith("@")) {
@@ -81,4 +86,23 @@ export function readActivationConfigFromEnv(): ActivationConfig {
     whitelistUserIds,
     denyReplyMode,
   };
+}
+
+/**
+ * Check whether a runtime target is allowed to proceed under the activation gate.
+ *
+ * Global mode is intentionally permissive; whitelist mode only allows explicit matches.
+ */
+export function isActivationAllowed(config: ActivationConfig, target: ActivationTarget): boolean {
+  if (config.mode !== "whitelist") {
+    return true;
+  }
+
+  const normalizedUsername = target.username ? normalizeUsername(target.username) : "";
+  const normalizedUserId = target.userId?.trim() ?? "";
+
+  return (
+    (normalizedUsername.length > 0 && config.whitelistUsernames.includes(normalizedUsername)) ||
+    (normalizedUserId.length > 0 && config.whitelistUserIds.includes(normalizedUserId))
+  );
 }

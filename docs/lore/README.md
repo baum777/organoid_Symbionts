@@ -1,30 +1,38 @@
-# Organoid Canon and Legacy Lore Transition Guide
+# Organoid Lore And Matrix
 
-This directory now contains both:
-- the **new canonical Organoid semantic system**, and
-- the **legacy GNOMES/GORKY lore stack** retained as migration input.
+This directory contains the canonical Organoid SSOT plus the legacy transition layer that still exists for compatibility.
 
-## Canonical Organoid sources of truth
+## Canonical Sources
 
-Use these files first for new work:
-- [ORGANOID_EMBODIMENTS.md](./ORGANOID_EMBODIMENTS.md) — 7 embodiments, glyphs, traits, abilities, and interaction profiles
-- [ORGANOID_ORCHESTRATION.md](./ORGANOID_ORCHESTRATION.md) — 5 phases, matrix logic, orchestration rules, confirmed/probable/unsure mappings
+Use these first for new work:
+- [ORGANOID_EMBODIMENTS.md](./ORGANOID_EMBODIMENTS.md) - confirmed embodiments, glyphs, and the 5-phase model
+- [ORGANOID_ORCHESTRATION.md](./ORGANOID_ORCHESTRATION.md) - orchestration rules and phase mapping guidance
+- [GNOMES_MATRIX.md](./GNOMES_MATRIX.md) - canonical 7-organoid matrix, role blend rules, and dominance controls
+- [GNOMES_GOVERNANCE.md](./GNOMES_GOVERNANCE.md) - canon control, activation, and drift-prevention policy
+- [GNOMES_LORE_UNITS.md](./GNOMES_LORE_UNITS.md) - retrieval unit contract, status lifecycle, and embed/no-embed rules
+- [WHITEPAPER_INTRO.md](./WHITEPAPER_INTRO.md) - canonical framing for the semantic symbiont model
+- [WHITEPAPER_INTRO_EN.md](./WHITEPAPER_INTRO_EN.md) - English companion version of the same framing
 
-## Legacy transition sources
+## Transition References
 
-These files remain useful for migration, comparison, and controlled replacement planning:
-- [GNOMES_MATRIX.md](./GNOMES_MATRIX.md) — legacy matrix SSOT now treated as transition reference
-- [GNOMES_GOVERNANCE.md](./GNOMES_GOVERNANCE.md) — legacy governance and activation framing
-- [GNOMES_LORE_UNITS.md](./GNOMES_LORE_UNITS.md) — legacy retrieval unit contract
-- [LORE.md](./LORE.md) — legacy symbolic world logic
-- [PERSONA.md](./PERSONA.md) — legacy persona matrix with transition notes
-- [GORKY_HUMOR_PATTERNS.md](./GORKY_HUMOR_PATTERNS.md) — legacy single-persona style guide
-- [GORKY_IMAGE_STYLE_GUIDE.md](./GORKY_IMAGE_STYLE_GUIDE.md) — legacy image/style guidance
+These remain available for historical context and compatibility only:
+- [LORE.md](./LORE.md) - historical symbolic world logic
+- [PERSONA.md](./PERSONA.md) - compatibility mapping from historic roles to embodiments
+- [GORKY_HUMOR_PATTERNS.md](./GORKY_HUMOR_PATTERNS.md) - legacy style appendix
+- [GORKY_IMAGE_STYLE_GUIDE.md](./GORKY_IMAGE_STYLE_GUIDE.md) - legacy image/style appendix
 
-## Working rule
+## Runtime Surfaces
 
-For new implementation work:
-- prefer **embodiment** over persona/gnome terminology,
+Active surfaces:
+- Runtime profiles: `data/gnomes/*.yaml`
+- Profile schema: `schemas/gnome_profile.schema.json`
+- Active voice fragments: `prompts/fragments/embodiments/*.md`
+- Compatibility voice mirrors: `prompts/fragments/gnomes/*.md`
+- Shared matrix canon: `prompts/fragments/sharedOrganoidCanon.md`
+- Retrieval units: `memory/lore/lore_units.approved.jsonl`
+- Retrieval mirror: `memory/lore/matrix_units.v1.yaml`
+
+Working rule:
+- prefer **embodiment** over persona/gnome terminology in new canonical writing,
 - prefer **glyph** over sigil where the target system is authoritative,
-- prefer **semantic symbiont orchestration** over older voice/persona-only language,
-- treat GNOMES/GORKY documents as compatibility or archival inputs unless explicitly promoted.
+- keep legacy sources as compatibility inputs unless they are explicitly promoted.

@@ -5,7 +5,7 @@
 import { describe, it, expect, beforeEach } from "vitest";
 import { clearRegistry } from "../../src/gnomes/registry.js";
 import { loadGnomes } from "../../src/gnomes/loadGnomes.js";
-import { selectEmbodiment, selectGnome } from "../../src/routing/gnomeSelector.js";
+import { selectGnome } from "../../src/routing/gnomeSelector.js";
 import { extractSelectorFeatures } from "../../src/routing/selectorFeatures.js";
 import type { ClassifierOutput, ScoreBundle } from "../../src/canonical/types.js";
 import type { CanonicalEvent } from "../../src/canonical/types.js";
@@ -95,15 +95,26 @@ describe("Gnome Selector", () => {
     expect(result.responseMode).toBe("lore_drop");
   });
 
-  it("exposes embodiment selection alias without changing behavior", () => {
+  it("routes social banter toward Nebelspieler when the mode and energy fit", () => {
     const features = extractSelectorFeatures(
-      makeClassifier(),
+      makeClassifier({ intent: "conversation_continue" }),
       defaultScores,
       makeEvent(),
+      { marketEnergy: "HIGH" },
     );
-    const legacy = selectGnome(features, "social_banter", { enabled: false, defaultSafeGnome: "stillhalter" });
-    const next = selectEmbodiment(features, "social_banter", { enabled: false, defaultSafeGnome: "stillhalter" });
-    expect(next.selectedGnomeId).toBe(legacy.selectedGnomeId);
-    expect(next.reasoning).toEqual(legacy.reasoning);
+    const result = selectGnome(features, "social_banter", { enabled: true });
+    expect(result.selectedGnomeId).toBe("nebelspieler");
+  });
+
+  it("keeps Nebelspieler out of hard caution even when the thread is lively", () => {
+    const features = extractSelectorFeatures(
+      makeClassifier({ intent: "conversation_continue" }),
+      defaultScores,
+      makeEvent(),
+      { marketEnergy: "HIGH" },
+    );
+    const result = selectGnome(features, "hard_caution", { enabled: true });
+    expect(result.selectedGnomeId).toBe("wurzelwaechter");
+    expect(result.selectedGnomeId).not.toBe("nebelspieler");
   });
 });

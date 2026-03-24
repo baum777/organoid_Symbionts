@@ -40,13 +40,19 @@ export type EmbodimentSelectionCandidate = GnomeSelectionCandidate;
 export type EmbodimentSelectionResult = GnomeSelectionResult;
 
 const CONFIDENCE_THRESHOLD = 0.5;
+const ENERGY_HINT_MAP: Record<SelectorFeatures["marketEnergy"], "low" | "mid" | "high"> = {
+  LOW: "low",
+  MEDIUM: "mid",
+  HIGH: "high",
+  EXTREME: "high",
+};
 
 /** Score a gnome for this interaction (deterministic). */
-function scoreGnome(profile: GnomeProfile, features: SelectorFeatures, affinity: number): number {
+function scoreGnome(profile: GnomeProfile, features: SelectorFeatures, affinity: number, responseMode?: CanonicalMode): number {
   let score = 0.5;
 
   const preferred = profile.routing_hints?.preferred_intents ?? [];
-  if (preferred.length && preferred.includes(features.intent)) score += 0.25;
+  if (preferred.length && (preferred.includes(features.intent) || (responseMode ? preferred.includes(responseMode) : false))) score += 0.25;
   else if (profile.archetype === "chaos_roaster" && ["hype_claim", "launch_announcement", "meme_only"].includes(features.intent)) score += 0.2;
   else if (profile.archetype === "dry_observer" && ["question", "persona_query", "lore_query"].includes(features.intent)) score += 0.2;
 
@@ -58,6 +64,13 @@ function scoreGnome(profile: GnomeProfile, features: SelectorFeatures, affinity:
 
   score += Math.min(affinity * 0.2, 0.2);
 
+  const preferredEnergy = profile.routing_hints?.preferred_energy ?? [];
+  const normalizedEnergy = ENERGY_HINT_MAP[features.marketEnergy];
+  if (preferredEnergy.includes(normalizedEnergy)) score += 0.12;
+
+  const absurdityThreshold = profile.routing_hints?.absurdity_threshold;
+  if (typeof absurdityThreshold === "number" && features.absurdityScore >= absurdityThreshold) score += 0.08;
+
   if (features.absurdityScore > 0.6 && ["chaos_roaster", "chaotic_reactor"].includes(profile.archetype)) score += 0.1;
 
   return Math.min(score, 1);
@@ -66,10 +79,11 @@ function scoreGnome(profile: GnomeProfile, features: SelectorFeatures, affinity:
 export function computeRuleBasedScores(
   features: SelectorFeatures,
   userAffinityByGnome: Record<string, number> = {},
+  responseMode?: CanonicalMode,
 ): Record<string, number> {
   const scores: Record<string, number> = {};
   for (const gnome of getAllGnomes()) {
-    scores[gnome.id] = scoreGnome(gnome, features, userAffinityByGnome[gnome.id] ?? 0);
+    scores[gnome.id] = scoreGnome(gnome, features, userAffinityByGnome[gnome.id] ?? 0, responseMode);
   }
   return scores;
 }
@@ -113,7 +127,7 @@ export function selectGnome(
 
   const scored: GnomeSelectionCandidate[] = all
     .map((p) => {
-      const ruleBasedScore = scoreGnome(p, features, affinityMap[p.id] ?? 0);
+      const ruleBasedScore = scoreGnome(p, features, affinityMap[p.id] ?? 0, responseMode);
       const semanticFitScore = semanticMap[p.id] ?? 0;
       const continuityScore = continuityMap[p.id] ?? 0;
       const finalSelectionScore = Math.min(1, ruleBasedScore * 0.65 + semanticFitScore * 0.3 + continuityScore);

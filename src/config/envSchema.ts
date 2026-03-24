@@ -86,6 +86,11 @@ export const envSchema = z.object({
     .optional()
     .default("false")
     .transform((v: string | undefined) => v === "true"),
+  LEGACY_COMPAT: z
+    .string()
+    .optional()
+    .default("false")
+    .transform((v: string | undefined) => v === "true"),
 
   TIMELINE_ENGAGEMENT_ENABLED: z.string().optional().default("false"),
   TIMELINE_ENGAGEMENT_INTERVAL_MS: z.string().optional(),
@@ -135,6 +140,7 @@ export function validateEnv(): EnvConfig {
     POLL_INTERVAL_MS: process.env.POLL_INTERVAL_MS,
     LOG_LEVEL: process.env.LOG_LEVEL,
     DRY_RUN: process.env.DRY_RUN,
+    LEGACY_COMPAT: process.env.LEGACY_COMPAT,
     TIMELINE_ENGAGEMENT_ENABLED: process.env.TIMELINE_ENGAGEMENT_ENABLED,
     TIMELINE_ENGAGEMENT_INTERVAL_MS: process.env.TIMELINE_ENGAGEMENT_INTERVAL_MS,
     TIMELINE_ENGAGEMENT_MAX_PER_RUN: process.env.TIMELINE_ENGAGEMENT_MAX_PER_RUN,

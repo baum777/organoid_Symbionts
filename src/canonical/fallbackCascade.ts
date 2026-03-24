@@ -185,7 +185,7 @@ async function generateFullSpectrum(
       }
     } catch (err) {
       if (gnomesCfg.GNOME_ROUTING_DEBUG) {
-        console.warn("[GNOMES] Fallback to legacy prompt after error:", err);
+        console.warn("[GNOMES] Fallback to base prompt after error:", err);
       }
       input = buildMasterPrompt(
         event,
@@ -198,13 +198,13 @@ async function generateFullSpectrum(
       );
     }
   } else {
-    let personaSnippets: string[] | undefined;
+    let organoidSnippets: string[] | undefined;
     const isStandalone = !event.parent_text && (event.conversation_context?.length ?? 0) === 0;
-    if (isStandalone) {
+    if (isStandalone && gnomesCfg.LEGACY_COMPAT) {
       try {
         const snippets = await loadPersonaSnippets();
         if (snippets.length > 0) {
-          personaSnippets = snippets.map((s) => s.text);
+          organoidSnippets = snippets.map((s) => s.text);
         }
       } catch {
         // Snippets optional, continue without
@@ -215,7 +215,7 @@ async function generateFullSpectrum(
       thesis,
       scores,
       promptContext?.relevanceResult,
-      personaSnippets,
+      organoidSnippets,
       promptContext?.style,
       promptContext?.estimatedBissigkeit,
     );

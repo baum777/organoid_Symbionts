@@ -82,6 +82,7 @@ export function resetMetrics(): void {
 }
 
 // ——— Convenience API for instrumentation ———
+// Timeline hardening uses the same generic registry; no path-specific branching lives here.
 
 export const metrics = {
   incrementCounter,

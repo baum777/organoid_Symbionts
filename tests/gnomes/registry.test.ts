@@ -1,17 +1,18 @@
 /**
- * Gnome Registry Tests — Load and lookup compatibility profiles.
+ * Gnome Registry Tests — Load and lookup gnome profiles
  */
 
 import { describe, it, expect, beforeEach } from "vitest";
 import {
   clearRegistry,
-  getGnome,
   getAllGnomes,
+  getAllOrganoidProfiles,
   getFallbackChain,
-  getEmbodiment,
-  getAllEmbodiments,
+  getGnome,
+  getLegacyIdForEmbodiment,
+  getOrganoidProfile,
 } from "../../src/gnomes/registry.js";
-import { loadEmbodiments, loadGnomes } from "../../src/gnomes/loadGnomes.js";
+import { loadGnomes } from "../../src/gnomes/loadGnomes.js";
 
 describe("Gnome Registry", () => {
   beforeEach(() => {
@@ -22,7 +23,7 @@ describe("Gnome Registry", () => {
     expect(getAllGnomes()).toEqual([]);
   });
 
-  it("loads compatibility profiles from data/gnomes/*.yaml", async () => {
+  it("loads gnomes from data/gnomes/*.yaml", async () => {
     const profiles = await loadGnomes();
     expect(profiles.length).toBeGreaterThanOrEqual(7);
 
@@ -33,8 +34,20 @@ describe("Gnome Registry", () => {
     const loaded = getGnome(firstId);
     expect(loaded).toBeDefined();
     expect(loaded?.id).toBe(firstId);
-    expect(loaded?.name).toContain("-");
+    expect(loaded?.name).toBeTruthy();
     expect(loaded?.role).toBeTruthy();
+  });
+
+  it("registers organoid embodiment aliases alongside legacy ids", async () => {
+    const profiles = await loadGnomes();
+    const first = profiles[0];
+    expect(first?.embodiment).toBeTruthy();
+    if (!first?.embodiment) return;
+
+    const organoid = getOrganoidProfile(first.embodiment);
+    expect(organoid?.id).toBe(first.id);
+    expect(getLegacyIdForEmbodiment(first.embodiment)).toBe(first.id);
+    expect(getAllOrganoidProfiles().length).toBe(profiles.length);
   });
 
   it("getFallbackChain returns configured defensive chain when available", async () => {
@@ -51,11 +64,5 @@ describe("Gnome Registry", () => {
 
     expect(getGnome(sampleId.toUpperCase())).toBeDefined();
     expect(getGnome(sampleId.toLowerCase())).toBeDefined();
-  });
-
-  it("loads embodiment aliases without breaking legacy registry access", async () => {
-    const profiles = await loadEmbodiments();
-    expect(getAllEmbodiments().length).toBe(profiles.length);
-    expect(getEmbodiment("stillhalter")?.name).toBe("■-Stabil-Core");
   });
 });

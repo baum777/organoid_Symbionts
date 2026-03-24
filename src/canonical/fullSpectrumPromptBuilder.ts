@@ -36,8 +36,8 @@ export function buildMasterPrompt(
   thesis: ThesisBundle,
   scores: ScoreBundle,
   relevanceResult?: RelevanceResult,
-  /** Persona-Memory-Snippets, nur bei Standalone-Mentions */
-  personaSnippets?: string[],
+  /** Organoid-memory snippets, nur bei Standalone-Mentions */
+  organoidSnippets?: string[],
   /** Style context for savage/ultra/degen horny-slang blocks */
   style?: StyleContext,
   /** Pre-LLM estimated bissigkeit for prompt hint */
@@ -67,9 +67,9 @@ export function buildMasterPrompt(
 
   const memoryBlock =
     isStandaloneMention(event) &&
-    personaSnippets &&
-    personaSnippets.length > 0
-      ? `Gorky weiß aus den letzten Tagen:\n${personaSnippets.map((s) => `• ${s}`).join("\n")}\n\n`
+    organoidSnippets &&
+    organoidSnippets.length > 0
+      ? `Organoid memory from recent runs:\n${organoidSnippets.map((s) => `• ${s}`).join("\n")}\n\n`
       : "";
 
   let system = `${MASTER_SYSTEM_PROMPT}\n\n${memoryBlock}${NEGATIVE_EXAMPLES}`;
@@ -120,7 +120,7 @@ export function buildRefinePromptFullSpectrum(
 
   return {
     system:
-      "Du bist GORKY. Refine deine schwache Antwort. Antworte ausschließlich im JSON-Format.",
+      "Du bist das Organoid-Array. Refine deine schwache Antwort. Antworte ausschließlich im JSON-Format.",
     developer:
       "Return JSON: roast_text, used_memes, bissigkeit_score, missed_keywords, needs_refine, critique_summary.",
     user,

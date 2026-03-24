@@ -289,7 +289,7 @@ export async function handleEvent(
       const features = extractSelectorFeatures(cls, scores, event, {
         marketEnergy: styleContext?.energyLevel ?? "MEDIUM",
       });
-      const ruleBasedScores = computeRuleBasedScores(features, userAffinityByGnome);
+      const ruleBasedScores = computeRuleBasedScores(features, userAffinityByGnome, mode);
       const semanticInputs = await buildSemanticSelectionInputs({
         voices: gnomes,
         features,
