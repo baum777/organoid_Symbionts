@@ -1,5 +1,5 @@
 # Render Blueprint — Organoid Symbiont
-# Background worker + health web service
+# Background worker + health web service + daily cron
 # Node.js/TypeScript project — legacy Python files are ignored
 
 services:
@@ -16,6 +16,7 @@ services:
       pnpm build
       echo "Build complete. Output:"
       ls -la dist/
+    preDeployCommand: pnpm deploy-check
     startCommand: node dist/index.js
     disk:
       name: xai-bot-data
@@ -95,7 +96,6 @@ services:
     region: frankfurt
     plan: free
     buildCommand: pnpm install --frozen-lockfile && pnpm build
-    preDeployCommand: pnpm deploy-check
     startCommand: node dist/server.js
     healthCheckPath: /health
     envVars:
@@ -115,8 +115,7 @@ services:
     name: gnomes-daily-snippets
     runtime: node
     region: frankfurt
-    plan: free
-    branch: main
+    plan: starter
     buildCommand: pnpm install --frozen-lockfile && pnpm build
     startCommand: pnpm exec tsx src/persona/dailySnippetExtractor.ts
     schedule: "0 3 * * *"
