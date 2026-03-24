@@ -1,4 +1,5 @@
 import { getSigilForGnome } from "../gnomes/sigils.js";
+import { observePulseHeart } from "../observability/pulseHeart.js";
 import { trimToLimit } from "../utils/textTrim.js";
 
 /**
@@ -32,6 +33,15 @@ export function renderVoiceSigils(text: string, voices: ActivatedVoiceSet): stri
 
   const active = normalizeVoices(voices);
   if (active.length === 0) return clean;
+
+  observePulseHeart({
+    surface: "render",
+    label: "voice-sigils",
+    text: clean,
+    activeOrganoidIds: active,
+    advancePhase: false,
+    persist: false,
+  });
 
   const [v1, v2, v3] = active;
   if (!v1) return clean;

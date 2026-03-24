@@ -3,6 +3,7 @@
  */
 
 import { assertPublicTextSafe, PublicTextGuardError } from "../boundary/publicTextGuard.js";
+import { observePulseHeart } from "../observability/pulseHeart.js";
 import { invokeXApiRequest } from "./xApi.js";
 
 export type XConfig = {
@@ -38,6 +39,14 @@ export class XClient {
 
     if (this.dryRun) {
       console.log("[DRY_RUN] Would tweet:", text.substring(0, 50) + (text.length > 50 ? "..." : ""));
+      observePulseHeart({
+        surface: "x",
+        label: "tweet",
+        text,
+        outcome: "dry_run",
+        advancePhase: true,
+        emitTerminal: true,
+      });
       return { id: "dry_run_id", text };
     }
 
@@ -48,8 +57,25 @@ export class XClient {
         body: { text },
       });
 
+      observePulseHeart({
+        surface: "x",
+        label: "tweet",
+        text: result.data.text,
+        outcome: "tweet",
+        advancePhase: true,
+        emitTerminal: true,
+      });
       return { id: result.data.id, text: result.data.text };
     } catch (error) {
+      observePulseHeart({
+        surface: "x",
+        label: "tweet",
+        text,
+        outcome: "error",
+        advancePhase: true,
+        emitTerminal: true,
+        persist: false,
+      });
       throw new XClientError(`Failed to post tweet: ${error}`, error);
     }
   }
@@ -59,6 +85,14 @@ export class XClient {
 
     if (this.dryRun) {
       console.log(`[DRY_RUN] Would reply to ${replyToTweetId}:`, text.substring(0, 50) + (text.length > 50 ? "..." : ""));
+      observePulseHeart({
+        surface: "x",
+        label: "reply",
+        text,
+        outcome: "dry_run",
+        advancePhase: true,
+        emitTerminal: true,
+      });
       return { id: "dry_run_id", text };
     }
 
@@ -71,8 +105,25 @@ export class XClient {
           reply: { in_reply_to_tweet_id: replyToTweetId },
         },
       });
+      observePulseHeart({
+        surface: "x",
+        label: "reply",
+        text: result.data.text,
+        outcome: "reply",
+        advancePhase: true,
+        emitTerminal: true,
+      });
       return { id: result.data.id, text: result.data.text };
     } catch (error) {
+      observePulseHeart({
+        surface: "x",
+        label: "reply",
+        text,
+        outcome: "error",
+        advancePhase: true,
+        emitTerminal: true,
+        persist: false,
+      });
       throw new XClientError(`Failed to post reply: ${error}`, error);
     }
   }

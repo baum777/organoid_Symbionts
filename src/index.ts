@@ -13,16 +13,24 @@ config({ path: path.resolve(__dirname, "..", ".env") });
 import { validateEnv } from "./config/envSchema.js";
 import { validateLaunchEnvOrExit } from "./config/env.js";
 import { bootstrapOrganoidRuntime, formatOrganoidMatrixSummary } from "./organoid/bootstrap.js";
+import { bootstrapPulseHeart, installPulseHeartConsoleTap } from "./observability/pulseHeart.js";
 import { runWorkerLoop } from "./worker/pollMentions.js";
 import { runTimelineEngagementLoop } from "./worker/pollTimelineEngagement.js";
 
 async function main(): Promise<void> {
+  installPulseHeartConsoleTap();
   if (process.env.SKIP_ENV_VALIDATION !== "true") {
     validateEnv();
     validateLaunchEnvOrExit();
   }
 
   const organoid = await bootstrapOrganoidRuntime("worker");
+  await bootstrapPulseHeart({
+    scope: "worker",
+    matrix: organoid.matrix,
+    phases: organoid.phases,
+    emitTerminal: true,
+  });
   console.log(`[ORGANOID] LEGACY_COMPAT=${organoid.legacyCompat ? "true" : "false"}`);
   console.log(`[ORGANOID] 7-organoid matrix: ${formatOrganoidMatrixSummary(organoid.matrix)}`);
   console.log(`[ORGANOID] 5-phase model: ${organoid.phases.join(" -> ")}`);

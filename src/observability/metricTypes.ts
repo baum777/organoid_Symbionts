@@ -71,6 +71,11 @@ export const GAUGE_NAMES = {
   // Tool-specific gauges (NEW)
   VERIFICATION_QUEUE_SIZE: "verification_queue_size",
   CIRCUIT_BREAKER_STATE: "circuit_breaker_state",
+  PULSE_HEART_SIGNAL: "pulse_heart_signal",
+  PULSE_HEART_RESONANCE: "pulse_heart_resonance",
+  PULSE_HEART_DRIFT: "pulse_heart_drift",
+  PULSE_HEART_COHERENCE: "pulse_heart_coherence",
+  PULSE_HEART_PHASE_INDEX: "pulse_heart_phase_index",
 } as const;
 
 export const HISTOGRAM_NAMES = {

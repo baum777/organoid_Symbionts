@@ -23,6 +23,19 @@ The current canonical direction for new work is:
 - **semantic symbiont orchestration** for routing and interaction
 - **phase-based matrix logic** for activation, transition, propagation, learning, and stabilization
 
+## Mental Model
+
+The system is easiest to understand as a living loop: organoids act, glyphs show their state, and the observer feeds the drift back into the next beat.
+
+| Layer | What it feels like | What it does |
+| --- | --- | --- |
+| Organoid entities | Active tissue | Carries identity, role, and phase affinity through the matrix |
+| Glyph anchors | Visible membranes | Render the current organoid shape in terminal, SVG, and overlay surfaces |
+| Five-phase state | Metabolic rhythm | Moves the system through activation, transition, propagation, learning, and stabilization |
+| Signal and resonance | Electrical shimmer | Modulate the glyph so it subtly fractures, grows, or settles based on live pressure |
+| Pulse-Heart | Self-correcting pulse | Observes every interaction, records drift, and nudges the system back toward coherence |
+| Output paths | Secretion channels | Carry the same state into renderers, server responses, and X autopost events |
+
 ## Canonical entrypoints
 
 Start here for the new top-level semantic model:
