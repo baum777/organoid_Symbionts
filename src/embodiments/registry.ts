@@ -39,6 +39,10 @@ export function getOrganoidProfile(idOrEmbodiment: string): OrganoidEmbodimentPr
   return organoidRegistry.get(normalizeKey(idOrEmbodiment));
 }
 
+export function getLegacyIdForEmbodiment(idOrEmbodiment: string): string | undefined {
+  return getOrganoidProfile(idOrEmbodiment)?.id ?? getEmbodiment(idOrEmbodiment)?.id;
+}
+
 export function getAllEmbodiments(): EmbodimentProfile[] {
   return Array.from(new Map(Array.from(registry.values()).map((profile) => [profile.id, profile])).values());
 }
