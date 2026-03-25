@@ -40,6 +40,8 @@ export interface EmbodimentRuntimeContext {
   narrative_label?: string;
   semanticContext?: { anchors?: string[]; boundaries?: string[]; reasons?: string[] };
   organoid?: OrganoidOrchestrationPlan;
+  orchestrationEligibility?: "standard" | "orchestration_eligible_minimal";
+  orchestrationReason?: string;
 }
 
 export interface ComposedEmbodimentPrompt {
@@ -103,6 +105,13 @@ export function composeEmbodimentPrompt(ctx: EmbodimentRuntimeContext): Composed
 
   if (ctx.organoid) {
     parts.push("", ...formatOrganoidPromptBlock(ctx.organoid));
+  }
+
+  if (ctx.orchestrationEligibility) {
+    parts.push("", `Orchestration intake: ${ctx.orchestrationEligibility}`);
+  }
+  if (ctx.orchestrationReason) {
+    parts.push(`Orchestration intake reason: ${ctx.orchestrationReason}`);
   }
 
   const modeHint = ctx.responseMode !== "ignore" ? MODE_STYLE_HINTS[ctx.responseMode] : "";

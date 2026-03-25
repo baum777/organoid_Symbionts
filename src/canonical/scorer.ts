@@ -15,6 +15,7 @@ function computeRelevance(event: CanonicalEvent, cls: ClassifierOutput): number 
   if (cls.intent === "embodiment_query" || cls.intent === "lore_query") score += 0.15;
   if (cls.intent === "market_question_general") score += 0.20;
   if (cls.intent === "conversation_continue") score += 0.10;
+  if (cls.intent === "conceptual_probe") score += 0.15;
   if (cls.intent === "hype_claim" || cls.intent === "performance_claim") score += 0.25;
   if (cls.intent === "accusation") score += 0.3;
   if (cls.intent === "launch_announcement") score += 0.2;
@@ -51,6 +52,7 @@ function computeConfidence(event: CanonicalEvent, cls: ClassifierOutput): number
   if (cls.spam_probability > 0.3) score -= 0.1;
 
   if (isSocial && score < 0.15) score = 0.15;
+  if (cls.intent === "conceptual_probe" && score < 0.45) score = 0.45;
 
   return clamp01(score);
 }
@@ -81,6 +83,7 @@ function computeOpportunity(event: CanonicalEvent, cls: ClassifierOutput): numbe
   if (cls.intent === "hype_claim" || cls.intent === "performance_claim") score += 0.25;
   if (cls.intent === "accusation") score += 0.15;
   if (cls.intent === "question") score += 0.2;
+  if (cls.intent === "conceptual_probe") score += 0.15;
   if (cls.intent === "launch_announcement") score += 0.15;
   if (cls.intent === "bait") score -= 0.1;
   if (cls.intent === "spam") score -= 0.3;

@@ -9,6 +9,7 @@ import type {
   ScoreBundle,
   SkipReason,
   IntentClass,
+  CanonicalMode,
 } from "./types.js";
 import { DEFAULT_CANONICAL_CONFIG } from "./types.js";
 import { classify } from "./classifier.js";
@@ -47,6 +48,8 @@ import {
   buildOrganoidOrchestration,
   resolveRenderableEmbodimentIds,
   type OrganoidOrchestrationPlan,
+  type OrganoidRenderPolicy,
+  type OrganoidSilencePolicy,
 } from "../organoid/orchestration.js";
 import {
   buildOrganoidRuntimeState,
@@ -55,6 +58,7 @@ import {
   saveOrganoidShortTermMatrix,
   type OrganoidShortTermMatrix,
 } from "../organoid/state.js";
+import { isOrchestrationEligibleMinimal } from "./conceptualProbe.js";
 
 export interface PipelineDeps {
   llm: LLMClient;
@@ -86,6 +90,16 @@ function makeSkipResult(
     cls: clsOut,
     scores: scores ?? emptyScores(),
     mode: "ignore",
+    ...buildAuditDebugFields({
+      classifierIntent: clsOut.intent,
+      baseIntent: clsOut.intent,
+      sourceIntent: clsOut.intent,
+      orchestrationEligibleMinimal: false,
+      conceptualProbeRescue: false,
+      fastPathBypassReason: undefined,
+      finalMode: "ignore",
+      leadEmbodimentId: undefined,
+    }),
     thesis: null,
     prompt_hash: null,
     model_id: cfg.model_id,
@@ -109,11 +123,84 @@ function isSelfLoop(event: CanonicalEvent, botUserId: string): boolean {
   return event.author_id === botUserId;
 }
 
+function isConceptualProbeRescueText(text: string): boolean {
+  const normalized = text.trim().toLowerCase();
+  if (!normalized) return false;
+  const coreText = normalized
+    .replace(/^(?:@\w+\s*)+/i, "")
+    .replace(/^\s*explicit\s+opt[- ]?in[:\-\s]*/i, "")
+    .trim();
+
+  if (!coreText) return false;
+
+  const structuredForm =
+    /^(?:what(?:'s|\s+is|\s+are)|what limits|how do|why does|do you think|should humans|is\s+.+\s+viable|will\s+.+\?)\b/i.test(coreText) ||
+    /\b(?:how do|what are|what is|should humans|do you think|is\s+.+\s+viable|what limits)\b/i.test(coreText);
+  const frontierSignal =
+    /\b(?:ai|agi|llm|wetware|organoid|biocomput|transhuman|posthuman|crypto|solana|convergen(?:ce|t)|structural|architecture|limit(?:s|ed)?|viable)\b/i.test(coreText);
+  const escalatorSignal =
+    /\bexplicit\s+opt[- ]?in\b/i.test(text) ||
+    /@\w+/.test(text) ||
+    /\?/.test(text) ||
+    /\b(?:and|x|converge)\b/i.test(coreText);
+
+  return structuredForm && frontierSignal && escalatorSignal;
+}
+
+function deriveFastPathBypassReason(args: {
+  event: CanonicalEvent;
+  conceptualProbeCandidate: boolean;
+}): string {
+  if (args.conceptualProbeCandidate && detectOwnTokenSentiment(args.event.text)) {
+    return "conceptual_probe_preempts_own_token_sentiment";
+  }
+  return "no_fast_path_match";
+}
+
+function buildAuditDebugFields(args: {
+  classifierIntent: IntentClass;
+  baseIntent: IntentClass;
+  sourceIntent: IntentClass;
+  orchestrationEligibleMinimal: boolean;
+  conceptualProbeRescue?: boolean;
+  fastPathBypassReason?: string;
+  finalMode: CanonicalMode;
+  leadEmbodimentId?: string;
+  organoidPlan?: OrganoidOrchestrationPlan;
+}): {
+  classifierIntent: IntentClass;
+  baseIntent: IntentClass;
+  sourceIntent: IntentClass;
+  orchestrationEligibleMinimal: boolean;
+  conceptualProbeRescue?: boolean;
+  fastPathBypassReason?: string;
+  finalMode: CanonicalMode;
+  silencePolicy?: OrganoidSilencePolicy;
+  renderPolicy?: OrganoidRenderPolicy;
+  leadEmbodimentId?: string;
+} {
+  return {
+    classifierIntent: args.classifierIntent,
+    baseIntent: args.baseIntent,
+    sourceIntent: args.sourceIntent,
+    orchestrationEligibleMinimal: args.orchestrationEligibleMinimal,
+    conceptualProbeRescue: args.conceptualProbeRescue,
+    fastPathBypassReason: args.fastPathBypassReason,
+    finalMode: args.finalMode,
+    silencePolicy: args.organoidPlan?.silencePolicy,
+    renderPolicy: args.organoidPlan?.renderPolicy,
+    leadEmbodimentId: args.leadEmbodimentId ?? args.organoidPlan?.leadEmbodimentId,
+  };
+}
+
 export async function handleEvent(
   event: CanonicalEvent,
   deps: PipelineDeps,
   config: CanonicalConfig = DEFAULT_CANONICAL_CONFIG,
 ): Promise<PipelineResult> {
+  const originalText = event.text;
+  const conceptualProbeCandidate = isConceptualProbeRescueText(originalText);
+
   if (!isValidEvent(event)) {
     return makeSkipResult(event, "skip_invalid_input", undefined, undefined, config);
   }
@@ -153,6 +240,16 @@ export async function handleEvent(
       cls,
       scores,
       mode: "neutral_clarification",
+      ...buildAuditDebugFields({
+        classifierIntent: cls.intent,
+        baseIntent: cls.intent,
+        sourceIntent: cls.intent,
+        orchestrationEligibleMinimal: false,
+        conceptualProbeRescue: false,
+        fastPathBypassReason: undefined,
+        finalMode: "neutral_clarification",
+        leadEmbodimentId: undefined,
+      }),
       thesis: null,
       prompt_hash: null,
       model_id: config.model_id,
@@ -178,7 +275,7 @@ export async function handleEvent(
 
   // ── Special intent fast-path: Own token sentiment ────────────────────────
   // In aggressive mode: skip fast-path so the full roast pipeline runs instead.
-  if (detectOwnTokenSentiment(event.text) && !config.aggressive_mode) {
+  if (detectOwnTokenSentiment(event.text) && !config.aggressive_mode && !conceptualProbeCandidate) {
     const replyText = buildOwnTokenSentimentResponse(
       { marketSentiment: "neutral" },
       event.event_id,
@@ -190,6 +287,16 @@ export async function handleEvent(
       cls,
       scores,
       mode: "market_banter",
+      ...buildAuditDebugFields({
+        classifierIntent: cls.intent,
+        baseIntent: cls.intent,
+        sourceIntent: cls.intent,
+        orchestrationEligibleMinimal: false,
+        conceptualProbeRescue: false,
+        fastPathBypassReason: undefined,
+        finalMode: "market_banter",
+        leadEmbodimentId: undefined,
+      }),
       thesis: null,
       prompt_hash: null,
       model_id: config.model_id,
@@ -214,15 +321,29 @@ export async function handleEvent(
   }
 
   const cls = classify(event);
+  const classifierIntent = cls.intent;
+  const sourceIntent = cls.intent;
+  const isConceptualProbeRescue =
+    classifierIntent === "conceptual_probe" ||
+    conceptualProbeCandidate;
 
   if (cls.policy_severity === "hard" || (cls.policy_blocked && !cls.policy_severity)) {
     return makeSkipResult(event, "skip_policy", cls, undefined, config);
   }
 
   const scores = scoreEvent(event, cls);
+  const minimalOrchestrationEligible = isOrchestrationEligibleMinimal({
+    event,
+    cls,
+    scores,
+  });
+  const fastPathBypassReason = deriveFastPathBypassReason({
+    event,
+    conceptualProbeCandidate,
+  });
 
   const eligibility = checkEligibility(scores, cls, config);
-  if (!eligibility.eligible) {
+  if (!eligibility.eligible && !minimalOrchestrationEligible) {
     return makeSkipResult(event, eligibility.skip_reason!, cls, scores, config);
   }
 
@@ -231,7 +352,13 @@ export async function handleEvent(
     return makeSkipResult(event, "skip_no_thesis", cls, scores, config);
   }
 
-  let mode = selectMode(cls, scores, thesis, config);
+  let mode = selectMode(cls, scores, thesis, config, { text: event.text });
+  if (mode === "ignore" && minimalOrchestrationEligible) {
+    mode = "neutral_clarification";
+  }
+  if (classifierIntent === "conceptual_probe") {
+    mode = "neutral_clarification";
+  }
   if (mode === "ignore" && config.test_mode) {
     mode = "soft_deflection";
   }
@@ -281,7 +408,7 @@ export async function handleEvent(
     cls,
     narrative,
     relevanceScore: scores.relevance,
-    minRelevanceThreshold: effectiveMinRelevance,
+    minRelevanceThreshold: minimalOrchestrationEligible ? 0 : effectiveMinRelevance,
     threadEnabled: (config as { thread_enabled?: boolean }).thread_enabled ?? false,
   });
 
@@ -384,6 +511,10 @@ export async function handleEvent(
     pattern_id: pattern.pattern_id,
     narrative_label: narrative?.label ?? undefined,
     format_target: format.format,
+    orchestrationEligibility: minimalOrchestrationEligible
+      ? ("orchestration_eligible_minimal" as const)
+      : ("standard" as const),
+    orchestrationReason: minimalOrchestrationEligible ? "conceptual_probe_rescue" : undefined,
     style: styleContext,
     relevanceResult,
     estimatedBissigkeit: bissigkeit,
@@ -402,14 +533,29 @@ export async function handleEvent(
     promptContext,
   );
 
+  const finalMode = (classifierIntent === "conceptual_probe" || isConceptualProbeRescue)
+    ? ("neutral_clarification" as const)
+    : result.final_mode;
+
   if (!result.success || !result.reply_text) {
     await persistOrganoidMatrix(Boolean(result.validation?.ok));
-    const pathType = SOCIAL_INTENTS.includes(cls.intent) ? "social" as const : "audit" as const;
+    const pathType = SOCIAL_INTENTS.includes(sourceIntent) ? "social" as const : "audit" as const;
     const audit = buildAuditRecord({
       event,
       cls,
       scores,
-      mode: result.final_mode,
+      mode: finalMode,
+      ...buildAuditDebugFields({
+        classifierIntent,
+        baseIntent: classifierIntent,
+        sourceIntent,
+        orchestrationEligibleMinimal: minimalOrchestrationEligible,
+        conceptualProbeRescue: isConceptualProbeRescue,
+        fastPathBypassReason,
+        finalMode,
+        leadEmbodimentId: organoidPlan?.leadEmbodimentId ?? embodimentSelection?.selectedEmbodimentId,
+        organoidPlan,
+      }),
       thesis,
       prompt_hash: result.prompt_hash,
       model_id: result.model_id,
@@ -425,7 +571,6 @@ export async function handleEvent(
     persistAuditRecord(audit);
     return { action: "skip", skip_reason: "skip_validation_failure", audit };
   }
-
   const finalEmbodimentId =
     organoidPlan?.leadEmbodimentId ??
     embodimentSelection?.selectedEmbodimentId ??
@@ -442,12 +587,23 @@ export async function handleEvent(
     return makeSkipResult(event, "skip_validation_failure", cls, scores, config);
   }
 
-  const pathType = SOCIAL_INTENTS.includes(cls.intent) ? "social" as const : "audit" as const;
+  const pathType = SOCIAL_INTENTS.includes(sourceIntent) ? "social" as const : "audit" as const;
   const audit = buildAuditRecord({
     event,
     cls,
     scores,
-    mode: result.final_mode,
+    mode: finalMode,
+    ...buildAuditDebugFields({
+      classifierIntent,
+      baseIntent: classifierIntent,
+      sourceIntent,
+      orchestrationEligibleMinimal: minimalOrchestrationEligible,
+      conceptualProbeRescue: isConceptualProbeRescue,
+      fastPathBypassReason,
+      finalMode,
+      leadEmbodimentId: finalEmbodimentId,
+      organoidPlan,
+    }),
     thesis,
     prompt_hash: result.prompt_hash,
     model_id: result.model_id,
@@ -477,7 +633,7 @@ export async function handleEvent(
 
   return {
     action: "publish",
-    mode: result.final_mode,
+    mode: finalMode,
     thesis,
     reply_text: finalizedReply,
     audit,

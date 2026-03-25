@@ -1,4 +1,5 @@
 import { z } from "zod";
+import type { OrganoidRenderPolicy, OrganoidSilencePolicy } from "../organoid/orchestration.js";
 
 export const IntentClassSchema = z.enum([
   "greeting",
@@ -8,6 +9,7 @@ export const IntentClassSchema = z.enum([
   "embodiment_query",
   "lore_query",
   "conversation_continue",
+  "conceptual_probe",
   "hype_claim",
   "performance_claim",
   "launch_announcement",
@@ -250,6 +252,16 @@ export interface AuditRecord {
   /** Original mention text for snippet extraction and analytics */
   event_text?: string;
   classifier_output: ClassifierOutput;
+  classifierIntent?: IntentClass;
+  baseIntent?: IntentClass;
+  sourceIntent?: IntentClass;
+  orchestrationEligibleMinimal?: boolean;
+  conceptualProbeRescue?: boolean;
+  fastPathBypassReason?: string;
+  finalMode?: CanonicalMode;
+  silencePolicy?: OrganoidSilencePolicy;
+  renderPolicy?: OrganoidRenderPolicy;
+  leadEmbodimentId?: string;
   score_bundle: ScoreBundle;
   mode: CanonicalMode;
   thesis: ThesisBundle | null;

@@ -4,11 +4,13 @@ import type {
   CanonicalEvent,
   CanonicalMode,
   ClassifierOutput,
+  IntentClass,
   ScoreBundle,
   SkipReason,
   ThesisBundle,
   ValidationResult,
 } from "./types.js";
+import type { OrganoidRenderPolicy, OrganoidSilencePolicy } from "../organoid/orchestration.js";
 
 import { writeFile, readFile, access, mkdir, appendFile } from "node:fs/promises";
 import { join, dirname } from "node:path";
@@ -85,6 +87,16 @@ export function buildAuditRecord(params: {
   cls: ClassifierOutput;
   scores: ScoreBundle;
   mode: CanonicalMode;
+  classifierIntent?: IntentClass;
+  baseIntent?: IntentClass;
+  sourceIntent?: IntentClass;
+  orchestrationEligibleMinimal?: boolean;
+  conceptualProbeRescue?: boolean;
+  fastPathBypassReason?: string;
+  finalMode?: CanonicalMode;
+  silencePolicy?: OrganoidSilencePolicy;
+  renderPolicy?: OrganoidRenderPolicy;
+  leadEmbodimentId?: string;
   thesis: ThesisBundle | null;
   prompt_hash: string | null;
   model_id: string;
@@ -113,6 +125,16 @@ export function buildAuditRecord(params: {
     event_hash: stableHash(eventSnapshot),
     event_text: params.event.text,
     classifier_output: params.cls,
+    classifierIntent: params.classifierIntent,
+    baseIntent: params.baseIntent,
+    sourceIntent: params.sourceIntent,
+    orchestrationEligibleMinimal: params.orchestrationEligibleMinimal,
+    conceptualProbeRescue: params.conceptualProbeRescue,
+    fastPathBypassReason: params.fastPathBypassReason,
+    finalMode: params.finalMode,
+    silencePolicy: params.silencePolicy,
+    renderPolicy: params.renderPolicy,
+    leadEmbodimentId: params.leadEmbodimentId,
     score_bundle: params.scores,
     mode: params.mode,
     thesis: params.thesis,

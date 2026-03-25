@@ -118,4 +118,36 @@ describe("modeSelector", () => {
     );
     expect(mode).toBe("dry_one_liner");
   });
+
+  it("returns neutral_clarification for conceptual probes", () => {
+    const mode = selectMode(
+      makeCls({ intent: "conceptual_probe", target: "claim", evidence_class: "contextual_medium" }),
+      makeScores({ confidence: 0.2, relevance: 0.2, opportunity: 0.2 }),
+      makeThesis({ primary: "unclear_or_unverifiable" }),
+      DEFAULT_CANONICAL_CONFIG,
+    );
+    expect(mode).toBe("neutral_clarification");
+  });
+
+  it("returns neutral_clarification for non-market questions", () => {
+    const mode = selectMode(
+      makeCls({ intent: "question" }),
+      makeScores({ confidence: 0.6, relevance: 0.4 }),
+      makeThesis({ primary: "unclear_or_unverifiable" }),
+      DEFAULT_CANONICAL_CONFIG,
+      { text: "what limits current LLM architectures the most?" },
+    );
+    expect(mode).toBe("neutral_clarification");
+  });
+
+  it("returns market_banter only when a real market cluster is present", () => {
+    const mode = selectMode(
+      makeCls({ intent: "question" }),
+      makeScores({ confidence: 0.6, relevance: 0.4 }),
+      makeThesis({ primary: "unclear_or_unverifiable" }),
+      DEFAULT_CANONICAL_CONFIG,
+      { text: "are we early or just exit liquidity?" },
+    );
+    expect(mode).toBe("market_banter");
+  });
 });

@@ -108,4 +108,17 @@ describe("classifier", () => {
     expect(result.intent).toBe("market_narrative");
     expect(result.target).toBe("market_structure");
   });
+
+  it("classifies structured frontier questions as conceptual probes", () => {
+    const event = makeEvent({ text: "what are wetware computers actually good for?" });
+    const result = classify(event);
+    expect(result.intent).toBe("conceptual_probe");
+    expect(result.evidence_class).toBe("contextual_medium");
+  });
+
+  it("does not rescue declarative frontier hype", () => {
+    const event = makeEvent({ text: "AI will replace all humans within 5 years" });
+    const result = classify(event);
+    expect(result.intent).not.toBe("conceptual_probe");
+  });
 });

@@ -7,6 +7,7 @@ import type {
   IntentClass,
 } from "./types.js";
 import { getConfidenceFloor } from "./modeBudgets.js";
+import { hasMarketClusterSignal } from "./conceptualProbe.js";
 
 const SOCIAL_MODE_MAP: Partial<Record<IntentClass, CanonicalMode>> = {
   greeting: "social_banter",
@@ -22,6 +23,7 @@ export function selectMode(
   scores: ScoreBundle,
   thesis: ThesisBundle,
   config: CanonicalConfig,
+  context?: { text?: string },
 ): CanonicalMode {
   // Aggressive mode: force specific mode based on submode
   if (config.aggressive_mode === "analyst") {
@@ -31,6 +33,10 @@ export function selectMode(
   if (config.aggressive_mode === "horny") {
     // Slang-heavy, energetic roast (dry_one_liner with slang enabled)
     return "dry_one_liner";
+  }
+
+  if (cls.intent === "conceptual_probe") {
+    return "neutral_clarification";
   }
 
   const socialMode = SOCIAL_MODE_MAP[cls.intent];
@@ -75,8 +81,13 @@ export function selectMode(
   }
 
   if (cls.intent === "question") {
-    if (confidence >= getConfidenceFloor("analyst_meme_lite")) return "analyst_meme_lite";
-    return "market_banter";
+    if (hasMarketClusterSignal(context?.text ?? "")) {
+      return "market_banter";
+    }
+    if (confidence >= getConfidenceFloor("neutral_clarification")) {
+      return "neutral_clarification";
+    }
+    return "soft_deflection";
   }
 
   if (confidence >= getConfidenceFloor("dry_one_liner")) {

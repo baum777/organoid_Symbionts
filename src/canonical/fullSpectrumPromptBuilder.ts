@@ -46,6 +46,8 @@ export function buildMasterPrompt(
   estimatedBissigkeit?: number,
   /** Additive organoid orchestration context */
   organoid?: OrganoidOrchestrationPlan,
+  orchestrationEligibility?: "standard" | "orchestration_eligible_minimal",
+  orchestrationReason?: string,
 ): FullSpectrumLLMInput {
   const thesisStr =
     (event as { thesis?: string }).thesis ?? String(thesis.primary);
@@ -80,6 +82,12 @@ export function buildMasterPrompt(
 
   if (organoid) {
     system += `\n\n${formatOrganoidPromptBlock(organoid).join("\n")}`;
+  }
+  if (orchestrationEligibility) {
+    system += `\n\nOrchestration intake: ${orchestrationEligibility}`;
+  }
+  if (orchestrationReason) {
+    system += `\nOrchestration intake reason: ${orchestrationReason}`;
   }
 
   if (style?.slangEnabled) {

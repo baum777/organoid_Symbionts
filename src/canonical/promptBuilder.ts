@@ -50,6 +50,8 @@ export interface PromptBuilderContext {
   pattern_id?: string;
   narrative_label?: string;
   format_target?: string;
+  orchestrationEligibility?: "standard" | "orchestration_eligible_minimal";
+  orchestrationReason?: string;
   /** Style context for energy-based modulation */
   style?: StyleContext;
   /** Phase/resonance orchestration context (feature-flagged) */
@@ -83,6 +85,13 @@ export function buildPrompt(
 
   if (context?.organoid) {
     rules.push(...formatOrganoidPromptBlock(context.organoid));
+  }
+
+  if (context?.orchestrationEligibility) {
+    rules.push(`Orchestration intake: ${context.orchestrationEligibility}`);
+  }
+  if (context?.orchestrationReason) {
+    rules.push(`Orchestration intake reason: ${context.orchestrationReason}`);
   }
 
   const prompt: PromptContract = {

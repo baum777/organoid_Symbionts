@@ -6,6 +6,7 @@ import type {
   TargetClass,
   EvidenceClass,
 } from "./types.js";
+import { isConceptualProbe } from "./conceptualProbe.js";
 
 const GREETING_PATTERNS = [
   /^(?:hey|hi|hello|gm|yo|sup|waddup|howdy|hola|ayo|wsg)[\s!?.]*$/i,
@@ -115,6 +116,7 @@ function classifyIntent(event: CanonicalEvent): IntentClass {
   if (countPatternMatches(text, MARKET_NARRATIVE_PATTERNS) >= 1) return "market_narrative";
 
   if (MARKET_QUESTION_GENERAL_PATTERNS.some((p) => p.test(text))) return "market_question_general";
+  if (isConceptualProbe(text, { event })) return "conceptual_probe";
 
   if (countPatternMatches(text, QUESTION_PATTERNS) >= 1) return "question";
   if (countPatternMatches(text, MEME_PATTERNS) >= 2) return "meme_only";
@@ -126,6 +128,7 @@ function classifyTarget(event: CanonicalEvent, intent: IntentClass): TargetClass
   if (event.cashtags.length > 0) return "token";
   if (intent === "embodiment_query") return "embodiment";
   if (intent === "lore_query") return "lore";
+  if (intent === "conceptual_probe") return "claim";
   if (intent === "greeting" || intent === "casual_ping" || intent === "conversation_continue") return "conversation";
   if (intent === "market_question_general") return "market_structure";
   if (intent === "accusation") return "behavior";
@@ -148,6 +151,9 @@ function classifyEvidence(event: CanonicalEvent, intent: IntentClass): EvidenceC
 
   if (productProof >= 2 || (productProof >= 1 && parentProof >= 1)) {
     return "self_contained_strong";
+  }
+  if (intent === "conceptual_probe") {
+    return "contextual_medium";
   }
   if (hasParent || hasContext || productProof >= 1) {
     return "contextual_medium";
@@ -187,6 +193,9 @@ function extractEvidenceBullets(event: CanonicalEvent, intent: IntentClass): str
 
   if (countPatternMatches(text, HYPE_PATTERNS) > 0) {
     bullets.push("contains strong hype language");
+  }
+  if (intent === "conceptual_probe") {
+    bullets.push("structured frontier question");
   }
   if (countPatternMatches(text, PERFORMANCE_PATTERNS) > 0) {
     bullets.push("includes unverified performance claims");

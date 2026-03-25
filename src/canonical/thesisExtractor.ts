@@ -42,6 +42,13 @@ function deriveThesisType(
   const combined = parentText ? `${text} ${parentText}` : text;
   const proof = hasProductProof(text, parentText);
 
+  if (cls.intent === "conceptual_probe") {
+    if (CORRECTION_LANGUAGE.test(text)) {
+      return "factual_correction_only";
+    }
+    return "unclear_or_unverifiable";
+  }
+
   if (BAIT_LANGUAGE.test(text) && cls.bait_probability > 0.4) {
     return "obvious_bait";
   }

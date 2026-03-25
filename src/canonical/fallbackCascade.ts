@@ -172,6 +172,8 @@ async function generateFullSpectrum(
           narrative_label: promptContext?.narrative_label,
           semanticContext: selection.explainability,
           organoid: promptContext?.organoid,
+          orchestrationEligibility: promptContext?.orchestrationEligibility,
+          orchestrationReason: promptContext?.orchestrationReason,
         });
         input = { system: composed.system, developer: composed.developer, user: composed.user };
       } else {
@@ -184,6 +186,8 @@ async function generateFullSpectrum(
           promptContext?.style,
           promptContext?.estimatedBissigkeit,
           promptContext?.organoid,
+          promptContext?.orchestrationEligibility,
+          promptContext?.orchestrationReason,
         );
       }
     } catch (err) {
@@ -199,6 +203,8 @@ async function generateFullSpectrum(
         promptContext?.style,
         promptContext?.estimatedBissigkeit,
         promptContext?.organoid,
+        promptContext?.orchestrationEligibility,
+        promptContext?.orchestrationReason,
       );
     }
   } else {
@@ -223,6 +229,8 @@ async function generateFullSpectrum(
       promptContext?.style,
       promptContext?.estimatedBissigkeit,
       promptContext?.organoid,
+      promptContext?.orchestrationEligibility,
+      promptContext?.orchestrationReason,
     );
   }
 
@@ -309,6 +317,8 @@ export interface FallbackCascadeContext {
   pattern_id?: string;
   narrative_label?: string;
   format_target?: string;
+  orchestrationEligibility?: "standard" | "orchestration_eligible_minimal";
+  orchestrationReason?: string;
   /** Precomputed relevance score for refine step */
   relevanceResult?: RelevanceResult;
   /** Style context for savage/ultra/degen in Full Spectrum */

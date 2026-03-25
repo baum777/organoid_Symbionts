@@ -63,6 +63,49 @@ describe("pipeline integration", () => {
     }
   });
 
+  it("publishes a conceptual probe for wetware questions", async () => {
+    const result = await handleEvent(
+      makeEvent({ text: "what are wetware computers actually good for?" }),
+      makeDeps("Wetware is useful when you want the substrate to do the thinking, not just the math."),
+      DEFAULT_CANONICAL_CONFIG,
+    );
+    expect(result.action).toBe("publish");
+    if (result.action === "publish") {
+      expect(result.mode).toBe("neutral_clarification");
+      expect(result.audit.path).toBe("audit");
+      expect(result.audit.classifier_output.intent).toBe("conceptual_probe");
+      expect(result.audit.classifierIntent).toBe("conceptual_probe");
+      expect(result.audit.baseIntent).toBe("conceptual_probe");
+      expect(result.audit.sourceIntent).toBe("conceptual_probe");
+      expect(result.audit.orchestrationEligibleMinimal).toBe(true);
+      expect(result.audit.fastPathBypassReason).toBe("no_fast_path_match");
+      expect(result.audit.finalMode).toBe("neutral_clarification");
+      expect(result.audit).toHaveProperty("silencePolicy");
+      expect(result.audit).toHaveProperty("renderPolicy");
+    }
+  });
+
+  it("publishes an explicit opt-in AI x crypto conceptual probe", async () => {
+    const result = await handleEvent(
+      makeEvent({ text: "@organoid_on_sol explicit opt-in: is AI x crypto actually structurally viable?" }),
+      makeDeps("Viable only when the coordination layer is real and the constraints are explicit."),
+      DEFAULT_CANONICAL_CONFIG,
+    );
+    expect(result.action).toBe("publish");
+    if (result.action === "publish") {
+      expect(result.mode).toBe("neutral_clarification");
+      expect(result.audit.classifier_output.intent).toBe("conceptual_probe");
+      expect(result.audit.classifierIntent).toBe("conceptual_probe");
+      expect(result.audit.baseIntent).toBe("conceptual_probe");
+      expect(result.audit.sourceIntent).toBe("conceptual_probe");
+      expect(result.audit.orchestrationEligibleMinimal).toBe(true);
+      expect(result.audit.fastPathBypassReason).toBe("conceptual_probe_preempts_own_token_sentiment");
+      expect(result.audit.finalMode).toBe("neutral_clarification");
+      expect(result.audit).toHaveProperty("silencePolicy");
+      expect(result.audit).toHaveProperty("renderPolicy");
+    }
+  });
+
   it("creates an audit record on publish", async () => {
     const result = await handleEvent(makeEvent(), makeDeps(), DEFAULT_CANONICAL_CONFIG);
     expect(result.action).toBe("publish");
