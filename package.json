@@ -24,6 +24,7 @@
     "test:e2e": "vitest run tests/e2e",
     "typecheck": "tsc --noEmit",
     "lint": "eslint \"src/**/*.ts\" \"tests/**/*.ts\"",
+    "deploy-check": "pnpm run typecheck && pnpm run lint && pnpm run test",
     "ci": "pnpm typecheck && pnpm lint && pnpm test && pnpm build",
     "organoid:build-semantic": "tsx scripts/build-organoid-semantic-index.ts --split"
   },

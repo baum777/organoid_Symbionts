@@ -2,7 +2,7 @@
 
 ## Pre-Launch (All Must Pass)
 
-- [ ] `pnpm ci` passes
+- [ ] `pnpm run ci` passes
 - [ ] X OAuth secrets are set: `X_CLIENT_ID`, `X_CLIENT_SECRET`, `X_REFRESH_TOKEN`
 - [ ] LLM provider key is set for the active provider
 - [ ] `KV_URL` is set when using Redis-backed shared state
@@ -18,7 +18,7 @@
 
 ```bash
 pnpm install
-pnpm ci
+pnpm run ci
 LAUNCH_MODE=dry_run LOG_LEVEL=debug pnpm poll
 ```
 

@@ -11,12 +11,12 @@ services:
     plan: starter
     buildCommand: |
       echo "Installing Node.js dependencies..."
-      pnpm install --frozen-lockfile
+      pnpm install --frozen-lockfile --prod=false
       echo "Building TypeScript..."
       pnpm build
       echo "Build complete. Output:"
       ls -la dist/
-    preDeployCommand: pnpm deploy-check
+    preDeployCommand: pnpm run deploy-check
     startCommand: node dist/index.js
     disk:
       name: xai-bot-data
@@ -86,8 +86,8 @@ services:
     name: embodiments-health
     runtime: node
     region: frankfurt
-    plan: free
-    buildCommand: pnpm install --frozen-lockfile && pnpm build
+    plan: starter
+    buildCommand: pnpm install --frozen-lockfile --prod=false && pnpm build
     startCommand: node dist/server.js
     healthCheckPath: /health
     envVars:
@@ -108,7 +108,7 @@ services:
     runtime: node
     region: frankfurt
     plan: starter
-    buildCommand: pnpm install --frozen-lockfile && pnpm build
+    buildCommand: pnpm install --frozen-lockfile --prod=false && pnpm build
     startCommand: pnpm exec tsx src/embodiment/dailySnippetExtractor.ts
     schedule: "0 3 * * *"
     envVars:

@@ -21,7 +21,7 @@ X_REFRESH_TOKEN=...
 
 ```bash
 pnpm install
-pnpm ci
+pnpm run ci
 ```
 
 3. Dry-run rehearsal
@@ -50,7 +50,7 @@ LAUNCH_MODE=dry_run LOG_LEVEL=debug pnpm poll
 
 1. Pre-flight
 
-- run `pnpm ci`
+- run `pnpm run ci`
 - confirm secrets are set
 - ensure the active LLM provider key matches `LLM_PROVIDER`
 

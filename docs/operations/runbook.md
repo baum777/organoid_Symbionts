@@ -44,7 +44,7 @@ Graceful shutdown via `SIGTERM`; the worker stops after finishing the current ti
 ### Run CI checks
 
 ```bash
-pnpm ci
+pnpm run ci
 ```
 
 ### Conversation simulation

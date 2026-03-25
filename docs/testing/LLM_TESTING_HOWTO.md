@@ -136,7 +136,7 @@ python src/cli.py --mode file --file prompts/smoke.jsonl --log-file logs/run.ndj
 
 ```bash
 # Vollständiger CI-Check
-pnpm ci
+pnpm run ci
 
 # Oder einzeln:
 pnpm typecheck && pnpm lint && pnpm test && pnpm build
