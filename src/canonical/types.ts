@@ -88,6 +88,7 @@ export const SkipReasonSchema = z.enum([
   "skip_low_confidence",
   "skip_no_thesis",
   "skip_validation_failure",
+  "skip_orchestration_silence",
 ]);
 export type SkipReason = z.infer<typeof SkipReasonSchema>;
 

@@ -6,5 +6,7 @@ Runtime workflow descriptions (high-level). These docs explain *what* happens; t
 
 - [mention-handling.md](./mention-handling.md)
 - [image-generation.md](./image-generation.md)
-- [autonomous-posting.md](./autonomous-posting.md)
 
+## Historical
+
+- Historical autonomous-posting material was pruned from the active index; autonomous posting is not part of the current canonical runtime surface.

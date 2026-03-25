@@ -2,7 +2,7 @@
 
 ## Übersicht
 
-Dieses Runbook dokumentiert den sicheren Rollout und Rollback für xAi_Bot-App im Multi-Worker-Betrieb.
+Dieses Runbook dokumentiert den sicheren Rollout und Rollback für die Organoid Symbiont Runtime im Multi-Worker-Betrieb.
 
 ---
 

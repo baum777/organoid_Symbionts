@@ -21,11 +21,24 @@ describe("embodimentsConfig", () => {
     expect(cfg.EMBODIMENTS_ENABLED).toBe(true);
   });
 
+  it("defaults EMBODIMENT_ORCHESTRATION_ENABLED to false", () => {
+    const cfg = getEmbodimentsConfig();
+    expect(cfg.EMBODIMENT_ORCHESTRATION_ENABLED).toBe(false);
+  });
+
   it("honors an explicit EMBODIMENTS_ENABLED=false override", () => {
     process.env.EMBODIMENTS_ENABLED = "false";
     resetEmbodimentsConfigCache();
 
     const cfg = getEmbodimentsConfig();
     expect(cfg.EMBODIMENTS_ENABLED).toBe(false);
+  });
+
+  it("honors an explicit EMBODIMENT_ORCHESTRATION_ENABLED=true override", () => {
+    process.env.EMBODIMENT_ORCHESTRATION_ENABLED = "true";
+    resetEmbodimentsConfigCache();
+
+    const cfg = getEmbodimentsConfig();
+    expect(cfg.EMBODIMENT_ORCHESTRATION_ENABLED).toBe(true);
   });
 });

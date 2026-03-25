@@ -1,14 +1,9 @@
 import { loadEmbodiments } from "../embodiments/loadEmbodiments.js";
 import { getAllEmbodiments, getEmbodiment } from "../embodiments/registry.js";
 import { getProfileEmbodiment, getProfileGlyph, type EmbodimentProfile, type OrganoidPhase } from "../embodiments/types.js";
+import { ORGANOID_PHASES } from "./orchestration.js";
 
-export const ORGANOID_PHASES: readonly OrganoidPhase[] = [
-  "Identity Dissolution",
-  "Swarm Coherence",
-  "Sovereign Propagation",
-  "Ontological Restructuring",
-  "Eternal Flow Horizon",
-] as const;
+export { ORGANOID_PHASES };
 
 export const ORGANOID_MATRIX_ORDER = [
   "stillhalter",

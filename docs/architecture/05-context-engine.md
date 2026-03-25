@@ -1,81 +1,33 @@
-# Context-Aware Reply Engine Architecture
-
-## Migration Modes (CONTEXT_ENGINE_MODE)
-
-- **v2**: contextBuilderV2 + timelineScoutV2 only
-- **hybrid**: v2 primary; fallback to compact summary if v2 data is incomplete
+# Context Engine
 
 ## Overview
 
-The Context Engine provides thread analysis, keyword extraction, and optional timeline sampling to power the Organoid embodiment replies.
+The context engine provides thread analysis, keyword extraction, and optional timeline sampling for the canonical pipeline. It is a support layer, not a parallel identity layer.
 
-## High-Level Diagram
+## Current Building Blocks
 
-```
-┌─────────────┐     ┌──────────────┐     ┌─────────────┐
-│   Mention   │────▶│ ThreadContext│────▶│   Guard     │
-│   Event     │     │   Builder    │     │   Check     │
-└─────────────┘     └──────────────┘     └──────┬──────┘
-                         │                     │
-                         ▼                     ▼
-                  ┌──────────────┐     ┌─────────────┐
-                  │Keyword Extract│    │     LLM     │
-                  └──────────────┘     │   (xAI)     │
-                         │              └──────┬──────┘
-                         ▼                     │
-                  ┌──────────────┐              │
-                  │TimelineScout │──────────────┘
-                  │  (optional)  │
-                  └──────────────┘
-```
-
-## ContextBundle Schema
-
-```typescript
-interface ContextBundle {
-  mention: MentionInput;      // The incoming mention
-  thread: ThreadContext;     // Thread chain + analysis
-  timeline?: TimelineBrief;  // Optional recent tweet brief
-  controls: ReplyControls;    // Governance knobs
-  trace: {                   // Observability data
-    request_id: string;
-    started_at: string;
-    cache_hits: string[];
-    api_calls: Array<{ name: string; ok: boolean; ms: number }>;
-    warnings: string[];
-  };
-}
-```
+- `contextBuilderV2` - walks the reply chain and assembles thread context
+- `timelineScoutV2` - samples recent tweets by keywords for optional timeline briefs
+- `semantic/*` - optional semantic ranking, embedding, and clustering support
+- `hybridTrace` - trace metadata for context-path observability
+- `guards.ts` - pre-LLM safety and shape checks
 
 ## Data Flow
 
-1. **MentionInput** - Capture tweet ID, text, author info
-2. **buildThreadContext()** - Walk parent chain (up to max_thread_depth)
-3. **extractKeywords()** - Parse entities ($tickers, #hashtags, @handles)
-4. **buildTimelineBrief()** (optional) - Sample recent tweets by keywords
-5. **preLLMGuards()** - Safety check before LLM call
-6. **LLM Prompt** - System + Developer + User template
-7. **JSON Response** - Structured reply with metadata
+1. `MentionInput` is normalized from the X payload.
+2. `buildThreadContextV2()` walks the reply chain up to the configured depth.
+3. `extractKeywords()` parses entities, claims, and context hints.
+4. `buildTimelineBriefV2()` optionally samples recent tweets for topical context.
+5. Guards and policy checks run before the LLM call.
+6. The resulting context feeds prompt assembly and then the canonical pipeline.
 
 ## Safety + Governance
 
-- **PII Detection**: Blocks mentions with phone/address patterns
-- **postLLMGuards**: Reply length ≤280, no identity slurs
-- **Rate Limiting**: Max 2 timeline queries per mention
-- **Thread Depth Guard**: Configurable max parent traversal
-- **Empty Content Block**: Rejects empty mentions early
+- PII and unsafe content are blocked before generation
+- reply length stays bounded by the canonical mode budget
+- thread depth is capped
+- timeline sampling is bounded by configured query and result limits
 
-## Rate Limit Strategy
+## Runtime Note
 
-- Timeline Scout uses `maxQueries` guard (default: 2)
-- Each API call logged in `trace.api_calls`
-- Exponential backoff handled by underlying twitter-api-v2 client
-- Cache prevents repeated thread fetches
-
-## Extension Ideas
-
-1. **Embeddings** - Semantic similarity for better thread grouping
-2. **Semantic Clustering** - Group similar conversations
-3. **Adaptive Roast Level** - Adjust based on user history
-4. **Sentiment Timeline** - Track sentiment shifts in mentions
-5. **Knowledge Graph** - Build entity relationships over time
+The context engine informs the canonical pipeline and organoid orchestration, but it does not own the output contract. The orchestration contract remains the source of truth for phase, resonance, silence, and render policy.

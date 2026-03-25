@@ -53,8 +53,15 @@ export function renderEmbodimentGlyphs(text: string, embodiments: ActivatedEmbod
   return `${g1} ${clean}\n\n${g2}\n\n${g3}${marker}`;
 }
 
-export function deriveActivatedEmbodiments(selectedEmbodimentId: string, cameoCandidates?: string[]): ActivatedEmbodimentSet {
-  const embodiments = [selectedEmbodimentId, ...(cameoCandidates ?? [])]
+export function deriveActivatedEmbodiments(
+  selectedEmbodimentId: string,
+  cameoCandidates?: string[],
+  orchestrationIds?: string[],
+): ActivatedEmbodimentSet {
+  const source = orchestrationIds && orchestrationIds.length > 0
+    ? orchestrationIds
+    : [selectedEmbodimentId, ...(cameoCandidates ?? [])];
+  const embodiments = source
     .filter(Boolean)
     .map((value) => value.toLowerCase())
     .filter((value, index, values) => values.indexOf(value) === index)

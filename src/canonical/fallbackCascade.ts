@@ -40,6 +40,7 @@ import { composeEmbodimentPrompt } from "../prompts/composeEmbodimentPrompt.js";
 import { getEmbodimentMemoryStore } from "../memory/embodimentMemory.js";
 import { createSharedLoreStore } from "../memory/sharedLoreStore.js";
 import { createLoreStore } from "../memory/loreStore.js";
+import type { OrganoidOrchestrationPlan } from "../organoid/orchestration.js";
 
 interface GenerateResult {
   reply_text: string;
@@ -170,6 +171,7 @@ async function generateFullSpectrum(
           pattern_id: promptContext?.pattern_id,
           narrative_label: promptContext?.narrative_label,
           semanticContext: selection.explainability,
+          organoid: promptContext?.organoid,
         });
         input = { system: composed.system, developer: composed.developer, user: composed.user };
       } else {
@@ -181,6 +183,7 @@ async function generateFullSpectrum(
           undefined,
           promptContext?.style,
           promptContext?.estimatedBissigkeit,
+          promptContext?.organoid,
         );
       }
     } catch (err) {
@@ -195,6 +198,7 @@ async function generateFullSpectrum(
         undefined,
         promptContext?.style,
         promptContext?.estimatedBissigkeit,
+        promptContext?.organoid,
       );
     }
   } else {
@@ -218,6 +222,7 @@ async function generateFullSpectrum(
       organoidSnippets,
       promptContext?.style,
       promptContext?.estimatedBissigkeit,
+      promptContext?.organoid,
     );
   }
 
@@ -312,6 +317,8 @@ export interface FallbackCascadeContext {
   estimatedBissigkeit?: number;
   /** Phase-2: Pre-selected embodiment (from pipeline); skips internal selection */
   embodimentSelection?: EmbodimentSelectionResult;
+  /** Additive organoid orchestration context */
+  organoid?: OrganoidOrchestrationPlan;
 }
 
 export async function fallbackCascade(

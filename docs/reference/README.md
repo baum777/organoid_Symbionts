@@ -1,26 +1,30 @@
 # Reference
 
-Blueprints, bundles, external specs, and low-change background material.
+Stable reference material, prompt surfaces, and supporting design notes.
 
 ## Bundles & Blueprints
 
 | Artifact | Location | Role |
 |----------|----------|------|
-| `organoid-matrixv1.md` | Repository root | Primary migration-era target matrix reference; still hybrid and should be treated as source material rather than final SSOT |
-| `update/grok-organoid-full-introduction.txt` | `update/` | Raw bundle/source dump for the organoid target system |
-| `onchain-blueprint/` | Repository root | Solana truth layer (contracts, endpoints) |
+| `organoid-matrixv1.md` | Repository root | Historical migration-era matrix reference; source material, not runtime SSOT |
+| `onchain-blueprint/` | Repository root | Solana truth layer and contract blueprints |
+| `llm-multiprovider-audit.md` | Repository root | LLM provider architecture note and migration audit |
 
-## Docs in this Directory
+## Docs in This Directory
 
-- [command_dsl.md](./command_dsl.md) — Command DSL reference
-- [WHITEPAPER_PRODUCTION_AGENT_PLATFORM.md](./WHITEPAPER_PRODUCTION_AGENT_PLATFORM.md) — Production platform whitepaper (still agent-centric; pending migration)
+- [command_dsl.md](./command_dsl.md) - command DSL reference
 
-## Prompts
+## Prompt Surfaces
 
+- `prompts/system/` - base, mentions, posting, commands, and organoid system prompts
+- `prompts/tasks/` - summarize and image-generation task prompts
+- `prompts/commands/` - command prompt surfaces
+- `prompts/presets/` - preset modifiers
 - [prompts/system-prompts.md](./prompts/system-prompts.md)
 - [prompts/task-prompts.md](./prompts/task-prompts.md)
 - [prompts/evolution-guide.md](./prompts/evolution-guide.md)
 
 ## Other Reference
 
-- `memes/docs/MEME_SYSTEM.md` — Meme template system
+- `memes/docs/MEME_SYSTEM.md` - meme template system
+- `prompts/system/organoid_system.md` - canonical organoid system prompt

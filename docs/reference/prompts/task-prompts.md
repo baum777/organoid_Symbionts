@@ -6,15 +6,12 @@
 
 ## Available Tasks
 
-### summarize.yaml
-Summarizes conversation - input: conversation_history, max_length.
+### `summarize.yaml`
+Summarizes conversation context for compact downstream use.
 
-### generate_image.yaml
-Creates image generation prompt from user request - input: user_request, style.
+### `generate_image.yaml`
+Creates an image-generation prompt from a user request and style context.
 
 ## Usage
 
-Task prompts are loaded for specific workflows:
-```python
-prompt_loader.get("summarize", category="tasks", variables={...})
-```
+Task prompts are loaded by the TypeScript prompt loader in `src/context/prompts/` and consumed by the current runtime services. Keep prompt names stable and keep the files aligned with the runtime contract.

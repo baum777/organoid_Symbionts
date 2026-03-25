@@ -1,33 +1,39 @@
-# Organoid Entities as Semantic Symbiont
+# Organoid Symbiont Runtime
 
-Organoid-first social agent runtime for X/Twitter.
+State-aware X/Twitter bot runtime with organoid orchestration, canonical mention handling, and short-term matrix state.
 
-The canonical runtime surface is the organoid embodiment system:
-- `src/embodiment/**`
-- `src/embodiments/**`
-- `src/routing/embodimentSelector.ts`
-- `src/output/renderEmbodimentGlyphs.ts`
-- `prompts/`
-- `render.yaml`
-- `.env.example`
+## Runtime Surface
 
-## What it does
+- `src/canonical/**` - classification, scoring, thesis, validation, and pipeline control
+- `src/organoid/**` - phase inference, resonance scoring, orchestration contract, short-term matrix
+- `src/routing/embodimentSelector.ts` - legacy-compatible embodiment routing
+- `src/output/renderEmbodimentGlyphs.ts` - glyph and visible embodiment rendering
+- `src/state/**` and `src/ops/**` - durable state, locks, launch gates, and runtime controls
+- `src/context/**` and `src/prompts/**` - thread context and prompt assembly
+- `prompts/` - system, task, preset, and fragment prompts
+- `render.yaml` - Render deployment blueprint
+- `.env.example` - canonical environment template
 
-- Polls mentions from X
-- Selects an organoid embodiment
-- Builds replies with the configured LLM provider
-- Persists cursor, dedupe, and publish state in `StateStore`
-- Exposes Render health, worker, and cron entrypoints
+## What It Does
 
-## Canonical docs
+- polls mentions and timeline engagement
+- classifies, scores, and derives a thesis
+- builds a stateful orchestration contract:
+  `signal -> phase -> resonance -> roles -> expression -> validation`
+- persists cursor, dedupe, publish state, and the short-term organoid matrix in `StateStore`
+- renders replies through glyph-aware prompt fragments and conservative output policies
+- exposes worker, health, and cron entrypoints for local and Render deployments
 
-- `docs/lore/ORGANOID_EMBODIMENTS.md`
-- `docs/lore/ORGANOID_ORCHESTRATION.md`
+## Canonical Docs
+
+- `docs/README.md`
 - `docs/lore/README.md`
-- `render.yaml`
-- `.env.example`
+- `docs/architecture/README.md`
+- `docs/operations/README.md`
+- `docs/testing/README.md`
+- `docs/reference/README.md`
 
-## Quick start
+## Quick Start
 
 ```bash
 pnpm install
@@ -37,25 +43,24 @@ pnpm test
 pnpm build
 ```
 
-## Local run
+## Local Run
 
-- `pnpm dev` for the worker
+- `pnpm dev` for the watcher-based worker
 - `pnpm poll` for the dotenv-loaded poller
 - `pnpm start` for the built runtime
 - `pnpm organoid:build-semantic` to regenerate semantic artifacts
 
-## Deployment
-
-The Render Blueprint in `render.yaml` is the deploy path.
-Set the required secrets in Render, then apply the blueprint.
-
 ## Configuration
 
-Treat `.env.example` as the active environment template.
-Render injects platform values such as `PORT`, `NODE_ENV`, and service metadata at runtime.
+- `.env.example` is the active environment template
+- `render.yaml` is the deploy blueprint
+- `EMBODIMENT_ORCHESTRATION_ENABLED` enables the stateful orchestration path
+- `USE_REDIS=true` is required for multi-worker production
+- `LAUNCH_MODE`, `LLM_PROVIDER`, and provider-specific keys control runtime posture
 
-## Contribution notes
+## Contribution Notes
 
 - Keep Organoid terminology canonical in new code and docs.
-- Avoid reintroducing parallel identity layers.
+- Avoid reintroducing parallel identity layers or prompt-only orchestration.
+- Treat the short-term matrix as runtime state, not lore.
 - Regenerate derived artifacts instead of hand-editing them.

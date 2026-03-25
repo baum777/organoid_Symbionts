@@ -2,30 +2,35 @@
 
 ## Pre-Launch (All Must Pass)
 
-- [ ] **Tests green** — `pnpm run ci` passes
-- [ ] **Secrets set** — X_API_KEY, X_API_SECRET, X_ACCESS_TOKEN, X_ACCESS_SECRET
-- [ ] **LLM key** — XAI_API_KEY or LLM_API_KEY (when LAUNCH_MODE ≠ off)
-- [ ] **Allowlist (staging)** — ALLOWLIST_HANDLES for staging mode
-- [ ] **Dry-run verified** — `LAUNCH_MODE=dry_run pnpm poll` runs, no posts
-- [ ] **Smoke tests** — `pnpm run test:smoke` passes
-- [ ] **E2E publish gate** — `pnpm run test:e2e` passes
+- [ ] `pnpm ci` passes
+- [ ] X OAuth secrets are set: `X_CLIENT_ID`, `X_CLIENT_SECRET`, `X_REFRESH_TOKEN`
+- [ ] LLM provider key is set for the active provider
+- [ ] `KV_URL` is set when using Redis-backed shared state
+- [ ] `USE_REDIS=true` is set for multi-worker production
+- [ ] staging allowlist is set when running in staging
+- [ ] `LAUNCH_MODE=dry_run pnpm poll` runs without publishing
+- [ ] smoke tests pass
+- [ ] publish-gate / E2E tests pass
 
 ## Launch Procedure
 
 ### 1. Local Rehearsal
+
 ```bash
 pnpm install
-pnpm run ci
-LAUNCH_MODE=dry_run LOG_LEVEL=debug LLM_PROVIDER=xai LLM_API_KEY=xxx pnpm run test
+pnpm ci
+LAUNCH_MODE=dry_run LOG_LEVEL=debug pnpm poll
 ```
 
 ### 2. Staging
+
 - Set `LAUNCH_MODE=staging`
 - Set `ALLOWLIST_HANDLES=@yourAccount,@testAccount`
-- Deploy and run poller
-- Smoke: 5 mentions from allowlisted accounts, verify logs
+- Keep `USE_REDIS=true` and `KV_URL` pointed at the shared store
+- Verify that only allowlisted accounts are eligible to publish
 
 ### 3. Production
-- Set `LAUNCH_MODE=prod` (or omit with DRY_RUN=false)
-- Allowlist empty or disabled
-- Kill-switch ready: `LAUNCH_MODE=dry_run` or `off` for immediate rollback
+
+- Set `LAUNCH_MODE=prod`
+- Remove or disable staging allowlists
+- Keep the kill-switch ready: `LAUNCH_MODE=dry_run` or `off`

@@ -5,10 +5,11 @@ import type {
   ThesisBundle,
   ScoreBundle,
   PromptContract,
-  MarketEnergyLevel,
 } from "./types.js";
 import { getHardMax } from "./modeBudgets.js";
 import type { StyleContext } from "../style/styleResolver.js";
+import type { OrganoidOrchestrationPlan } from "../organoid/orchestration.js";
+import { formatOrganoidPromptBlock } from "../organoid/orchestration.js";
 import {
   getSlangGuidelines,
   getSavageSlangGuidelines,
@@ -51,6 +52,8 @@ export interface PromptBuilderContext {
   format_target?: string;
   /** Style context for energy-based modulation */
   style?: StyleContext;
+  /** Phase/resonance orchestration context (feature-flagged) */
+  organoid?: OrganoidOrchestrationPlan;
 }
 
 export function buildPrompt(
@@ -76,6 +79,10 @@ export function buildPrompt(
   // Add energy-based style hints if slang mode is active
   if (context?.style?.slangEnabled && context.style.traitHints.length > 0) {
     rules.push(`Energy tone: ${context.style.traitHints.join("; ")}`);
+  }
+
+  if (context?.organoid) {
+    rules.push(...formatOrganoidPromptBlock(context.organoid));
   }
 
   const prompt: PromptContract = {

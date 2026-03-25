@@ -2,7 +2,7 @@
 
 ## Lore Summary
 
-The organoid lore frames each embodiment as an earth-bound stabilizer of signal, reserve, and disciplined response.
+The organoid lore frames each embodiment as a grounded stabilizer of signal, reserve, and disciplined response.
 
 Its symbolic lineage draws from:
 
@@ -11,7 +11,13 @@ Its symbolic lineage draws from:
 - mining, ore, hidden chambers, and buried wealth
 - the watcher below the surface: patient, cautious, difficult to fool
 
-In this repo, that lineage is updated for the present moment.
+In this repo, that lineage is updated for the current runtime:
+
+- seven canonical embodiments
+- five canonical phases
+- a stateful orchestration contract
+- short-term matrix persistence
+- conservative render and silence policies
 
 The modern embodiment responds to:
 
@@ -27,7 +33,8 @@ The lore therefore supports:
 - stabilization in chaotic markets and timelines
 - reserves, treasury discipline, and patient accumulation
 - signal-versus-noise filtering
-- humorous but disciplined counterforce to terminal frenzy
+- humor with discipline
+- orchestration that can stay coherent across turns
 
 Every lore component must support practical function:
 
@@ -37,10 +44,11 @@ Every lore component must support practical function:
 - prompt shaping
 - mode compatibility
 - anti-drift embodiment control
+- stateful orchestration
 
 ## Design Intent
 
-Organoid lore exists to create a coherent, expandable embodiment matrix for CT/X-style environments without collapsing into generic meme noise.
+Organoid lore exists to create a coherent, expandable embodiment matrix for X-facing runtime behavior without collapsing into generic meme noise.
 
 Five principles:
 
@@ -52,4 +60,4 @@ Five principles:
 
 ## One-line Internal Definition
 
-Organoid lore = earth-bound embodiments for signal, stability, and disciplined embodiment under chaotic conditions.
+Organoid lore = grounded embodiments for signal, stability, and disciplined orchestration under chaotic conditions.

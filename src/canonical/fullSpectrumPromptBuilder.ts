@@ -5,6 +5,8 @@
 import type { CanonicalEvent, ScoreBundle, ThesisBundle, StructuredRoast } from "./types.js";
 import type { RelevanceResult } from "./relevanceScorer.js";
 import type { StyleContext } from "../style/styleResolver.js";
+import type { OrganoidOrchestrationPlan } from "../organoid/orchestration.js";
+import { formatOrganoidPromptBlock } from "../organoid/orchestration.js";
 import {
   getSlangGuidelines,
   getSavageSlangGuidelines,
@@ -42,6 +44,8 @@ export function buildMasterPrompt(
   style?: StyleContext,
   /** Pre-LLM estimated bissigkeit for prompt hint */
   estimatedBissigkeit?: number,
+  /** Additive organoid orchestration context */
+  organoid?: OrganoidOrchestrationPlan,
 ): FullSpectrumLLMInput {
   const thesisStr =
     (event as { thesis?: string }).thesis ?? String(thesis.primary);
@@ -73,6 +77,10 @@ export function buildMasterPrompt(
       : "";
 
   let system = `${MASTER_SYSTEM_PROMPT}\n\n${memoryBlock}${NEGATIVE_EXAMPLES}`;
+
+  if (organoid) {
+    system += `\n\n${formatOrganoidPromptBlock(organoid).join("\n")}`;
+  }
 
   if (style?.slangEnabled) {
     system += `\n\n=== HORNY-SLANG ENERGY MODE ACTIVE ===\n${getSlangGuidelines()}`;

@@ -1,89 +1,82 @@
 # QUICKSTART
 
-Minimal guide to run the system locally and verify it works.
+Minimal guide to run the current TypeScript runtime locally.
 
 > Environment variables are defined in `.env.example` and summarized in `docs/operations/var.README.md`.
-> Use `.env.example` as the file to copy and fill for local runs.
+> Use `.env.example` as the template to copy and fill for local runs.
 
----
+## 1. Prerequisites
 
-## 1️⃣ Prerequisites
-
-- Node.js >= 20.0.0
+- Node.js 20+
 - pnpm
-- Required API keys (see `.env.example`)
+- X OAuth credentials
+- LLM provider key for the active provider
+- `KV_URL` only when using Redis-backed state
 
----
-
-## 2️⃣ Install dependencies
+## 2. Install dependencies
 
 ```bash
 pnpm install
 ```
 
----
-
-## 3️⃣ Configure environment
-
-1. Copy environment template (if available):
+## 3. Configure environment
 
 ```bash
 cp .env.example .env
 ```
 
-2. Open `.env` and configure required variables.
+Set the required values for your mode:
 
-📌 Variable documentation:
-→ [`.env.example`](../../.env.example) and [`docs/operations/var.README.md`](../operations/var.README.md)
+- `X_CLIENT_ID`
+- `X_CLIENT_SECRET`
+- `X_REFRESH_TOKEN`
+- `XAI_API_KEY` or `OPENAI_API_KEY` or `ANTHROPIC_API_KEY`
+- `LAUNCH_MODE`
+- `BOT_USERNAME`
+- `USE_REDIS` and `KV_URL` when running shared state
 
----
+For the current organoid runtime, `EMBODIMENT_ORCHESTRATION_ENABLED` stays off by default until you intentionally enable it.
 
-## 4️⃣ Start development
+## 4. Verify the build
+
+```bash
+pnpm typecheck
+pnpm test
+pnpm build
+```
+
+## 5. Start locally
 
 ```bash
 pnpm poll
 ```
 
+or, for watcher-based development:
+
+```bash
+pnpm dev
+```
+
 Expected:
 
-* Server starts without errors
-* Logs show provider initialization
-* No missing environment warnings
+- the worker starts without validation errors
+- the state store initializes
+- logs show provider and launch-mode initialization
+- the health endpoints are available once the runtime is up
 
----
-
-## 5️⃣ Basic verification (Smoke Test)
-
-Verify at least one of the following:
-
-* Health endpoint responds
-* Mention polling starts successfully
-* Image generation request executes (if enabled)
-* Logs show provider authentication success
-
-If something fails:
-
-* Check missing ENV keys
-* Validate API tokens
-* Ensure correct start script in `package.json`
-
----
-
-## 🧭 Where to go next
+## 6. Where to go next
 
 | Topic | File |
 |-------|------|
 | Variables | `.env.example` |
-| Embodiment | `docs/lore/ORGANOID_EMBODIMENTS.md` |
+| Embodiment matrix | `docs/lore/ORGANOID_EMBODIMENTS.md` |
+| Orchestration | `docs/lore/ORGANOID_ORCHESTRATION.md` |
 | Architecture | `docs/architecture/` |
-| Workflows | `docs/workflows/` |
-| Adaptive Intelligence | `docs/implementation/PHASE2_ADAPTIVE_INTELLIGENCE.md` |
-| Semantic Intelligence | `docs/implementation/PHASE3_SEMANTIC_INTELLIGENCE.md` |
+| Workflow reference | `docs/workflows/` |
+| Monitoring | `docs/operations/monitoring.md` |
 
----
+## Drift Prevention Rule
 
-## ⚠️ Drift Prevention Rule
-
-* Environment variables → `.env.example` plus `docs/operations/var.README.md`
-* Setup instructions → only in `docs/operations/QUICKSTART.md`
-* Workflows → only in `docs/workflows/`
+- Environment variables belong in `.env.example` and `docs/operations/var.README.md`
+- Setup instructions belong in `docs/operations/QUICKSTART.md`
+- Workflow references belong in `docs/workflows/`

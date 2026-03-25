@@ -1,8 +1,8 @@
-# Runbook (Operations)
+# Runbook
 
-This runbook covers the **production TypeScript/Node runtime**.
+Operational runbook for the current TypeScript worker runtime.
 
-## Start (local)
+## Start
 
 ```bash
 pnpm install
@@ -11,32 +11,40 @@ pnpm build
 pnpm start
 ```
 
-## Start (development / dry-run)
+## Development / Dry Run
 
 ```bash
 pnpm install
 cp .env.example .env
-
-# Dry-run: processes mentions but must not publish
 LAUNCH_MODE=dry_run pnpm poll
 ```
 
+Dry-run mode still evaluates the canonical pipeline and orchestration contract, but it must not publish.
+
 ## Health / Readiness
 
-- `GET /health` — full health (store reachable + recent poll success + signals)
-- `GET /ready` — store ping only
-- `GET /metrics` — basic metrics
+- `GET /health` - full health report
+- `GET /ready` - state-store reachability only
+- `GET /metrics` - current in-process metrics snapshot
+
+Health currently checks:
+
+- state store reachability
+- recent poll success
+- backlog / failure streaks
+- timeline hardening
+- audit buffer and cursor loadability when the health deps are wired
 
 ## Stop
 
-Graceful shutdown via SIGTERM; the worker stops after finishing the current tick.
+Graceful shutdown via `SIGTERM`; the worker stops after finishing the current tick.
 
 ## Common Tasks
 
 ### Run CI checks
 
 ```bash
-pnpm run ci
+pnpm ci
 ```
 
 ### Conversation simulation

@@ -15,6 +15,8 @@ import { getProfileEmbodiment, getProfileGlyph } from "../embodiments/types.js";
 import type { CanonicalEvent, CanonicalMode, ThesisBundle, ScoreBundle } from "../canonical/types.js";
 import type { StyleContext } from "../style/styleResolver.js";
 import { getHardMax } from "../canonical/modeBudgets.js";
+import type { OrganoidOrchestrationPlan } from "../organoid/orchestration.js";
+import { formatOrganoidPromptBlock } from "../organoid/orchestration.js";
 import {
   loadGlobalSafety,
   loadEmbodimentFragment,
@@ -37,6 +39,7 @@ export interface EmbodimentRuntimeContext {
   pattern_id?: string;
   narrative_label?: string;
   semanticContext?: { anchors?: string[]; boundaries?: string[]; reasons?: string[] };
+  organoid?: OrganoidOrchestrationPlan;
 }
 
 export interface ComposedEmbodimentPrompt {
@@ -96,6 +99,10 @@ export function composeEmbodimentPrompt(ctx: EmbodimentRuntimeContext): Composed
 
   if (ctx.semanticContext?.boundaries?.length) {
     parts.push("", "Semantic boundaries:", ...ctx.semanticContext.boundaries.map((b) => `• ${b}`));
+  }
+
+  if (ctx.organoid) {
+    parts.push("", ...formatOrganoidPromptBlock(ctx.organoid));
   }
 
   const modeHint = ctx.responseMode !== "ignore" ? MODE_STYLE_HINTS[ctx.responseMode] : "";

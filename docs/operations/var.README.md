@@ -5,15 +5,15 @@
 
 This guide is a compact operator reference, not a second source of truth.
 
-## Required for deploy
+## Required for Deploy
 
 - `X_CLIENT_ID`
 - `X_CLIENT_SECRET`
 - `X_REFRESH_TOKEN`
-- `XAI_API_KEY`
-- `KV_URL`
+- `KV_URL` when using Redis-backed shared state
+- the active LLM provider key: `XAI_API_KEY`, `OPENAI_API_KEY`, or `ANTHROPIC_API_KEY`
 
-## Important runtime values
+## Core Runtime Values
 
 - `LAUNCH_MODE`
 - `LOG_LEVEL`
@@ -22,25 +22,42 @@ This guide is a compact operator reference, not a second source of truth.
 - `BOT_DENY_REPLY_MODE`
 - `USE_REDIS`
 - `REDIS_KEY_PREFIX`
+- `DATA_DIR`
 - `POLL_INTERVAL_MS`
 - `MENTIONS_SOURCE`
 - `ADAPTIVE_POLLING_ENABLED`
-- `DATA_DIR`
 - `X_REFRESH_BUFFER_SECONDS`
 - `X_OAUTH_TOKEN_URL`
-- `XAI_BASE_URL`
-- `XAI_MODEL_PRIMARY`
-- `XAI_MODEL_FALLBACKS`
 
-## Optional bootstrap and overrides
+## Optional X OAuth Bootstrap State
 
 - `X_ACCESS_TOKEN`
 - `X_EXPIRES_IN`
 - `X_TOKEN_CREATED_AT`
 - `X_BOT_USER_ID`
+
+## Organoid Runtime
+
+- `EMBODIMENTS_ENABLED`
+- `EMBODIMENT_ORCHESTRATION_ENABLED`
+- `EMBODIMENT_CONTINUITY_ENABLED`
+- `EMBODIMENT_MEMORY_ENABLED`
+- `EMBODIMENT_ROUTING_DEBUG`
+- `EMBODIMENT_TRAIT_DRIFT_LIMIT`
+- `EMBODIMENT_SWARM_ENABLED`
+- `EMBODIMENT_ENSEMBLE_ENABLED`
+- `EMBODIMENT_AUTONOMY_ENABLED`
+- `EMBODIMENT_ARC_ENGINE_ENABLED`
+
+## LLM Provider Selection
+
 - `LLM_PROVIDER`
 - `LLM_FALLBACK_PROVIDER`
 - `LLM_API_KEY`
+- `XAI_API_KEY`
+- `XAI_BASE_URL`
+- `XAI_MODEL_PRIMARY`
+- `XAI_MODEL_FALLBACKS`
 - `OPENAI_API_KEY`
 - `OPENAI_MODEL`
 - `OPENAI_BASE_URL`
@@ -48,7 +65,7 @@ This guide is a compact operator reference, not a second source of truth.
 - `ANTHROPIC_MODEL`
 - `ANTHROPIC_BASE_URL`
 
-## Optional feature flags
+## Optional Controls
 
 - `ALLOWLIST_HANDLES`
 - `BOT_WHITELIST_USERNAMES`
@@ -57,9 +74,11 @@ This guide is a compact operator reference, not a second source of truth.
 - `DEBUG_ARTIFACTS`
 - `RATE_LIMIT_BACKEND`
 - `POLL_LOCK_ENABLED`
-- `SEMANTIC_ENABLED`
-- `SEMANTIC_MODE`
-- `HYBRID_RUNTIME_MODE`
+- `FULL_SPECTRUM_PROMPT`
+- `REPLICATE_API_KEY`
+- `REPLICATE_IMAGE_MODEL`
+- `REPLICATE_RUN_TIMEOUT_MS`
+- `REPLICATE_DOWNLOAD_TIMEOUT_MS`
 
 ## Notes
 

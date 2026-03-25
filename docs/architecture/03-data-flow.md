@@ -2,33 +2,36 @@
 
 ## Event Processing Flow
 
-```
+```text
 [Scheduler Tick]
     ↓
-[Fetch Events from X API]
+[Fetch Mentions / Timeline Signals]
     ↓
-[Filter Already Processed]
+[Normalize + Deduplicate]
     ↓
-[Event Router - Classify Type]
+[Classify + Score + Build Thesis]
     ↓
-[Workflow Engine]
-    ├─ Normalize
-    ├─ Classify Intent
-    ├─ Build Context
-    ├─ AI Decide
-    ├─ Validate (rate limits, duplicates)
-    ├─ Execute Action
-    ├─ Persist State
-    └─ Observe (metrics, logs)
+[Load Short-Term Matrix]
     ↓
-[Next Tick]
+[Organoid Orchestration]
+    ├─ phase inference
+    ├─ resonance scoring
+    ├─ role plan
+    ├─ silence / render policy
+    └─ expression plan
+    ↓
+[Prompt + Render]
+    ↓
+[Validation + Launch Gate]
+    ↓
+[Publish or Skip]
+    ↓
+[Persist State + Audit + Metrics]
 ```
 
 ## Event Types
 
-- **mention** - User @mentions the bot
-- **timeline** - Timeline activity (autonomous posting)
-- **reply** - Reply in conversation thread
-- **dm** - Direct message
-- **scheduled** - Scheduled post trigger
-- **command** - Parsed command (e.g. /help)
+- `mention` - user @mention routed through the canonical pipeline
+- `timeline` - timeline engagement signal routed through the same policy stack
+- `command` - parsed command input routed through prompt / tool handling
+- `image` - optional image-generation task routed through the supporting service path

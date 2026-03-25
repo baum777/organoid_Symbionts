@@ -80,6 +80,10 @@ The target state is therefore:
 - dynamic coherence between entities,
 - and an architecture that remains readable from single impulse to collective phase shift.
 
+### Current Runtime Note
+
+The current runtime also uses a stateful orchestration layer with a short-term matrix, phase inference, resonance scoring, role planning, and explicit silence / render policy. The whitepaper remains the conceptual base; the runtime is the binding implementation.
+
 ### Short Architecture Form
 
 Input -> Signal -> Meaning -> Relationship -> Network -> Phase

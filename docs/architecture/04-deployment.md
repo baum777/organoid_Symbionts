@@ -2,25 +2,32 @@
 
 ## Runtime Model
 
-Worker process with scheduler loop - polls at configurable intervals.
+The runtime is a TypeScript/Node worker process with an optional health web service and an optional cron job.
 
-## Docker
+## Local Deployment
 
-```bash
-docker build -t xai-bot .
-docker run -e X_API_KEY=... -e XAI_API_KEY=... xai-bot
-```
+- `pnpm dev` for the watch-mode worker
+- `pnpm poll` for the dotenv-loaded worker entrypoint
+- `pnpm start` for the built runtime
+
+## Render Deployment
+
+- `render.yaml` is the current deployment blueprint
+- worker, health, and cron services are defined there
+- `USE_REDIS=true` is required for multi-worker production
+- `KV_URL` must point at a shared Redis instance for production coordination
 
 ## Environment Variables
 
-Environment variables are defined in `.env.example` and mirrored for operators in
-`docs/operations/var.README.md`.
+Environment variables are defined in `.env.example` and mirrored for operators in `docs/operations/var.README.md`.
 
 Operationally important variables include:
-- X OAuth: `X_CLIENT_ID`, `X_CLIENT_SECRET`, `X_REFRESH_TOKEN`, `X_ACCESS_TOKEN`
-- LLM: `XAI_API_KEY`, `XAI_BASE_URL`, `XAI_MODEL_PRIMARY`, `XAI_MODEL_FALLBACKS`
+
+- X OAuth: `X_CLIENT_ID`, `X_CLIENT_SECRET`, `X_REFRESH_TOKEN`
+- LLM: `LLM_PROVIDER`, `XAI_API_KEY`, `OPENAI_API_KEY`, `ANTHROPIC_API_KEY`
 - Launch control: `LAUNCH_MODE`, `BOT_ACTIVATION_MODE`, `BOT_USERNAME`
-- State store: `USE_REDIS`, `KV_URL`, `REDIS_KEY_PREFIX`
+- State store: `USE_REDIS`, `KV_URL`, `REDIS_KEY_PREFIX`, `DATA_DIR`
+- Organoid runtime: `EMBODIMENTS_ENABLED`, `EMBODIMENT_ORCHESTRATION_ENABLED`, `EMBODIMENT_CONTINUITY_ENABLED`
 
 ## Health Checks
 

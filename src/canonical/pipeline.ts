@@ -8,7 +8,6 @@ import type {
   ClassifierOutput,
   ScoreBundle,
   SkipReason,
-  AuditRecord,
   IntentClass,
 } from "./types.js";
 import { DEFAULT_CANONICAL_CONFIG } from "./types.js";
@@ -44,6 +43,18 @@ import { resolveContinuity } from "../routing/continuityResolver.js";
 import { buildSemanticSelectionInputs } from "../embodiment/retrieval/runtimeSemantic.js";
 import { selectEmbodiment, computeRuleBasedScores } from "../routing/embodimentSelector.js";
 import type { EmbodimentSelectionResult } from "../routing/embodimentSelector.js";
+import {
+  buildOrganoidOrchestration,
+  resolveRenderableEmbodimentIds,
+  type OrganoidOrchestrationPlan,
+} from "../organoid/orchestration.js";
+import {
+  buildOrganoidRuntimeState,
+  captureOrganoidShortTermMatrix,
+  loadOrganoidShortTermMatrix,
+  saveOrganoidShortTermMatrix,
+  type OrganoidShortTermMatrix,
+} from "../organoid/state.js";
 
 export interface PipelineDeps {
   llm: LLMClient;
@@ -278,7 +289,21 @@ export async function handleEvent(
     return makeSkipResult(event, "skip_format_decision", cls, scores, config);
   }
 
+  const store = getStateStore();
   let embodimentSelection: EmbodimentSelectionResult | undefined;
+  let organoidPlan: OrganoidOrchestrationPlan | undefined;
+  let organoidShortTermMatrix: OrganoidShortTermMatrix | null = null;
+  const persistOrganoidMatrix = async (validationOk: boolean): Promise<void> => {
+    if (!embodimentsCfg.EMBODIMENT_ORCHESTRATION_ENABLED || !organoidPlan) return;
+    const nextMatrix = captureOrganoidShortTermMatrix(organoidPlan, organoidShortTermMatrix);
+    organoidShortTermMatrix = await saveOrganoidShortTermMatrix(nextMatrix, store);
+    if (!validationOk && embodimentsCfg.EMBODIMENT_ROUTING_DEBUG) {
+      console.warn("[ORGANOID] Persisted matrix after non-validating run", {
+        phase: organoidPlan.phase.activePhase,
+        leadEmbodimentId: organoidPlan.leadEmbodimentId,
+      });
+    }
+  };
   const embodimentsCfg = getEmbodimentsConfig();
   if (embodimentsCfg.EMBODIMENTS_ENABLED) {
     try {
@@ -318,6 +343,38 @@ export async function handleEvent(
         ...selection,
         selectedEmbodimentId: continuity.embodimentId,
       };
+      if (embodimentsCfg.EMBODIMENT_ORCHESTRATION_ENABLED) {
+        organoidShortTermMatrix = await loadOrganoidShortTermMatrix(store);
+        const state = buildOrganoidRuntimeState(organoidShortTermMatrix, {
+          recentPhases: organoidShortTermMatrix.lastPhase ? [organoidShortTermMatrix.lastPhase] : [],
+          recentEmbodimentIds: [continuity.embodimentId],
+          driftPressure: Math.max(scores.risk, organoidShortTermMatrix.driftSignal),
+          coherence: scores.confidence,
+        });
+        const plan = buildOrganoidOrchestration({
+          event,
+          cls,
+          scores,
+          thesis,
+          mode,
+          embodiments,
+          selectedEmbodimentId: continuity.embodimentId,
+          state,
+        });
+        organoidPlan = plan;
+        embodimentSelection.selectedEmbodimentId = plan.leadEmbodimentId;
+        if (!plan.validation.ok || plan.validation.warnings.length > 0) {
+          console.warn("[ORGANOID] Orchestration validation state", {
+            ok: plan.validation.ok,
+            reasons: plan.validation.reasons,
+            warnings: plan.validation.warnings,
+          });
+        }
+        if (plan.silencePolicy === "silence") {
+          await persistOrganoidMatrix(plan.validation.ok);
+          return makeSkipResult(event, "skip_orchestration_silence", cls, scores, config);
+        }
+      }
     } catch {
       // Keep embodimentSelection undefined; fallbackCascade will select internally
     }
@@ -331,6 +388,7 @@ export async function handleEvent(
     relevanceResult,
     estimatedBissigkeit: bissigkeit,
     embodimentSelection,
+    organoid: organoidPlan,
   };
 
   const result = await fallbackCascade(
@@ -345,6 +403,7 @@ export async function handleEvent(
   );
 
   if (!result.success || !result.reply_text) {
+    await persistOrganoidMatrix(Boolean(result.validation?.ok));
     const pathType = SOCIAL_INTENTS.includes(cls.intent) ? "social" as const : "audit" as const;
     const audit = buildAuditRecord({
       event,
@@ -367,9 +426,16 @@ export async function handleEvent(
     return { action: "skip", skip_reason: "skip_validation_failure", audit };
   }
 
+  const finalEmbodimentId =
+    organoidPlan?.leadEmbodimentId ??
+    embodimentSelection?.selectedEmbodimentId ??
+    result.selectedEmbodimentId ??
+    embodimentsCfg.DEFAULT_SAFE_EMBODIMENT;
+  const renderEmbodimentIds = organoidPlan ? resolveRenderableEmbodimentIds(organoidPlan) : undefined;
   const activatedEmbodiments = deriveActivatedEmbodiments(
-    result.selectedEmbodimentId ?? embodimentsCfg.DEFAULT_SAFE_EMBODIMENT,
+    finalEmbodimentId,
     embodimentSelection?.cameoCandidates,
+    renderEmbodimentIds,
   );
   const finalizedReply = renderEmbodimentGlyphs(result.reply_text, activatedEmbodiments);
   if (!finalizedReply) {
@@ -400,8 +466,9 @@ export async function handleEvent(
   persistAuditRecord(audit);
   addToAuditTail(audit).catch(() => {});
 
+  await persistOrganoidMatrix(Boolean(result.validation?.ok));
+
   try {
-    const store = getStateStore();
     await store.set(`event:${event.event_id}:seen`, "1", 86400);
     await store.set(`event:${event.event_id}:processed`, "1", 86400);
   } catch {
@@ -414,7 +481,7 @@ export async function handleEvent(
     thesis,
     reply_text: finalizedReply,
     audit,
-    selectedEmbodimentId: result.selectedEmbodimentId ?? "stillhalter",
+    selectedEmbodimentId: finalEmbodimentId,
     intent: cls.intent,
     embodimentSelection,
   };

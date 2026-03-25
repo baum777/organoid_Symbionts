@@ -30,6 +30,23 @@ distinct interaction profile.
 - Glyphs are identity anchors, not decorative flair.
 - Runtime routing, memory, and relation hints should translate into this matrix rather than create a parallel identity layer.
 - The seven embodiments should remain the only active embodiment vocabulary in new canonical writing.
+- The orchestration contract now uses these embodiments as resonance targets, role participants, and render anchors.
+
+## Runtime Usage
+
+Each embodiment contributes more than tone:
+
+- semantic role
+- network function
+- phase affinity
+- activation and suppression triggers
+- preferred intervention type
+- conflict profile
+- trust boundary
+- stabilization behavior
+- handoff preference
+
+Embodiments are therefore selected by resonance and orchestration, not as simple style skins.
 
 ## ORGANOID Handling
 

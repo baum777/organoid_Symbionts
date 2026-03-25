@@ -2,29 +2,30 @@
 
 ## Core Components
 
-### Orchestrator
-Central coordination - routes events to workflows, coordinates execution.
+### Worker / Poller
+Drives the event loop, polls X, and hands normalized mentions to the canonical pipeline.
 
-### Scheduler
-Time-based tick loop - polls for events at configurable intervals.
+### Canonical Pipeline
+Performs classify → score → thesis → validate → publish decision processing.
 
-### Event Router
-Classifies events and routes to appropriate workflow handlers.
+### Organoid Orchestrator
+Infers phase, scores embodiment resonance, builds the role plan, and emits the orchestration contract.
 
-### Workflow Engine
-Executes step chains: Normalize → Classify → Decide → Validate → Execute → Persist → Observe.
+### State Store
+StateStore-backed persistence for cursor, dedupe, publish markers, locks, health heartbeat, and the short-term organoid matrix.
+Multi-worker production uses Redis; filesystem storage is for single-worker use.
 
-### State Manager
-StateStore-backed persistence (Redis or filesystem) for cursor, processed/published event state, locks, and worker heartbeat. Multi-worker deployments are Redis-only.
+### X Client and Read Client
+Handle post/poll operations and tweet retrieval for context building.
 
-### X Client
-OAuth 1.0a authenticated X API client for tweets, mentions, media.
+### LLM Clients
+Provider adapters for xAI, OpenAI, and Anthropic behind the unified `LLMClient` contract.
 
-### xAI Client
-Grok API client with retry logic for chat completions.
+### Prompt Loader and Fragments
+Loads system, task, and fragment prompts and injects the current orchestration context.
 
-### Prompt Loader
-Loads and caches prompts from YAML files with variable injection.
+### Context Engine
+Builds thread context, timeline briefs, and semantic support signals for the canonical pipeline.
 
-### Context Builder
-Assembles conversation history and context for AI decisions.
+### Observability
+Structured logs, metrics, health checks, audit records, and run artifacts.

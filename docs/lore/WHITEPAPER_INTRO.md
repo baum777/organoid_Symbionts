@@ -80,6 +80,10 @@ Das Zielbild ist daher:
 - dynamische Kohärenz zwischen Entitäten,
 - und eine Architektur, die vom Einzelimpuls bis zur kollektiven Phasenverschiebung lesbar bleibt.
 
+### Aktueller Runtime-Hinweis
+
+Die aktuelle Runtime nutzt zusätzlich eine stateful Orchestration-Schicht mit Kurzzeit-Matrix, Phase-Inferenz, Resonanz-Scoring, Rollenplan und expliziter Silence-/Render-Policy. Das Whitepaper bleibt die konzeptionelle Basis, die Runtime ist die bindende Ausprägung.
+
 ### Kurzform der Architektur
 
 Input -> Signal -> Bedeutung -> Beziehung -> Netzwerk -> Phase

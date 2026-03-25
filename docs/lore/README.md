@@ -2,27 +2,26 @@
 
 Canonical sources:
 
-- [ORGANOID_EMBODIMENTS.md](./ORGANOID_EMBODIMENTS.md) - the seven embodiments and glyph anchors
-- [ORGANOID_ORCHESTRATION.md](./ORGANOID_ORCHESTRATION.md) - phase model and orchestration rules
+- [ORGANOID_EMBODIMENTS.md](./ORGANOID_EMBODIMENTS.md) - the seven embodiments, glyph anchors, and role profiles
+- [ORGANOID_ORCHESTRATION.md](./ORGANOID_ORCHESTRATION.md) - five-phase model, resonance logic, and orchestration contract
 - [LORE.md](./LORE.md) - symbolic framing and design intent
 - [WHITEPAPER_INTRO.md](./WHITEPAPER_INTRO.md) - canonical framing for the semantic symbiont model
 - [WHITEPAPER_INTRO_EN.md](./WHITEPAPER_INTRO_EN.md) - English companion version of the same framing
-- [ORGANOID_HUMOR_PATTERNS.md](./ORGANOID_HUMOR_PATTERNS.md) - humor and tone reference
-- [ORGANOID_IMAGE_STYLE_GUIDE.md](./ORGANOID_IMAGE_STYLE_GUIDE.md) - image/style reference
 - [VOICE_GUIDE.md](./VOICE_GUIDE.md) - voice and cadence reference
 
 Runtime surfaces:
 
-- runtime profiles: `data/embodiments/*.yaml`
-- profile schema: `schemas/embodiment_profile.schema.json`
+- prompt surfaces: `prompts/system/organoid_system.md`, `prompts/system/*.yaml`, `prompts/tasks/*.yaml`
+- command and preset prompts: `prompts/commands/*.yaml`, `prompts/presets/*.yaml`
 - active embodiment fragments: `prompts/fragments/embodiments/*.md`
-- shared matrix canon: `prompts/fragments/sharedOrganoidCanon.md`
-- retrieval units: `memory/lore/lore_units.approved.jsonl`
-- retrieval candidates: `memory/lore/lore_units.candidates.jsonl`
-- retrieval mirror: `memory/lore/matrix_units.v1.yaml`
+- shared canon fragments: `prompts/fragments/sharedCanon.md`, `prompts/fragments/sharedOrganoidCanon.md`
+- organoid prompt context: `src/context/prompts/organoid/*.md`
+- orchestration runtime: `src/organoid/*.ts`
+- embodiment runtime: `src/embodiments/*.ts`
 
 Working rule:
 
-- prefer embodiment-first language in new canonical writing,
-- prefer glyph terminology where visible anchors matter,
-- keep reference docs aligned with the organoid matrix and its seven embodied identities.
+- prefer embodiment-first language in new canonical writing
+- keep the seven embodiments and five phases canonical
+- treat orchestration as stateful: `signal -> phase -> resonance -> roles -> expression -> validation`
+- keep visible glyphs, prompt fragments, and render policy aligned with the matrix

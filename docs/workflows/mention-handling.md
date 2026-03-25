@@ -1,21 +1,26 @@
 # Mention Handling Workflow
 
-> **Note:** This is a high-level workflow description. For the authoritative runtime path, see the canonical pipeline and worker flow in `src/` and the docs indices: `docs/architecture/` and `docs/operations/runbook.md`.
+> This is a high-level workflow description. For the authoritative runtime path, see the canonical pipeline and worker flow in `src/` and the docs indices: `docs/architecture/` and `docs/operations/runbook.md`.
 
 ## Trigger
 
-When the bot receives an @mention via X API.
+The bot receives an @mention via the X API.
 
 ## Flow
 
-1. **Normalize** - Convert X API tweet payload to NormalizedEvent
-2. **Classify** - Determine action type (REPLY for mentions)
-3. **Build Context** - Load conversation history if in thread
-4. **Decide** - Generate reply via the canonical prompt builder / LLM client
-5. **Validate** - Check deduplication, safety gates, and posting policy
-6. **Execute** - Post reply via X API (or simulate in dry-run)
-7. **Persist** - Mark event processed, update cooldowns
-8. **Observe** - Log and record metrics
+1. Normalize the X payload into a canonical event.
+2. Classify the event and derive intent, score, and thesis.
+3. Load the current short-term organoid matrix.
+4. Build the orchestration contract:
+   - phase
+   - resonance
+   - lead / counterweight / anchor roles
+   - silence policy
+   - render policy
+5. Assemble the prompt and render surface.
+6. Validate against launch mode, safety, dedupe, and policy gates.
+7. Publish or short-circuit with an explicit skip reason.
+8. Persist cursor, audit, and matrix state.
 
 ## Rate Limits
 
@@ -23,6 +28,7 @@ Rate limiting and posting policy are enforced by the runtime rate limiter and la
 
 ## Error Handling
 
-- Duplicate: Abort, no action
-- Rate limit: Abort, log warning
-- API error: Retry with exponential backoff (max 3)
+- Duplicate: abort, no action
+- Rate limit: abort, log warning
+- Launch gate silence: short-circuit with `skip_orchestration_silence` when the orchestration policy decides not to speak
+- API error: retry with bounded backoff

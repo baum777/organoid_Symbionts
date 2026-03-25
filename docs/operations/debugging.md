@@ -2,36 +2,52 @@
 
 ## Enable Debug Mode
 
-Set `DEBUG=true` in environment for:
-- Full prompt logging
-- AI response logging
-- Console-friendly log format (vs JSON)
+Set `LOG_LEVEL=debug` for the broadest runtime trace.
+
+Useful feature flags:
+
+- `EMBODIMENT_ROUTING_DEBUG=true`
+- `DEBUG_ARTIFACTS=true`
+- `EMBODIMENT_ORCHESTRATION_ENABLED=true` when you want to inspect the orchestration path
 
 ## Decision Tracing
 
-Each workflow execution logs a decision chain:
-- classify: action type, confidence
-- context: thread length, user history
-- ai_decide: prompt version, model
-- validate: checks passed
-- execute: success/failure
+The current pipeline logs the main decision chain:
 
-Check logs with `decision_chain` key in debug mode.
+- classifier output
+- scoring bundle
+- thesis bundle
+- launch gate result
+- organoid orchestration contract
+- audit record and skip reason
+
+If a skip is orchestration-driven, look for:
+
+- `phase`
+- `leadEmbodimentId`
+- `silencePolicy`
+- `renderPolicy`
+- `skip_orchestration_silence`
 
 ## Common Issues
 
 ### Duplicate actions
-Check StateStore/event-state: events are deduplicated by ID via the persisted event state (processed/published markers). In Redis mode this is shared across processes; in filesystem mode it is single-instance.
+
+Check the persisted StateStore markers. Events are deduplicated by ID through the shared state layer; in Redis mode this is cross-process, in filesystem mode it is single-worker.
 
 ### Rate limit errors
-Rate limits are enforced by the runtime rate limiter backend. Verify:
-- `USE_REDIS=true` + valid `KV_URL` when running multi-worker
-- `RATE_LIMIT_BACKEND` (if set) matches your deployment intent
 
-If you need to reset limits for debugging, prefer resetting the StateStore keys in a controlled way (Redis namespace via `REDIS_KEY_PREFIX`) rather than SQL.
+The runtime rate limiter enforces the current launch policy. Verify:
 
-### xAI errors
-Verify `XAI_API_KEY` is set. Check for 429 (rate limit) - retries happen automatically.
+- `USE_REDIS=true` and a valid `KV_URL` when running multi-worker
+- `REDIS_KEY_PREFIX` matches the deployment namespace
+
+### xAI / LLM errors
+
+- verify the active provider key matches `LLM_PROVIDER`
+- check for auth errors versus transient provider errors
+- use the provider fallback only for transient failures
 
 ### X API errors
-Verify OAuth credentials. 401 = auth problem. 429 = rate limit.
+
+Verify OAuth credentials. `401` is usually auth; `429` is usually rate limiting.
