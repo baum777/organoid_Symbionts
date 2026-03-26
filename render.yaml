@@ -52,6 +52,8 @@ services:
         value: https://api.x.com/2/oauth2/token
 
       # LLM Provider (xAI)
+      - key: LLM_PROVIDER
+        value: xai
       - key: XAI_API_KEY
         sync: false
       - key: XAI_BASE_URL
@@ -68,14 +70,14 @@ services:
         value: prod
       - key: BOT_ACTIVATION_MODE
         value: global
+      - key: EMBODIMENT_ORCHESTRATION_ENABLED
+        value: "false"
 
       # Polling
       - key: POLL_INTERVAL_MS
         value: "30000"
       - key: MENTIONS_SOURCE
         value: search
-      - key: ADAPTIVE_POLLING_ENABLED
-        value: "true"
 
       # Logging
       - key: LOG_LEVEL

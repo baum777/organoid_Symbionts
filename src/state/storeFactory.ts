@@ -38,7 +38,7 @@ export function getStateStore(): StateStore {
     }
 
     logInfo("[StateStore] ✅ Redis Backend aktiv (Production Default)", {
-      prefix: process.env.REDIS_KEY_PREFIX ?? "organoid:",
+      prefix: process.env.REDIS_KEY_PREFIX ?? "ORGANOID:",
     });
     cachedStore = getRedisStore(kvUrl);
   } else {
