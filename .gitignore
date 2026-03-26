@@ -189,7 +189,7 @@ onchain_dumps/
 # Cache / KV (local)
 kv.local.json
 onchain-cache/
-state/
+/state/
 
 # Optional: generated snapshots (keep canonical snapshots in repo)
 snapshots-generated/

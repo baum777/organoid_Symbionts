@@ -49,7 +49,7 @@ export async function getRecentAuditEntries(
   try {
     const store = getStateStore();
     if (hasListOps(store)) {
-      const items = await store.lrange(TAIL_KEY, 0, limit - 1);
+      const items: string[] = await store.lrange(TAIL_KEY, 0, limit - 1);
       return items.map((s) => JSON.parse(s) as AuditRecord);
     }
     const raw = await store.get(TAIL_KEY);
