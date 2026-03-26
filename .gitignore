@@ -19,7 +19,9 @@ x-oauth-tokens.json
 .run-artifacts
 
 # Runtime data
-data/
+data/*
+!data/embodiments/
+!data/embodiments/*.yaml
 pids
 *.pid
 *.seed
