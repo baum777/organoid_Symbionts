@@ -18,6 +18,9 @@ import { createXAILLMClient } from "../src/clients/llmClient.xai.js";
 import { withCircuitBreaker } from "../src/ops/llmCircuitBreaker.js";
 
 const BOT_USER_ID_TERMINAL = "terminal-bot-1";
+type BridgeConfig = typeof DEFAULT_CANONICAL_CONFIG & {
+  system_prompt_override?: string;
+};
 
 function parseArgs(): {
   userInput: string;
@@ -82,9 +85,9 @@ async function main(): Promise<void> {
   const deps = { llm: llmClient, botUserId: BOT_USER_ID_TERMINAL };
   
   // Apply system override to config if provided
-  const config = { ...DEFAULT_CANONICAL_CONFIG };
+  const config: BridgeConfig = { ...DEFAULT_CANONICAL_CONFIG };
   if (systemOverride) {
-    (config as any).system_prompt_override = systemOverride;
+    config.system_prompt_override = systemOverride;
   }
 
   // Apply test/aggressive mode flags from environment

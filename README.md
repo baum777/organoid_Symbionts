@@ -2,6 +2,8 @@
 
 State-aware X/Twitter bot runtime with canonical mention handling, organoid orchestration, and short-term matrix state.
 
+This repo is also tracking the migration toward Organoid Entities as Semantic Symbiont. The operator cheat sheet and current migration notes live in [README_SYMBIONTS.md](./README_SYMBIONTS.md).
+
 ## What This Repo Is
 
 This repository contains the production runtime for the Organoid Symbiont bot. The current stack is TypeScript-first and centers on a canonical pipeline that classifies incoming signals, derives a thesis, applies a stateful organoid orchestration contract, and renders the final reply or silence decision.

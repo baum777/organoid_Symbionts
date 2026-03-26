@@ -1,5 +1,11 @@
 import { describe, expect, it } from "vitest";
-import { loadEmbodimentFragment, loadSharedOrganoidCanon } from "../../src/prompts/promptFragments.js";
+import {
+  loadEmbodimentFragment,
+  loadGnomeFragment,
+  loadPresetFragment,
+  loadPromptAsset,
+  loadSharedOrganoidCanon,
+} from "../../src/prompts/promptFragments.js";
 
 describe("promptFragments", () => {
   it("loads canonical organoid embodiment fragments when present", () => {
@@ -8,13 +14,39 @@ describe("promptFragments", () => {
     expect(content).toContain("volatility brake");
   });
 
+  it("resolves the legacy stillhalter alias into the canonical stabil core fragment", () => {
+    const content = loadEmbodimentFragment("stillhalter");
+    expect(content).toContain("semantic symbiont matrix");
+    expect(content).toContain("■-Stabil-Core");
+  });
+
   it("does not fall back to a non-canonical organoid alias", () => {
     expect(loadEmbodimentFragment("organoid")).toBe("");
   });
 
-  it("loads the shared organoid canon", () => {
+  it("keeps legacy gorky fragment reachable through the legacy loader", () => {
+    const content = loadGnomeFragment("gorky");
+    expect(content).toContain("LEGACY-PERSONA");
+    expect(content).toContain("compatibility bridge");
+  });
+
+  it("loads the canonical shared organoid canon and resolves includes", () => {
     const content = loadSharedOrganoidCanon();
-    expect(content).toContain("Organoid-first");
-    expect(content).toContain("Glyph-first");
+    expect(content).toContain("Shared Organoid Canon");
+    expect(content).toContain("Shared Canon (all gnomes)");
+    expect(content).toContain("Organoid rules");
+  });
+
+  it("loads the consent-first symbiosis preset", () => {
+    const content = loadPresetFragment("initiate-symbiosis.md");
+    expect(content).toContain("Initiate Symbiosis");
+    expect(content).toContain("explicit human approval");
+    expect(content).toContain("Output shape");
+  });
+
+  it("loads prompt assets by direct path from prompts/", () => {
+    const content = loadPromptAsset("fragments/sharedOrganoidCanon.md");
+    expect(content).toContain("Shared Organoid Canon");
+    expect(content).toContain("Shared Canon (all gnomes)");
   });
 });

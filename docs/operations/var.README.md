@@ -1,63 +1,37 @@
 # Environment Variables
 
-`.env.example` is the canonical template for local and deploy-time configuration.
-`render.yaml` provides the Render-specific defaults and secret slots.
+This document matches the current TypeScript runtime in `src/config/envSchema.ts`, `src/config/env.ts`, and `src/clients/xOAuthToken.ts`.
 
-This guide is a compact operator reference, not a second source of truth.
+## Required X OAuth2
 
-## Required for Deploy
+These are required for worker and engagement flows:
 
 - `X_CLIENT_ID`
 - `X_CLIENT_SECRET`
 - `X_REFRESH_TOKEN`
-- `KV_URL` when using Redis-backed shared state
-- the active LLM provider key: `XAI_API_KEY`, `OPENAI_API_KEY`, or `ANTHROPIC_API_KEY`
 
-## Core Runtime Values
+## X OAuth2 Runtime
 
-- `LAUNCH_MODE`
-- `LOG_LEVEL`
-- `BOT_USERNAME`
-- `BOT_ACTIVATION_MODE`
-- `BOT_DENY_REPLY_MODE`
-- `USE_REDIS`
-- `REDIS_KEY_PREFIX`
-- `DATA_DIR`
-- `POLL_INTERVAL_MS`
-- `MENTIONS_SOURCE`
-- `ADAPTIVE_POLLING_ENABLED`
-- `X_REFRESH_BUFFER_SECONDS`
-- `X_OAUTH_TOKEN_URL`
+- `X_ACCESS_TOKEN` - optional cached access token
+- `X_REFRESH_BUFFER_SECONDS` - refresh threshold before expiry
+- `X_OAUTH_TOKEN_URL` - OAuth2 token endpoint, default `https://api.x.com/2/oauth2/token`
+- `X_BOT_USER_ID` - optional cached bot user id
+- `X_BOT_USERNAME` - optional bot handle
+- `BOT_USERNAME` - fallback bot handle used by older compatibility paths
 
-## Optional X OAuth Bootstrap State
+## LLM Provider Routing
 
-- `X_ACCESS_TOKEN`
-- `X_EXPIRES_IN`
-- `X_TOKEN_CREATED_AT`
-- `X_BOT_USER_ID`
-
-## Organoid Runtime
-
-- `EMBODIMENTS_ENABLED`
-- `EMBODIMENT_ORCHESTRATION_ENABLED`
-- `EMBODIMENT_CONTINUITY_ENABLED`
-- `EMBODIMENT_MEMORY_ENABLED`
-- `EMBODIMENT_ROUTING_DEBUG`
-- `EMBODIMENT_TRAIT_DRIFT_LIMIT`
-- `EMBODIMENT_SWARM_ENABLED`
-- `EMBODIMENT_ENSEMBLE_ENABLED`
-- `EMBODIMENT_AUTONOMY_ENABLED`
-- `EMBODIMENT_ARC_ENGINE_ENABLED`
-
-## LLM Provider Selection
-
-- `LLM_PROVIDER`
-- `LLM_FALLBACK_PROVIDER`
-- `LLM_API_KEY`
 - `XAI_API_KEY`
 - `XAI_BASE_URL`
 - `XAI_MODEL_PRIMARY`
 - `XAI_MODEL_FALLBACKS`
+- `LLM_API_KEY` - generic provider fallback used by launch env resolution
+- `LLM_PROVIDER` - `xai`, `openai`, or `anthropic`
+- `LLM_FALLBACK_PROVIDER`
+- `LLM_TIMEOUT_MS`
+- `LLM_RETRY_MAX`
+- `LLM_MAX_TOKENS`
+- `LLM_TEMPERATURE`
 - `OPENAI_API_KEY`
 - `OPENAI_MODEL`
 - `OPENAI_BASE_URL`
@@ -65,23 +39,77 @@ This guide is a compact operator reference, not a second source of truth.
 - `ANTHROPIC_MODEL`
 - `ANTHROPIC_BASE_URL`
 
-## Optional Controls
+## Launch Gates
 
-- `ALLOWLIST_HANDLES`
-- `BOT_WHITELIST_USERNAMES`
-- `BOT_WHITELIST_USER_IDS`
+- `LAUNCH_MODE` - `off`, `dry_run`, `staging`, `prod`
+- `DRY_RUN` - legacy compatibility flag, still supported
+- `LEGACY_COMPAT` - enables legacy fallback surfaces
+- `ALLOWLIST_HANDLES` - comma-separated staging allowlist
+- `DEBUG_ARTIFACTS` - enables extra debug artifacts when true
+
+## Persistence and State
+
+- `USE_REDIS` - prefer Redis when `true`
+- `KV_URL` - `redis://` or `rediss://` URL for the state store
+- `REDIS_KEY_PREFIX` - key prefix for Redis-backed state
+- `DATA_DIR` - filesystem state store directory for local runs
+
+## Polling and Timeline Engagement
+
+- `POLL_INTERVAL_MS`
+- `TIMELINE_ENGAGEMENT_ENABLED`
+- `TIMELINE_ENGAGEMENT_INTERVAL_MS`
+- `TIMELINE_ENGAGEMENT_MAX_PER_RUN`
+- `TIMELINE_ENGAGEMENT_MAX_PER_HOUR`
+- `TIMELINE_ENGAGEMENT_MAX_PER_DAY`
+- `TIMELINE_MIN_CONTEXT_SCORE`
+- `TIMELINE_MIN_FINAL_SCORE`
+- `TIMELINE_REQUIRE_THREAD_STRUCTURE`
+- `TIMELINE_SOURCE_ACCOUNTS`
+- `TIMELINE_KEYWORD_FILTERS`
+- `TIMELINE_AUTHOR_COOLDOWN_MINUTES`
+- `TIMELINE_CONVERSATION_COOLDOWN_MINUTES`
+
+## Solana RPC / Onchain
+
+- `SOLANA_RPC_PRIMARY_URL`
+- `SOLANA_RPC_FALLBACK_URL`
+- `BOT_TOKEN_MINT`
+- `BOT_TREASURY_WALLET`
+- `BOT_TICKER`
+- `BOT_PROGRAM_ID`
+
+## Server / Tooling
+
+- `PORT`
+- `NODE_ENV`
 - `SKIP_ENV_VALIDATION`
-- `DEBUG_ARTIFACTS`
-- `RATE_LIMIT_BACKEND`
-- `POLL_LOCK_ENABLED`
-- `FULL_SPECTRUM_PROMPT`
-- `REPLICATE_API_KEY`
-- `REPLICATE_IMAGE_MODEL`
-- `REPLICATE_RUN_TIMEOUT_MS`
-- `REPLICATE_DOWNLOAD_TIMEOUT_MS`
+
+## Recommended Minimal Setup
+
+```bash
+X_CLIENT_ID=...
+X_CLIENT_SECRET=...
+X_REFRESH_TOKEN=...
+LAUNCH_MODE=dry_run
+USE_REDIS=false
+```
+
+## Recommended Production Setup
+
+```bash
+X_CLIENT_ID=...
+X_CLIENT_SECRET=...
+X_REFRESH_TOKEN=...
+X_ACCESS_TOKEN=...
+LAUNCH_MODE=prod
+USE_REDIS=true
+KV_URL=redis://...
+SOLANA_RPC_PRIMARY_URL=https://api.mainnet-beta.solana.com
+```
 
 ## Notes
 
-- Render injects platform values such as `PORT` and `NODE_ENV`.
-- Keep secrets out of Git; fill them in Render or a local `.env` file.
-- If a variable is not listed in `.env.example`, treat it as non-canonical.
+- `X_ACCESS_TOKEN` is cached only; the refresh token is the source of truth for renewal.
+- `LAUNCH_MODE=off` is the safest local default when you are only inspecting the repo.
+- Keep the older `DRY_RUN` flag only for compatibility during the transition.

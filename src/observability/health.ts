@@ -21,6 +21,10 @@ export interface HealthReport {
   timestamp: string;
 }
 
+export interface HealthCheckOptions {
+  includeRecentPoll?: boolean;
+}
+
 const WORKER_HEARTBEAT_KEY = "worker:last_poll_success";
 const STALE_POLL_MS = 5 * 60 * 1000; // 5 minutes
 const HEARTBEAT_TTL_SECONDS = 10 * 60; // 10 min
@@ -185,13 +189,15 @@ export function setHealthDeps(deps: HealthDeps | null): void {
   healthDeps = deps;
 }
 
-export async function runHealthChecks(): Promise<HealthReport> {
+export async function runHealthChecks(options?: HealthCheckOptions): Promise<HealthReport> {
   const snapshot = getSnapshot();
   const checks: HealthCheckResult[] = [];
 
   checks.push(await checkProcessAlive());
   checks.push(await checkStateStoreReachable());
-  checks.push(await checkRecentPollSuccess());
+  if (options?.includeRecentPoll ?? true) {
+    checks.push(await checkRecentPollSuccess());
+  }
   checks.push(await checkBacklogStuck(snapshot));
   checks.push(await checkTimelineHardening(snapshot));
 

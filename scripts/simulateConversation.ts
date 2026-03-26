@@ -83,7 +83,7 @@ function loadScenariosFromFile(filePath: string): ConversationScenario[] {
       if (parsed.name && Array.isArray(parsed.turns)) {
         scenarios.push(parsed);
       }
-    } catch (e) {
+    } catch {
       console.warn(`[WARN] Ungültige Zeile übersprungen: ${trimmed.slice(0, 60)}...`);
     }
   }
@@ -117,7 +117,6 @@ async function runScenario(
   console.log(`🚀 Simulation: ${scenario.name}`);
   console.log(`━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n`);
 
-  let lastBotReply = "";
   let parentForNext: string | null = null;
   const conversationContext: string[] = [];
 
@@ -150,7 +149,6 @@ async function runScenario(
       }
 
       const replyText = result.reply_text ?? "";
-      lastBotReply = replyText;
       parentForNext = replyText;
       conversationContext.push(`${event.author_handle}: ${event.text}`);
       conversationContext.push(`@organoid_on_sol: ${replyText}`);

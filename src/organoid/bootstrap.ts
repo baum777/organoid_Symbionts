@@ -29,6 +29,7 @@ export interface OrganoidBootstrapResult {
   matrix: OrganoidMatrixNode[];
   phases: readonly OrganoidPhase[];
   warnings: string[];
+  legacyCompat: boolean;
 }
 
 function toMatrixNode(profile: EmbodimentProfile): OrganoidMatrixNode {
@@ -57,6 +58,7 @@ export function formatOrganoidMatrixSummary(matrix: OrganoidMatrixNode[]): strin
 
 export async function bootstrapOrganoidRuntime(scope: "worker" | "server"): Promise<OrganoidBootstrapResult> {
   const warnings: string[] = [];
+  const legacyCompat = process.env.LEGACY_COMPAT === "true" || process.env.LEGACY_COMPAT === "1";
 
   try {
     await loadEmbodiments();
@@ -96,5 +98,6 @@ export async function bootstrapOrganoidRuntime(scope: "worker" | "server"): Prom
     matrix,
     phases: ORGANOID_PHASES,
     warnings,
+    legacyCompat,
   };
 }

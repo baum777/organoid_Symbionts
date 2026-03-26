@@ -36,8 +36,8 @@ async function checkMentions() {
         console.log(`- [${t.id}] @${username}: ${t.text}`);
       });
     }
-  } catch (err: any) {
-    console.error("Failed to fetch via search endpoint:", err?.data || err);
+  } catch (error: unknown) {
+    console.error("Failed to fetch via search endpoint:", error instanceof Error ? error.message : error);
   }
 }
 

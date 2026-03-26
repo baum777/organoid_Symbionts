@@ -1,7 +1,8 @@
 /**
- * Lore Expansion Engine — Bounded autonomous lore expansion
+ * Lore Expansion Engine — Bounded candidate proposal flow.
  *
- * Phase-5: Produces lore candidates for review; never auto-activates.
+ * Produces lore candidates for review only; never auto-activates or mutates
+ * the approved lore store.
  */
 
 import { generateLoreCandidates, type LoreCandidate } from "./loreCandidateGenerator.js";
@@ -11,16 +12,33 @@ export interface ExpansionResult {
   rejected: string[];
 }
 
-/** Collect and propose lore candidates (bounded). */
+function normalizeMotif(motif: string): string {
+  return motif.trim().toLowerCase().replace(/\s+/g, " ");
+}
+
+/**
+ * Collect and propose lore candidates in a bounded way.
+ */
 export async function expandLore(
   motifs: string[],
-  opts?: { enabled?: boolean; maxCandidates?: number },
+  opts?: { enabled?: boolean; maxCandidates?: number; createdAt?: string },
 ): Promise<ExpansionResult> {
   const enabled = opts?.enabled ?? false;
   if (!enabled) return { candidates: [], rejected: [] };
-  const candidates = generateLoreCandidates(motifs, { enabled });
+
+  const candidates = generateLoreCandidates(motifs, {
+    enabled,
+    maxCandidates: opts?.maxCandidates,
+    createdAt: opts?.createdAt,
+  });
+
+  const accepted = new Set(candidates.map((candidate) => candidate.source_motif));
+  const rejected = motifs
+    .map(normalizeMotif)
+    .filter((motif) => motif.length > 0 && !accepted.has(motif));
+
   return {
-    candidates: candidates.slice(0, opts?.maxCandidates ?? 5),
-    rejected: [],
+    candidates,
+    rejected: Array.from(new Set(rejected)),
   };
 }
