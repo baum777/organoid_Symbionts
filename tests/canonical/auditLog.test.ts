@@ -1,5 +1,6 @@
 import { describe, it, expect, beforeEach, afterEach } from "vitest";
 import { buildAuditRecord, persistAuditRecord, readAuditLog, shutdownAuditLog } from "../../src/canonical/auditLog.js";
+import { normalizeCanonicalInputText } from "../../src/canonical/inputNormalization.js";
 import { DEFAULT_CANONICAL_CONFIG } from "../../src/canonical/types.js";
 import type { CanonicalEvent, ClassifierOutput, ScoreBundle } from "../../src/canonical/types.js";
 import fs from "node:fs";
@@ -58,11 +59,14 @@ describe("auditLog", () => {
   });
 
   it("builds a complete audit record", () => {
+    const event = { ...makeEvent(), text: "@organoid_on_sol gm" };
+    const normalization = normalizeCanonicalInputText(event.text);
     const record = buildAuditRecord({
-      event: makeEvent(),
+      event,
       cls: makeCls(),
       scores: makeScores(),
       mode: "dry_one_liner",
+      inputNormalization: normalization,
       thesis: { primary: "claim_exceeds_evidence", supporting_point: null, evidence_bullets: [] },
       prompt_hash: "abc123",
       model_id: "grok-3",
@@ -78,6 +82,9 @@ describe("auditLog", () => {
     expect(record.final_action).toBe("publish");
     expect(record.reply_hash).toBeTruthy();
     expect(record.created_at).toBeTruthy();
+    expect(record.event_text).toBe("@organoid_on_sol gm");
+    expect(record.normalizedText).toBe("gm");
+    expect(record.strippedPrefixText).toBe("gm");
   });
 
   it("persists and reads back audit records", async () => {

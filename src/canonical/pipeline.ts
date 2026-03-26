@@ -58,7 +58,8 @@ import {
   saveOrganoidShortTermMatrix,
   type OrganoidShortTermMatrix,
 } from "../organoid/state.js";
-import { isOrchestrationEligibleMinimal } from "./conceptualProbe.js";
+import { isConceptualProbe, isOrchestrationEligibleMinimal } from "./conceptualProbe.js";
+import { normalizeCanonicalInputText } from "./inputNormalization.js";
 
 export interface PipelineDeps {
   llm: LLMClient;
@@ -81,6 +82,7 @@ function makeSkipResult(
   cls?: ClassifierOutput,
   scores?: ScoreBundle,
   config?: CanonicalConfig,
+  inputNormalization?: ReturnType<typeof normalizeCanonicalInputText>,
 ): PipelineResult {
   const cfg = config ?? DEFAULT_CANONICAL_CONFIG;
   const clsOut = cls ?? emptyClassifier();
@@ -100,9 +102,10 @@ function makeSkipResult(
       finalMode: "ignore",
       leadEmbodimentId: undefined,
     }),
-    thesis: null,
-    prompt_hash: null,
-    model_id: cfg.model_id,
+    inputNormalization,
+      thesis: null,
+      prompt_hash: null,
+      model_id: cfg.model_id,
     validation: null,
     final_action: "skip",
     skip_reason: skipReason,
@@ -121,30 +124,6 @@ function isValidEvent(event: CanonicalEvent): boolean {
 
 function isSelfLoop(event: CanonicalEvent, botUserId: string): boolean {
   return event.author_id === botUserId;
-}
-
-function isConceptualProbeRescueText(text: string): boolean {
-  const normalized = text.trim().toLowerCase();
-  if (!normalized) return false;
-  const coreText = normalized
-    .replace(/^(?:@\w+\s*)+/i, "")
-    .replace(/^\s*explicit\s+opt[- ]?in[:\-\s]*/i, "")
-    .trim();
-
-  if (!coreText) return false;
-
-  const structuredForm =
-    /^(?:what(?:'s|\s+is|\s+are)|what limits|how do|why does|do you think|should humans|is\s+.+\s+viable|will\s+.+\?)\b/i.test(coreText) ||
-    /\b(?:how do|what are|what is|should humans|do you think|is\s+.+\s+viable|what limits)\b/i.test(coreText);
-  const frontierSignal =
-    /\b(?:ai|agi|llm|wetware|organoid|biocomput|transhuman|posthuman|crypto|solana|convergen(?:ce|t)|structural|architecture|limit(?:s|ed)?|viable)\b/i.test(coreText);
-  const escalatorSignal =
-    /\bexplicit\s+opt[- ]?in\b/i.test(text) ||
-    /@\w+/.test(text) ||
-    /\?/.test(text) ||
-    /\b(?:and|x|converge)\b/i.test(coreText);
-
-  return structuredForm && frontierSignal && escalatorSignal;
 }
 
 function deriveFastPathBypassReason(args: {
@@ -198,16 +177,16 @@ export async function handleEvent(
   deps: PipelineDeps,
   config: CanonicalConfig = DEFAULT_CANONICAL_CONFIG,
 ): Promise<PipelineResult> {
-  const originalText = event.text;
-  const conceptualProbeCandidate = isConceptualProbeRescueText(originalText);
-
   if (!isValidEvent(event)) {
     return makeSkipResult(event, "skip_invalid_input", undefined, undefined, config);
   }
 
+  const inputNormalization = normalizeCanonicalInputText(event.text);
+  const conceptualProbeCandidate = isConceptualProbe(event.text, { event });
+
   const dedupe = await dedupeCheckAndMark(event.event_id);
   if (!dedupe.ok) {
-    return makeSkipResult(event, "skip_duplicate", undefined, undefined, config);
+    return makeSkipResult(event, "skip_duplicate", undefined, undefined, config, inputNormalization);
   }
 
   const rateLimit = await enforceLaunchRateLimits({
@@ -215,17 +194,17 @@ export async function handleEvent(
     globalId: "canonical_global",
   });
   if (!rateLimit.ok) {
-    return makeSkipResult(event, "skip_rate_limit", undefined, undefined, config);
+    return makeSkipResult(event, "skip_rate_limit", undefined, undefined, config, inputNormalization);
   }
 
   if (isSelfLoop(event, deps.botUserId)) {
-    return makeSkipResult(event, "skip_self_loop", undefined, undefined, config);
+    return makeSkipResult(event, "skip_self_loop", undefined, undefined, config, inputNormalization);
   }
 
   const safetyResult = safetyFilter(event);
   if (!safetyResult.passed) {
     const cls = classify(event);
-    return makeSkipResult(event, "skip_safety_filter", cls, undefined, config);
+    return makeSkipResult(event, "skip_safety_filter", cls, undefined, config, inputNormalization);
   }
 
   // ── Special intent fast-path: CA request ────────────────────────────────
@@ -250,6 +229,7 @@ export async function handleEvent(
         finalMode: "neutral_clarification",
         leadEmbodimentId: undefined,
       }),
+      inputNormalization,
       thesis: null,
       prompt_hash: null,
       model_id: config.model_id,
@@ -297,6 +277,7 @@ export async function handleEvent(
         finalMode: "market_banter",
         leadEmbodimentId: undefined,
       }),
+      inputNormalization,
       thesis: null,
       prompt_hash: null,
       model_id: config.model_id,
@@ -328,7 +309,7 @@ export async function handleEvent(
     conceptualProbeCandidate;
 
   if (cls.policy_severity === "hard" || (cls.policy_blocked && !cls.policy_severity)) {
-    return makeSkipResult(event, "skip_policy", cls, undefined, config);
+    return makeSkipResult(event, "skip_policy", cls, undefined, config, inputNormalization);
   }
 
   const scores = scoreEvent(event, cls);
@@ -344,12 +325,12 @@ export async function handleEvent(
 
   const eligibility = checkEligibility(scores, cls, config);
   if (!eligibility.eligible && !minimalOrchestrationEligible) {
-    return makeSkipResult(event, eligibility.skip_reason!, cls, scores, config);
+    return makeSkipResult(event, eligibility.skip_reason!, cls, scores, config, inputNormalization);
   }
 
   const thesis = extractThesis(event, cls, scores);
   if (!thesis) {
-    return makeSkipResult(event, "skip_no_thesis", cls, scores, config);
+    return makeSkipResult(event, "skip_no_thesis", cls, scores, config, inputNormalization);
   }
 
   let mode = selectMode(cls, scores, thesis, config, { text: event.text });
@@ -363,7 +344,7 @@ export async function handleEvent(
     mode = "soft_deflection";
   }
   if (mode === "ignore") {
-    return makeSkipResult(event, "skip_low_confidence", cls, scores, config);
+    return makeSkipResult(event, "skip_low_confidence", cls, scores, config, inputNormalization);
   }
 
   const narrative = mapNarrative(event, cls);
@@ -413,7 +394,7 @@ export async function handleEvent(
   });
 
   if (format.format === "skip") {
-    return makeSkipResult(event, "skip_format_decision", cls, scores, config);
+    return makeSkipResult(event, "skip_format_decision", cls, scores, config, inputNormalization);
   }
 
   const store = getStateStore();
@@ -499,7 +480,7 @@ export async function handleEvent(
         }
         if (plan.silencePolicy === "silence") {
           await persistOrganoidMatrix(plan.validation.ok);
-          return makeSkipResult(event, "skip_orchestration_silence", cls, scores, config);
+          return makeSkipResult(event, "skip_orchestration_silence", cls, scores, config, inputNormalization);
         }
       }
     } catch {
@@ -556,6 +537,7 @@ export async function handleEvent(
         leadEmbodimentId: organoidPlan?.leadEmbodimentId ?? embodimentSelection?.selectedEmbodimentId,
         organoidPlan,
       }),
+      inputNormalization,
       thesis,
       prompt_hash: result.prompt_hash,
       model_id: result.model_id,
@@ -584,28 +566,29 @@ export async function handleEvent(
   );
   const finalizedReply = renderEmbodimentGlyphs(result.reply_text, activatedEmbodiments);
   if (!finalizedReply) {
-    return makeSkipResult(event, "skip_validation_failure", cls, scores, config);
+    return makeSkipResult(event, "skip_validation_failure", cls, scores, config, inputNormalization);
   }
 
   const pathType = SOCIAL_INTENTS.includes(sourceIntent) ? "social" as const : "audit" as const;
-  const audit = buildAuditRecord({
-    event,
-    cls,
-    scores,
-    mode: finalMode,
-    ...buildAuditDebugFields({
-      classifierIntent,
-      baseIntent: classifierIntent,
-      sourceIntent,
-      orchestrationEligibleMinimal: minimalOrchestrationEligible,
-      conceptualProbeRescue: isConceptualProbeRescue,
-      fastPathBypassReason,
-      finalMode,
-      leadEmbodimentId: finalEmbodimentId,
-      organoidPlan,
-    }),
-    thesis,
-    prompt_hash: result.prompt_hash,
+    const audit = buildAuditRecord({
+      event,
+      cls,
+      scores,
+      mode: finalMode,
+      ...buildAuditDebugFields({
+        classifierIntent,
+        baseIntent: classifierIntent,
+        sourceIntent,
+        orchestrationEligibleMinimal: minimalOrchestrationEligible,
+        conceptualProbeRescue: isConceptualProbeRescue,
+        fastPathBypassReason,
+        finalMode,
+        leadEmbodimentId: finalEmbodimentId,
+        organoidPlan,
+      }),
+      inputNormalization,
+      thesis,
+      prompt_hash: result.prompt_hash,
     model_id: result.model_id,
     validation: result.validation,
     final_action: "publish",

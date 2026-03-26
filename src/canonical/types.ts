@@ -251,6 +251,16 @@ export interface AuditRecord {
   event_hash: string;
   /** Original mention text for snippet extraction and analytics */
   event_text?: string;
+  /** Classifier-facing normalized text */
+  normalizedText?: string;
+  /** Prefix-stripped classifier text */
+  strippedPrefixText?: string;
+  /** Removed prefix/marker fragments during normalization */
+  removedPrefixes?: string[];
+  /** Explicit opt-in markers captured during normalization */
+  optInMarkers?: string[];
+  /** Candidate texts used for classifier routing */
+  classifierTextCandidates?: string[];
   classifier_output: ClassifierOutput;
   classifierIntent?: IntentClass;
   baseIntent?: IntentClass;

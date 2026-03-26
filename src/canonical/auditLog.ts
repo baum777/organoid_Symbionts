@@ -10,6 +10,7 @@ import type {
   ThesisBundle,
   ValidationResult,
 } from "./types.js";
+import type { CanonicalInputNormalization } from "./inputNormalization.js";
 import type { OrganoidRenderPolicy, OrganoidSilencePolicy } from "../organoid/orchestration.js";
 
 import { writeFile, readFile, access, mkdir, appendFile } from "node:fs/promises";
@@ -97,6 +98,7 @@ export function buildAuditRecord(params: {
   silencePolicy?: OrganoidSilencePolicy;
   renderPolicy?: OrganoidRenderPolicy;
   leadEmbodimentId?: string;
+  inputNormalization?: CanonicalInputNormalization;
   thesis: ThesisBundle | null;
   prompt_hash: string | null;
   model_id: string;
@@ -124,6 +126,11 @@ export function buildAuditRecord(params: {
     event_id: params.event.event_id,
     event_hash: stableHash(eventSnapshot),
     event_text: params.event.text,
+    normalizedText: params.inputNormalization?.normalizedText,
+    strippedPrefixText: params.inputNormalization?.strippedPrefixText,
+    removedPrefixes: params.inputNormalization?.removedPrefixes,
+    optInMarkers: params.inputNormalization?.optInMarkers,
+    classifierTextCandidates: params.inputNormalization?.classifierTextCandidates,
     classifier_output: params.cls,
     classifierIntent: params.classifierIntent,
     baseIntent: params.baseIntent,

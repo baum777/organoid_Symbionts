@@ -106,12 +106,62 @@ describe("pipeline integration", () => {
     }
   });
 
+  it("publishes a mention-prefixed greeting", async () => {
+    const result = await handleEvent(
+      makeEvent({ text: "@organoid_on_sol gm", cashtags: [] }),
+      makeDeps("gm."),
+      DEFAULT_CANONICAL_CONFIG,
+    );
+    expect(result.action).toBe("publish");
+    if (result.action === "publish") {
+      expect(result.audit.classifier_output.intent).toBe("greeting");
+      expect(result.audit.classifierIntent).toBe("greeting");
+      expect(result.audit.final_action).toBe("publish");
+      expect(result.audit.normalizedText).toBe("gm");
+      expect(result.audit.strippedPrefixText).toBe("gm");
+    }
+  });
+
+  it("publishes the technical-limits conceptual probe variant", async () => {
+    const result = await handleEvent(
+      makeEvent({ text: "what actually limits current LLM systems the most?" }),
+      makeDeps("Mostly bottlenecks in data, evals, and deployment constraints."),
+      DEFAULT_CANONICAL_CONFIG,
+    );
+    expect(result.action).toBe("publish");
+    if (result.action === "publish") {
+      expect(result.audit.classifier_output.intent).toBe("conceptual_probe");
+      expect(result.audit.classifierIntent).toBe("conceptual_probe");
+      expect(result.audit.baseIntent).toBe("conceptual_probe");
+      expect(result.audit.orchestrationEligibleMinimal).toBe(true);
+      expect(result.audit.finalMode).toBe("neutral_clarification");
+    }
+  });
+
+  it("publishes the transhuman merge conceptual probe variant", async () => {
+    const result = await handleEvent(
+      makeEvent({ text: "do you think humans merging with machines is inevitable?" }),
+      makeDeps("Inevitable is too strong; the path is selective, constrained, and uneven."),
+      DEFAULT_CANONICAL_CONFIG,
+    );
+    expect(result.action).toBe("publish");
+    if (result.action === "publish") {
+      expect(result.audit.classifier_output.intent).toBe("conceptual_probe");
+      expect(result.audit.classifierIntent).toBe("conceptual_probe");
+      expect(result.audit.baseIntent).toBe("conceptual_probe");
+      expect(result.audit.orchestrationEligibleMinimal).toBe(true);
+      expect(result.audit.finalMode).toBe("neutral_clarification");
+    }
+  });
+
   it("creates an audit record on publish", async () => {
     const result = await handleEvent(makeEvent(), makeDeps(), DEFAULT_CANONICAL_CONFIG);
     expect(result.action).toBe("publish");
     expect(result.audit).toBeTruthy();
     expect(result.audit.final_action).toBe("publish");
     expect(result.audit.reply_hash).toBeTruthy();
+    expect(result.audit.normalizedText).toBeDefined();
+    expect(result.audit.strippedPrefixText).toBeDefined();
   });
 
   it("creates an audit record on skip", async () => {

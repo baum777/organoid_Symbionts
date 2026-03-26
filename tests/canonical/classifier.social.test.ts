@@ -34,6 +34,11 @@ describe("classifier — social intents", () => {
     expect(result.intent).toBe("greeting");
   });
 
+  it('classifies "@organoid_on_sol gm" as greeting', () => {
+    const result = classify(makeEvent({ text: "@organoid_on_sol gm" }));
+    expect(result.intent).toBe("greeting");
+  });
+
   it('classifies "hi!" as greeting', () => {
     const result = classify(makeEvent({ text: "hi!" }));
     expect(result.intent).toBe("greeting");

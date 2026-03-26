@@ -30,6 +30,25 @@ describe("conceptual probe helpers", () => {
     expect(isConceptualProbe(event.text, { event })).toBe(true);
   });
 
+  it("rescues technical limits phrasing variants", () => {
+    const event = makeEvent({ text: "what actually limits current LLM systems the most?" });
+    expect(isConceptualProbe(event.text, { event })).toBe(true);
+  });
+
+  it("rescues structural synergy phrasing variants", () => {
+    const event = makeEvent({
+      text: "@organoid_on_sol explicit opt-in: does AI + crypto actually have structural synergy or just narrative overlap?",
+    });
+    const cls = classify(event);
+    expect(cls.intent).toBe("conceptual_probe");
+    expect(isConceptualProbe(event.text, { event })).toBe(true);
+  });
+
+  it("rescues transhuman merge phrasing variants", () => {
+    const event = makeEvent({ text: "do you think humans merging with machines is inevitable?" });
+    expect(isConceptualProbe(event.text, { event })).toBe(true);
+  });
+
   it("rejects generic smalltalk and declarative hype", () => {
     expect(isConceptualProbe("gm how's your day")).toBe(false);
     expect(isConceptualProbe("AI will replace all humans within 5 years")).toBe(false);

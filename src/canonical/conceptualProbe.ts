@@ -1,14 +1,22 @@
 import type { CanonicalEvent, ClassifierOutput, ScoreBundle } from "./types.js";
+import { normalizeCanonicalInputText } from "./inputNormalization.js";
 
 type FrontierDomainTag = "ai" | "wetware" | "transhuman" | "crypto" | "structural";
 
 const STRUCTURED_FORM_PATTERNS: RegExp[] = [
   /^\s*what(?:'s|\s+is|\s+are)\b/i,
-  /^\s*what limits\b/i,
+  /^\s*what\s+(?:actually\s+)?limits\b/i,
+  /^\s*what\s+(?:mainly\s+)?limits\b/i,
+  /^\s*what\s+most\s+limits\b/i,
+  /^\s*what\s+constrains\b/i,
+  /^\s*what\s+bottlenecks\b/i,
   /^\s*how do\b/i,
+  /^\s*where do\b/i,
   /^\s*why does\b/i,
   /^\s*do you think\b/i,
+  /^\s*(?:do|does)\b.*\b(?:structural\s+synergy|narrative\s+overlap|actually\s+fit|actually\s+viable)\b/i,
   /^\s*should humans\b/i,
+  /^\s*is there\b.*\bstructural\s+overlap\b/i,
   /^\s*is\s+.+\s+viable\b/i,
   /^\s*will\s+.+\?\s*$/i,
 ];
@@ -42,6 +50,10 @@ const FRONTIER_DOMAIN_PATTERNS: Array<[FrontierDomainTag, RegExp[]]> = [
       /\bposthuman(?:ism)?\b/i,
       /\bdigital\s+migration\b/i,
       /\bmerge\s+with\s+machines\b/i,
+      /\bmerging\s+with\s+machines\b/i,
+      /\bmerged\s+with\s+machines\b/i,
+      /\bhuman[-\s]?machine\s+merge\b/i,
+      /\bhumans?\s+and\s+machines\s+merg(?:e|ing|ed)\b/i,
       /\bbiological\s+bodies?\s+are\s+obsolete\b/i,
     ],
   ],
@@ -88,13 +100,43 @@ const MARKET_CLUSTER_PATTERNS: RegExp[] = [
   /\bprice\s+action\b/i,
 ];
 
+const STRUCTURAL_FIT_PATTERNS: RegExp[] = [
+  /\bstructural\s+synergy\b/i,
+  /\bnarrative\s+overlap\b/i,
+  /\bactually\s+viable\b/i,
+];
+
+const TRANSHUMAN_MERGE_PATTERNS: RegExp[] = [
+  /\bmerge\s+with\s+machines\b/i,
+  /\bmerging\s+with\s+machines\b/i,
+  /\bmerged\s+with\s+machines\b/i,
+  /\bhuman[-\s]?machine\s+merge\b/i,
+  /\bhumans?\s+and\s+machines\s+merg(?:e|ing|ed)\b/i,
+];
+
+const WETWARE_UTILITY_PATTERNS: RegExp[] = [
+  /\bwhat\s+are\s+.+\s+useful\s+for\b/i,
+  /\bwhat\s+are\s+.+\s+good\s+for\b/i,
+  /\bwhat\s+is\s+.+\s+good\s+for\b/i,
+  /\bbeyond\s+hype\b/i,
+  /\breal\s+use\s+case\b/i,
+  /\bactual\s+use\b/i,
+];
+
+const CROSS_DOMAIN_CONVERGENCE_PATTERNS: RegExp[] = [
+  /\bhow do\b.*\bconverge\b/i,
+  /\bhow do\b.*\bconvergence\b/i,
+  /\bwhere do\b.*\bmeet\b/i,
+  /\blong\s+term\s+convergence\b/i,
+  /\bconverge\b.*\blong\s+term\b/i,
+];
+
 function normalizeText(text: string): string {
   return text.trim().toLowerCase();
 }
 
 function stripInvocationPrefix(text: string): string {
   return text
-    .replace(/^(?:@\w+\s*)+/i, "")
     .replace(/^\s*explicit\s+opt[- ]?in[:\-\s]*/i, "")
     .trim();
 }
@@ -111,6 +153,10 @@ function detectFrontierTags(text: string): Set<FrontierDomainTag> {
 
 function hasAnyStructuredForm(text: string): boolean {
   return STRUCTURED_FORM_PATTERNS.some((pattern) => pattern.test(text));
+}
+
+function matchesAny(text: string, patterns: RegExp[]): boolean {
+  return patterns.some((pattern) => pattern.test(text));
 }
 
 function hasDirectMentionSignal(event: CanonicalEvent): boolean {
@@ -162,31 +208,54 @@ export function isConceptualProbe(text: string, context?: { event?: CanonicalEve
   const normalized = normalizeText(text);
   if (!normalized) return false;
   const event = context?.event;
-  const coreText = stripInvocationPrefix(normalized);
-  const tags = detectFrontierTags(coreText);
+  const normalization = normalizeCanonicalInputText(normalized);
+  const syntheticEvent =
+    event ?? {
+      event_id: "conceptual_probe",
+      platform: "twitter",
+      trigger_type: "manual",
+      author_handle: "@unknown",
+      author_id: "unknown",
+      text,
+      parent_text: null,
+      quoted_text: null,
+      conversation_context: [],
+      cashtags: [],
+      hashtags: [],
+      urls: [],
+      timestamp: new Date().toISOString(),
+    };
 
-  if (!hasAnyStructuredForm(coreText)) return false;
-  if (!hasFrontierDomainSignal(coreText)) return false;
+  for (const candidate of normalization.classifierTextCandidates) {
+    const coreText = stripInvocationPrefix(candidate);
+    if (!coreText) continue;
 
-  return hasEscalatorSignal({
-    event:
-      event ?? {
-        event_id: "conceptual_probe",
-        platform: "twitter",
-        trigger_type: "manual",
-        author_handle: "@unknown",
-        author_id: "unknown",
-        text,
-        parent_text: null,
-        quoted_text: null,
-        conversation_context: [],
-        cashtags: [],
-        hashtags: [],
-        urls: [],
-        timestamp: new Date().toISOString(),
-      },
-    text: coreText,
-  }) || hasCrossDomainSignal(tags);
+    const tags = detectFrontierTags(coreText);
+    const structured = hasAnyStructuredForm(coreText) || matchesAny(coreText, [
+      ...STRUCTURAL_FIT_PATTERNS,
+      ...TRANSHUMAN_MERGE_PATTERNS,
+      ...WETWARE_UTILITY_PATTERNS,
+      ...CROSS_DOMAIN_CONVERGENCE_PATTERNS,
+    ]);
+    if (!structured) continue;
+    if (!hasFrontierDomainSignal(coreText)) continue;
+
+    if (
+      hasEscalatorSignal({
+        event: syntheticEvent,
+        text: coreText,
+      }) ||
+      hasCrossDomainSignal(tags) ||
+      matchesAny(coreText, STRUCTURAL_FIT_PATTERNS) ||
+      matchesAny(coreText, TRANSHUMAN_MERGE_PATTERNS) ||
+      matchesAny(coreText, WETWARE_UTILITY_PATTERNS) ||
+      matchesAny(coreText, CROSS_DOMAIN_CONVERGENCE_PATTERNS)
+    ) {
+      return true;
+    }
+  }
+
+  return false;
 }
 
 export function isOrchestrationEligibleMinimal(args: {

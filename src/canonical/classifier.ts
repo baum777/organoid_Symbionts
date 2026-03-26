@@ -7,6 +7,7 @@ import type {
   EvidenceClass,
 } from "./types.js";
 import { isConceptualProbe } from "./conceptualProbe.js";
+import { normalizeCanonicalInputText } from "./inputNormalization.js";
 
 const GREETING_PATTERNS = [
   /^(?:hey|hi|hello|gm|yo|sup|waddup|howdy|hola|ayo|wsg)[\s!?.]*$/i,
@@ -98,28 +99,40 @@ function countPatternMatches(text: string, patterns: RegExp[]): number {
   return patterns.filter((p) => p.test(text)).length;
 }
 
+function classifyIntentText(text: string, event: CanonicalEvent): IntentClass {
+  const trimmed = text.trim();
+
+  if (countPatternMatches(trimmed, SPAM_PATTERNS) >= 1) return "spam";
+  if (countPatternMatches(trimmed, BAIT_PATTERNS) >= 1) return "bait";
+
+  if (GREETING_PATTERNS.some((p) => p.test(trimmed))) return "greeting";
+  if (CASUAL_PING_PATTERNS.some((p) => p.test(trimmed))) return "casual_ping";
+  if (EMBODIMENT_QUERY_PATTERNS.some((p) => p.test(trimmed))) return "embodiment_query";
+  if (LORE_QUERY_PATTERNS.some((p) => p.test(trimmed))) return "lore_query";
+
+  if (countPatternMatches(trimmed, ACCUSATION_PATTERNS) >= 1) return "accusation";
+  if (countPatternMatches(trimmed, LAUNCH_PATTERNS) >= 1) return "launch_announcement";
+  if (countPatternMatches(trimmed, PERFORMANCE_PATTERNS) >= 1) return "performance_claim";
+  if (countPatternMatches(trimmed, HYPE_PATTERNS) >= 1) return "hype_claim";
+
+  if (MARKET_QUESTION_GENERAL_PATTERNS.some((p) => p.test(trimmed))) return "market_question_general";
+  if (isConceptualProbe(trimmed, { event })) return "conceptual_probe";
+  if (countPatternMatches(trimmed, MARKET_NARRATIVE_PATTERNS) >= 1) return "market_narrative";
+
+  if (countPatternMatches(trimmed, QUESTION_PATTERNS) >= 1) return "question";
+  if (countPatternMatches(trimmed, MEME_PATTERNS) >= 2) return "meme_only";
+
+  return "irrelevant";
+}
+
 function classifyIntent(event: CanonicalEvent): IntentClass {
-  const text = event.text;
-
-  if (countPatternMatches(text, SPAM_PATTERNS) >= 1) return "spam";
-  if (countPatternMatches(text, BAIT_PATTERNS) >= 1) return "bait";
-
-  if (GREETING_PATTERNS.some((p) => p.test(text.trim()))) return "greeting";
-  if (CASUAL_PING_PATTERNS.some((p) => p.test(text.trim()))) return "casual_ping";
-  if (EMBODIMENT_QUERY_PATTERNS.some((p) => p.test(text))) return "embodiment_query";
-  if (LORE_QUERY_PATTERNS.some((p) => p.test(text))) return "lore_query";
-
-  if (countPatternMatches(text, ACCUSATION_PATTERNS) >= 1) return "accusation";
-  if (countPatternMatches(text, LAUNCH_PATTERNS) >= 1) return "launch_announcement";
-  if (countPatternMatches(text, PERFORMANCE_PATTERNS) >= 1) return "performance_claim";
-  if (countPatternMatches(text, HYPE_PATTERNS) >= 1) return "hype_claim";
-  if (countPatternMatches(text, MARKET_NARRATIVE_PATTERNS) >= 1) return "market_narrative";
-
-  if (MARKET_QUESTION_GENERAL_PATTERNS.some((p) => p.test(text))) return "market_question_general";
-  if (isConceptualProbe(text, { event })) return "conceptual_probe";
-
-  if (countPatternMatches(text, QUESTION_PATTERNS) >= 1) return "question";
-  if (countPatternMatches(text, MEME_PATTERNS) >= 2) return "meme_only";
+  const normalization = normalizeCanonicalInputText(event.text);
+  for (const candidate of normalization.classifierTextCandidates) {
+    const intent = classifyIntentText(candidate, event);
+    if (intent !== "irrelevant") {
+      return intent;
+    }
+  }
 
   return "irrelevant";
 }
