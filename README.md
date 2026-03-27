@@ -1,20 +1,26 @@
 # Organoid Symbiont Runtime
 
-State-aware X/Twitter bot runtime with canonical mention handling, organoid orchestration, and short-term matrix state.
+Fail-closed, approval-gated runtime for X/Twitter engagement, organoid orchestration, and short-term matrix state. The repository also contains a separate public landing app in [`apps/landing`](./apps/landing) so the web surface can evolve without mixing into the worker runtime.
 
-This repo is also tracking the migration toward Organoid Entities as Semantic Symbiont. The operator cheat sheet and current migration notes live in [README_SYMBIONTS.md](./README_SYMBIONTS.md).
+The operator cheat sheet and migration notes live in [`README_SYMBIONTS.md`](./README_SYMBIONTS.md).
 
 ## What This Repo Is
 
-This repository contains the production runtime for the Organoid Symbiont bot. The current stack is TypeScript-first and centers on a canonical pipeline that classifies incoming signals, derives a thesis, applies a stateful organoid orchestration contract, and renders the final reply or silence decision.
+This is the production workspace for the Organoid Symbiont bot. The TypeScript runtime classifies incoming signals, derives a thesis, applies an organoid orchestration contract, and renders either a reply or silence decision.
 
-The repo now also contains a separate landing app in [apps/landing](./apps/landing) so the public web surface can evolve without mixing into the worker runtime.
-
-The key idea is:
+The core flow is:
 
 `signal -> phase -> resonance -> roles -> expression -> validation`
 
 That means the system does not jump directly from intent to persona. It first infers state, phase, tension, and role assignment, then lets the orchestration contract decide how the response should be expressed.
+
+## Operating Model
+
+- Candidate generation is review-first unless the operator explicitly activates a write path.
+- Outbound writes must pass consent, energy, duplicate, launch-mode, and public-text gates.
+- The short-term matrix is runtime state, not lore.
+- Onchain and verification paths are minimal and approval-gated.
+- If a behavior cannot be expressed through the canonical contract, it should be reauthored rather than aliased.
 
 ## Runtime Flow
 
@@ -29,14 +35,17 @@ flowchart LR
   G --> D
 ```
 
-## Runtime Surface
+## Runtime Surfaces
 
+- `src/index.ts` - worker entrypoint for the mention poller and timeline engagement loop
+- `src/server.ts` - health and observability HTTP server
 - `src/canonical/**` - classification, scoring, thesis, validation, pipeline control, and audit hooks
 - `src/organoid/**` - phase inference, resonance scoring, orchestration contract, and short-term matrix state
 - `src/routing/embodimentSelector.ts` - legacy-compatible embodiment routing
 - `src/output/renderEmbodimentGlyphs.ts` - glyph and visible embodiment rendering
 - `src/state/**` and `src/ops/**` - durable state, locks, launch gates, and runtime controls
 - `src/context/**` and `src/prompts/**` - thread context and prompt assembly
+- `apps/landing/` - isolated Next.js landing app with its own build and deploy path
 - `prompts/` - system, task, preset, and fragment prompts
 - `render.yaml` - Render deployment blueprint
 - `.env.example` - canonical environment template
@@ -51,11 +60,23 @@ flowchart LR
 - renders replies through glyph-aware prompt fragments and conservative output policies
 - exposes worker, health, and cron entrypoints for local and Render deployments
 
+## Safe Surfaces
+
+The runtime exposes a small set of observable endpoints:
+
+- `GET /health`
+- `GET /ready`
+- `GET /metrics`
+- `GET /glyph`
+- `GET /glyph-status`
+- `GET /glyph.svg`
+- `GET /glyph.json`
+
 ## Organoid Lore Canon
 
-The organoid layer is not a style palette. It is the runtime's internal control language for state, continuity, and expression. The lore defines how the system decides which embodiment leads, which one stabilizes, which one guards boundaries, and when the right answer is to speak less or not at all.
+The organoid layer is the runtime's internal control language for state, continuity, and expression. The lore defines how the system decides which embodiment leads, which one stabilizes, which one guards boundaries, and when the right answer is to speak less or not at all.
 
-The canonical lore lives in [docs/lore/README.md](./docs/lore/README.md), [docs/lore/ORGANOID_ORCHESTRATION.md](./docs/lore/ORGANOID_ORCHESTRATION.md), and [docs/lore/ORGANOID_EMBODIMENTS.md](./docs/lore/ORGANOID_EMBODIMENTS.md).
+The canonical lore lives in [`docs/lore/README.md`](./docs/lore/README.md), [`docs/lore/ORGANOID_ORCHESTRATION.md`](./docs/lore/ORGANOID_ORCHESTRATION.md), and [`docs/lore/ORGANOID_EMBODIMENTS.md`](./docs/lore/ORGANOID_EMBODIMENTS.md).
 
 ### Five Phases
 
@@ -87,23 +108,13 @@ The canonical lore lives in [docs/lore/README.md](./docs/lore/README.md), [docs/
 
 ## Repository Map
 
-- `src/index.ts` - main entrypoint
-- `src/worker/` - worker orchestration and poller execution
+- `src/index.ts` - main worker entrypoint
 - `src/server.ts` - HTTP server and health surfaces
-- `apps/landing/` - isolated Next.js landing app with its own build and deploy path
+- `apps/landing/` - isolated landing app
 - `src/canonical/` - canonical pipeline and validation backbone
 - `src/organoid/` - runtime organoid orchestration and state
 - `docs/` - active documentation for architecture, operations, lore, testing, and references
 - `tests/` - unit, integration, end-to-end, stress, and golden tests
-
-## Canonical Docs
-
-- `docs/README.md`
-- `docs/lore/README.md`
-- `docs/architecture/README.md`
-- `docs/operations/README.md`
-- `docs/testing/README.md`
-- `docs/reference/README.md`
 
 ## Quick Start
 
@@ -119,26 +130,42 @@ pnpm run lint:landing
 pnpm run build:landing
 ```
 
-## Local Run
+## Common Commands
 
-- `pnpm run dev` for the watcher-based worker
-- `pnpm run dev:landing` for the landing page
-- `pnpm run poll` for the dotenv-loaded poller
-- `pnpm run start` for the built runtime
-- `pnpm run organoid:build-semantic` to regenerate semantic artifacts
+Worker runtime:
 
-## Validation and CI
+- `pnpm run dev` - watcher-based worker
+- `pnpm run poll` - dotenv-loaded poller
+- `pnpm run start` - built runtime
+- `pnpm run demo:render` - render a demo surface
+- `pnpm run simulate` - simulate a conversation
+- `pnpm run simulate:ci` - strict simulation used for CI-style checks
+- `pnpm run snippets:extract` - regenerate daily snippets
+- `pnpm run organoid:build-semantic` - regenerate semantic artifacts
+- `pnpm run persona:build-semantic` - alias for the semantic build
 
-Use `pnpm run ci` to run the same local validation sequence that the repository expects in CI.
+Landing app:
 
-The GitHub Actions workflow in [`.github/workflows/ci.yml`](./.github/workflows/ci.yml) currently runs:
+- `pnpm run dev:landing`
+- `pnpm run build:landing`
+- `pnpm run start:landing`
+- `pnpm run lint:landing`
+- `pnpm run typecheck:landing`
 
-- TypeScript typecheck
-- ESLint
-- Vitest
-- production build
+Validation:
 
-It runs on Node 20 with pnpm 9 and installs dependencies with `pnpm install --frozen-lockfile`.
+- `pnpm run ci` - full repo validation, including the landing app
+- `pnpm run deploy-check` - deployment readiness check
+- `pnpm run symbiont-health-check` - runtime health probe
+- `pnpm run test:coverage`
+- `pnpm run test:critical`
+- `pnpm run test:smoke`
+- `pnpm run test:e2e`
+- `pnpm run test:stress`
+
+## Validation And CI
+
+The GitHub Actions workflow in [`.github/workflows/ci.yml`](./.github/workflows/ci.yml) runs on Node 20 with pnpm 9 and executes `pnpm run ci`.
 
 ## Configuration
 
@@ -154,11 +181,13 @@ It runs on Node 20 with pnpm 9 and installs dependencies with `pnpm install --fr
 
 ## Canonical Docs
 
-- [Architecture](./docs/architecture/README.md)
-- [Operations](./docs/operations/README.md)
-- [Lore](./docs/lore/README.md)
-- [Testing](./docs/testing/README.md)
-- [Reference](./docs/reference/README.md)
+- [`docs/README.md`](./docs/README.md)
+- [`docs/architecture/README.md`](./docs/architecture/README.md)
+- [`docs/operations/README.md`](./docs/operations/README.md)
+- [`docs/lore/README.md`](./docs/lore/README.md)
+- [`docs/testing/README.md`](./docs/testing/README.md)
+- [`docs/reference/README.md`](./docs/reference/README.md)
+- [`docs/compliance/`](./docs/compliance/)
 
 ## Contribution Notes
 
