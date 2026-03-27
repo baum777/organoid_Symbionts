@@ -21,9 +21,25 @@ export function HeroSection() {
             {content.hero.title}
           </h1>
 
-          <p className="mt-6 max-w-2xl text-base leading-8 text-zinc-300 sm:text-lg">
-            {content.hero.description}
-          </p>
+          <div className="mt-6 space-y-3">
+            <p className="max-w-2xl text-base leading-7 text-zinc-300 sm:text-lg">
+              {content.hero.description}
+            </p>
+            <div className="grid max-w-2xl gap-2 sm:grid-cols-3">
+              <div className="subtle-panel p-3">
+                <p className="font-mono text-[11px] uppercase tracking-[0.28em] text-muted">Seam</p>
+                <p className="mt-2 text-sm leading-6 text-zinc-200">Living signal.</p>
+              </div>
+              <div className="subtle-panel p-3">
+                <p className="font-mono text-[11px] uppercase tracking-[0.28em] text-muted">Clock</p>
+                <p className="mt-2 text-sm leading-6 text-zinc-200">Silicon keeps time.</p>
+              </div>
+              <div className="subtle-panel p-3">
+                <p className="font-mono text-[11px] uppercase tracking-[0.28em] text-muted">Ghost</p>
+                <p className="mt-2 text-sm leading-6 text-zinc-200">Myth arrives late.</p>
+              </div>
+            </div>
+          </div>
 
           <div className="mt-8 flex flex-wrap gap-3">
             <Link
@@ -60,28 +76,26 @@ export function HeroSection() {
             <div className="flex items-center justify-between gap-4">
               <div>
                 <p className="section-label">Substrate readout</p>
-                <h2 className="mt-3 font-display text-2xl uppercase tracking-[-0.04em] text-ink">
-                  Biohybrid stack
-                </h2>
+                <h2 className="mt-3 font-display text-2xl uppercase tracking-[-0.04em] text-ink">$wetware stack</h2>
               </div>
-              <span className="chip">Interface before mythology</span>
+              <span className="chip">interface before myth</span>
             </div>
 
             <div className="mt-6 rounded-[1.75rem] border border-white/10 bg-[#0c0c10] p-4">
               <div className="grid gap-3 md:grid-cols-[1fr_auto_1fr_auto_1fr] md:items-center">
                 <div className="rounded-[1.25rem] border border-lumen/20 bg-lumen/8 p-4">
-                  <p className="font-mono text-[11px] uppercase tracking-[0.28em] text-lumen">Bio node</p>
-                  <p className="mt-3 text-sm leading-6 text-zinc-200">Living tissue with memory, instability, and adaptation.</p>
+                  <p className="font-mono text-[11px] uppercase tracking-[0.28em] text-lumen">bio node</p>
+                  <p className="mt-3 text-sm leading-6 text-zinc-200">Living tissue with memory and drift.</p>
                 </div>
                 <div className="grid place-items-center text-2xl text-signal md:px-2">↔</div>
                 <div className="rounded-[1.25rem] border border-signal/20 bg-signal/8 p-4">
-                  <p className="font-mono text-[11px] uppercase tracking-[0.28em] text-signal">Interface lane</p>
-                  <p className="mt-3 text-sm leading-6 text-zinc-200">Measurement, routing, stimulation, and the actual control plane.</p>
+                  <p className="font-mono text-[11px] uppercase tracking-[0.28em] text-signal">interface lane</p>
+                  <p className="mt-3 text-sm leading-6 text-zinc-200">Measurement, routing, stimulation, seam-work.</p>
                 </div>
                 <div className="grid place-items-center text-2xl text-anomaly md:px-2">↔</div>
                 <div className="rounded-[1.25rem] border border-anomaly/20 bg-anomaly/8 p-4">
-                  <p className="font-mono text-[11px] uppercase tracking-[0.28em] text-anomaly">Silicon lane</p>
-                  <p className="mt-3 text-sm leading-6 text-zinc-200">Timing, orchestration, storage, and every boring piece that keeps it coherent.</p>
+                  <p className="font-mono text-[11px] uppercase tracking-[0.28em] text-anomaly">silicon lane</p>
+                  <p className="mt-3 text-sm leading-6 text-zinc-200">Timing, orchestration, storage, the boring clock.</p>
                 </div>
               </div>
             </div>
@@ -89,7 +103,7 @@ export function HeroSection() {
             <div className="mt-5 grid gap-3 sm:grid-cols-3">
               {[
                 { label: "Latency", value: "Readout pressure" },
-                { label: "State", value: "Shared SSOT" },
+                { label: "State", value: "Shared lore" },
                 { label: "Risk", value: "Interface drift" },
               ].map((item) => (
                 <div key={item.label} className="subtle-panel p-4">

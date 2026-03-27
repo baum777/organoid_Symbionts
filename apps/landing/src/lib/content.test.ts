@@ -16,14 +16,15 @@ describe("landing content", () => {
   });
 
   it("includes the core thesis line and CTA labels", () => {
-    expect(content.hero.title).toContain("Wetware is not magic");
-    expect(content.hero.primaryCta).toBe("Enter the substrate");
-    expect(content.hero.secondaryCta).toBe("Read the bottlenecks");
+    expect(content.hero.title).toContain("$wetware");
+    expect(content.hero.primaryCta).toBe("enter the seam");
+    expect(content.hero.secondaryCta).toBe("read the fracture");
   });
 
   it("keeps the page dense enough to matter", () => {
     expect(content.sections.snippets.snippets).toHaveLength(8);
     expect(content.sections.palette.entries).toHaveLength(4);
     expect(content.sections.token.is).toHaveLength(3);
+    expect(content.surface.ca).toHaveLength(44);
   });
 });

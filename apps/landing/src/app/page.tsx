@@ -4,6 +4,7 @@ import { BottleneckDiagram } from "@/components/bottleneck-diagram";
 import { ClusterSection } from "@/components/cluster-section";
 import { FooterManifest } from "@/components/footer-manifest";
 import { HeroSection } from "@/components/hero-section";
+import { TokenSurface } from "@/components/token-surface";
 import { PalettePanel } from "@/components/palette-panel";
 import { LiveSignalPreview } from "@/components/live-signal-preview";
 import { SectionHeading } from "@/components/section-heading";
@@ -21,6 +22,7 @@ export default function HomePage() {
 
       <div className="mx-auto flex w-full max-w-7xl flex-col gap-10 px-6 pb-20 pt-6 sm:px-8 lg:px-10 lg:pb-28">
         <HeroSection />
+        <TokenSurface />
 
         <section id="wetware" className="scroll-mt-24">
           <Reveal>
@@ -30,12 +32,27 @@ export default function HomePage() {
               description={content.sections.wetware.description}
             />
           </Reveal>
-          <div className="mt-8 grid gap-4 md:grid-cols-3">
-            {content.sections.wetware.points.map((point, index) => (
-              <Reveal key={point.title} delay={index * 90}>
-                <SignalCard tone={point.tone} eyebrow={point.eyebrow} title={point.title} body={point.body} />
-              </Reveal>
-            ))}
+          <div className="mt-8 grid gap-4 lg:grid-cols-12">
+            {content.sections.wetware.points.map((point, index) => {
+              const spanClass =
+                index === 0
+                  ? "lg:col-span-7"
+                  : index === 1
+                    ? "lg:col-span-5"
+                    : "lg:col-span-6 lg:col-start-7";
+
+              return (
+                <Reveal key={point.title} delay={index * 90}>
+                  <SignalCard
+                    tone={point.tone}
+                    eyebrow={point.eyebrow}
+                    title={point.title}
+                    body={point.body}
+                    className={spanClass}
+                  />
+                </Reveal>
+              );
+            })}
           </div>
         </section>
 

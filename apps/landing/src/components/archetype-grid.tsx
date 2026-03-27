@@ -13,13 +13,19 @@ const accentByTone = {
 
 export function ArchetypeGrid() {
   return (
-    <div className="mt-8 grid gap-4 lg:grid-cols-2 xl:grid-cols-4">
+    <div className="mt-8 grid gap-4 lg:grid-cols-12">
       {content.sections.archetypes.cards.map((card, index) => {
         const accent = accentByTone[card.tone];
+        const spanClass =
+          index === 0 ? "lg:col-span-7" : index === 1 ? "lg:col-span-5" : index === 2 ? "lg:col-span-5" : "lg:col-span-7";
+
         return (
           <Reveal key={card.name} delay={index * 90}>
             <article
-              className="glass-card relative overflow-hidden border border-white/10 p-5 transition-transform duration-300 hover:-translate-y-1"
+              className={cn(
+                "glass-card relative overflow-hidden border border-white/10 p-5 transition-transform duration-300 hover:-translate-y-1",
+                spanClass,
+              )}
               style={{ ["--archetype-accent" as string]: accent } as CSSProperties}
             >
               <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/25 to-transparent" />
@@ -35,7 +41,7 @@ export function ArchetypeGrid() {
                 </div>
                 <div className="subtle-panel p-4">
                   <p className="font-mono text-[11px] uppercase tracking-[0.28em] text-[color:var(--archetype-accent)]">
-                    Wetware rewrite
+                    $wetware rewrite
                   </p>
                   <p className="mt-3 text-sm leading-6 text-zinc-200">{card.wetwareRewrite}</p>
                 </div>

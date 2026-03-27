@@ -35,33 +35,39 @@ export function LiveSignalPreview() {
 
   return (
     <section id="live-signal" className="scroll-mt-24 border-t border-white/10 pt-10 sm:pt-12">
-      <Reveal>
-        <SectionHeading
-          eyebrow="Live Signal (Preview)"
-          title="Read-only bridge to the live stack"
-          description="A minimal semantic preview that looks alive, but stays decoupled from the worker runtime."
-        />
-      </Reveal>
+      <div className="grid gap-6 lg:grid-cols-[0.84fr_1.16fr] lg:items-start">
+        <Reveal>
+          <div className="space-y-4">
+            <SectionHeading
+              eyebrow="System trace"
+              title="Read-only residue"
+              description="A low-volume echo from the live seam. Alive enough to matter. Detached enough to stay safe."
+            />
 
-      <div className="mt-8 grid gap-4 md:grid-cols-3">
-        {preview.signals.map((signal, index) => (
-          <Reveal key={signal.id} delay={index * 80}>
-            <SignalCard compact {...signal} />
-          </Reveal>
-        ))}
+            <div className="flex flex-wrap gap-2">
+              <span className="chip">Observed {new Date(preview.observedAt).toLocaleTimeString()}</span>
+              <span className="chip">Dominant {preview.dominantEmbodiment}</span>
+              <span className="chip">Mode {preview.lastOrchestrationMode}</span>
+            </div>
+
+            <Reveal delay={120}>
+              <p className="max-w-xl text-sm leading-7 text-zinc-400">{preview.sampleAuditTrace}</p>
+            </Reveal>
+          </div>
+        </Reveal>
+
+        <div className="space-y-4">
+          {preview.signals.map((signal, index) => (
+            <Reveal key={signal.id} delay={index * 80}>
+              <SignalCard
+                compact
+                {...signal}
+                className={index === 0 ? "lg:ml-12" : index === 1 ? "lg:ml-4" : "lg:ml-20"}
+              />
+            </Reveal>
+          ))}
+        </div>
       </div>
-
-      <div className="mt-4 flex flex-wrap items-center gap-2">
-        <span className="chip">Observed at {new Date(preview.observedAt).toLocaleString()}</span>
-        <span className="chip">Dominant {preview.dominantEmbodiment}</span>
-        <span className="chip">Mode {preview.lastOrchestrationMode}</span>
-      </div>
-
-      <Reveal delay={120}>
-        <p className="mt-4 max-w-4xl text-sm leading-7 text-zinc-400">
-          {preview.sampleAuditTrace}
-        </p>
-      </Reveal>
     </section>
   );
 }

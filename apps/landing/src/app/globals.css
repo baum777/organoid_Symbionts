@@ -22,6 +22,7 @@
   }
 
   body {
+    position: relative;
     min-height: 100vh;
     overflow-x: hidden;
     background:
@@ -29,6 +30,33 @@
       radial-gradient(circle at 80% 0%, rgba(232, 121, 249, 0.08), transparent 24%),
       radial-gradient(circle at 50% 100%, rgba(110, 231, 183, 0.08), transparent 30%),
       var(--color-void);
+  }
+
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: -5;
+    background:
+      linear-gradient(rgba(255, 255, 255, 0.018), rgba(255, 255, 255, 0.018)),
+      repeating-linear-gradient(
+        90deg,
+        rgba(255, 255, 255, 0.04) 0,
+        rgba(255, 255, 255, 0.04) 1px,
+        transparent 1px,
+        transparent 6px
+      ),
+      repeating-linear-gradient(
+        0deg,
+        rgba(255, 255, 255, 0.03) 0,
+        rgba(255, 255, 255, 0.03) 1px,
+        transparent 1px,
+        transparent 8px
+      );
+    opacity: 0.12;
+    mix-blend-mode: screen;
+    animation: noiseShift 26s linear infinite;
   }
 
   ::selection {
@@ -64,6 +92,18 @@
 
   .subtle-panel {
     @apply rounded-[1.5rem] border border-white/8 bg-white/[0.025];
+  }
+
+  .noise-skin {
+    background-image:
+      radial-gradient(circle at 20% 20%, rgba(255, 255, 255, 0.14), transparent 18%),
+      radial-gradient(circle at 80% 70%, rgba(255, 255, 255, 0.08), transparent 14%),
+      radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.05), transparent 40%);
+    background-size: 140px 140px, 180px 180px, 220px 220px;
+  }
+
+  .artifact-link {
+    @apply inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.04] px-4 py-2 font-mono text-[11px] uppercase tracking-[0.26em] text-zinc-200 transition-all duration-300 hover:-translate-y-0.5 hover:border-white/20 hover:bg-white/8 hover:text-ink;
   }
 }
 
@@ -111,5 +151,25 @@
 
   50% {
     transform: translate3d(0, 12px, 0) scale(0.985);
+  }
+}
+
+@keyframes noiseShift {
+  0% {
+    transform: translate3d(0, 0, 0);
+  }
+
+  50% {
+    transform: translate3d(-1.5%, 0.5%, 0);
+  }
+
+  100% {
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body::before {
+    animation: none;
   }
 }

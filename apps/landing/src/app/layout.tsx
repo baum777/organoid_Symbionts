@@ -28,17 +28,17 @@ const mono = IBM_Plex_Mono({
 export const metadata: Metadata = {
   metadataBase,
   title: {
-    default: "Organoid Symbiont",
-    template: "%s · Organoid Symbiont",
+    default: "$wetware",
+    template: "%s · $wetware",
   },
-  description: "Meme-native wetware, organoids, and the interface bottleneck.",
-  applicationName: "Organoid Symbiont",
+  description: "$wetware, organoids, and the interface bottleneck.",
+  applicationName: "$wetware",
   keywords: [
     "organoid",
-    "wetware",
+    "$wetware",
     "biohybrid compute",
-    "memetic landing page",
-    "transhumanist crypto",
+    "tokenized artifact",
+    "bio-digital signal",
   ],
   robots: {
     index: true,
@@ -48,11 +48,11 @@ export const metadata: Metadata = {
     canonical: "/",
   },
   openGraph: {
-    title: "Organoid Symbiont",
-    description: "A research-aware landing page for biohybrid compute and wetware discourse.",
+    title: "$wetware",
+    description: "$wetware as a bio-digital signal object for the seam between substrate and interface.",
     type: "website",
     url: "/",
-    siteName: "Organoid Symbiont",
+    siteName: "$wetware",
     images: [
       {
         url: "/api/og",
@@ -70,8 +70,8 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Organoid Symbiont",
-    description: "A research-aware landing page for biohybrid compute and wetware discourse.",
+    title: "$wetware",
+    description: "$wetware as a bio-digital signal object for the seam between substrate and interface.",
     images: ["/api/og", "/og-fallback.svg"],
   },
   icons: {

@@ -139,7 +139,7 @@ export function GET() {
                 maxWidth: "720px",
               }}
             >
-              A research-aware landing page for biohybrid compute, wetware discourse, and the interface bottleneck.
+              $wetware as a bio-digital signal object for the seam between substrate and interface.
             </p>
             <div
               style={{

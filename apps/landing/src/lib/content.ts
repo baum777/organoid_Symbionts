@@ -39,225 +39,232 @@ export const sectionOrder = [
 ] as const;
 
 export const navLinks: SectionLink[] = [
-  { label: "Wetware", href: "#wetware" },
-  { label: "Bottlenecks", href: "#bottlenecks" },
-  { label: "Reality", href: "#reality" },
-  { label: "Archetypes", href: "#archetypes" },
+  { label: "Seam", href: "#wetware" },
+  { label: "Pull", href: "#hype" },
+  { label: "Stack", href: "#reality" },
+  { label: "Masks", href: "#archetypes" },
   { label: "Token", href: "#token" },
 ];
 
 export const content = {
   brand: {
-    name: "Organoid Symbiont",
-    strapline: "Meme-native wetware / organoids / separate deploy",
+    name: "$wetware",
+    strapline: "$wetware / bio-digital artifact / split runtime",
+  },
+  surface: {
+    ca: "DLbqiXS2uPrtpZ4FqGvgTG4Qhb1Z323gMpYWUdS4pump",
+    fragments: [
+      "copy the strand.",
+      "the seam is the thesis.",
+      "signal beats explanation.",
+    ],
+    links: [
+      {
+        label: "X Community",
+        href: "https://x.com/i/communities/2030407426399436851",
+      },
+      {
+        label: "Dexscreener",
+        href: "https://dexscreener.com/solana/az16jz5kemnejnx51hojecqzfnqkwc1wyebufdfgeeax",
+      },
+    ],
   },
   hero: {
-    eyebrow: "Dark lab / biotech glow / terminal intelligence",
-    title: "Wetware is not magic. It is a harder interface.",
+    eyebrow: "ritual tech / bio leak / terminal glow",
+    title: "$wetware is a signal surface.",
     description:
-      "Early alchemists chased essence. Modern builders chase a substrate that can learn, adapt, and still be measured without self-deception. Organoids are not tiny consciousness toys. They are a weird, fragile, promising control problem.",
-    primaryCta: "Enter the substrate",
-    secondaryCta: "Read the bottlenecks",
+      "Living tissue. Control surfaces. A seam that refuses clean categories.",
+    primaryCta: "enter the seam",
+    secondaryCta: "read the fracture",
     chips: [
-      "Shared SSOT",
-      "Separate deploy",
-      "Research-aware",
+      "signal artifact",
+      "split runtime",
+      "read-only",
       "Meme-native",
     ],
     cards: [
       {
         eyebrow: "Signal",
         title: "Hybrid compute",
-        body: "Silicon still runs control. Biology mutates the stack.",
+        body: "Silicon keeps the clock. Biology mutates the stack.",
         tone: "bio",
-        meta: "control plane stays measurable",
+        meta: "control stays measurable",
       },
       {
         eyebrow: "Reality",
         title: "Anti-hype by design",
-        body: "The lab says signal first. Sentience can wait in line.",
+        body: "The lab says signal first. Sentience can stand in the rain.",
         tone: "interface",
-        meta: "no fake consciousness theater",
+        meta: "no consciousness cosplay",
       },
       {
         eyebrow: "Signal layer",
         title: "Meme-native, not cringe",
-        body: "Enough sorcery to travel. Enough rigor to survive.",
+        body: "Enough sorcery to travel. Enough rigor to keep the ghost honest.",
         tone: "meme",
-        meta: "screenshot-friendly thesis",
+        meta: "screenshot-friendly",
       },
     ] satisfies SignalCardContent[],
   },
   sections: {
     wetware: {
-      eyebrow: "01 / Definition",
-      title: "What is wetware?",
-      description:
-        "A living substrate is still a substrate. Start with tissue, signal loops, and measurement. Do not start with science-fiction sentience cosplay.",
+      eyebrow: "01 / substrate",
+      title: "$wetware in one breath",
+      description: "Living tissue. Measured drift. A control problem with a pulse.",
       points: [
         {
-          eyebrow: "Living substrate",
-          title: "The material is alive.",
-          body: "Wetware means computation that includes living tissue, not a decorative bio skin around old ideas.",
+          eyebrow: "living substrate",
+          title: "The material breathes.",
+          body: "Computation with tissue in the loop, not a bio-skin on old software.",
           tone: "bio",
         },
         {
-          eyebrow: "Organoids and neurons",
-          title: "The useful story begins with loops.",
-          body: "Organoids, neurons, and biohybrid assemblies matter because they create a different signal surface, not because they instantly become minds.",
+          eyebrow: "signal loops",
+          title: "The useful story is the seam.",
+          body: "Organoids and neurons matter because they change the readout surface before they change the myth.",
           tone: "interface",
         },
         {
-          eyebrow: "Anti-hype",
-          title: "Start with control, not myth.",
-          body: "The right first question is how to read, stimulate, maintain, and stabilize the tissue without lying to yourself.",
+          eyebrow: "anti-hype",
+          title: "Start with control.",
+          body: "Read, stimulate, maintain. Let the legend arrive late.",
           tone: "meme",
         },
       ] satisfies SignalCardContent[],
     },
     hype: {
-      eyebrow: "02 / Signal",
-      title: "Why people think this changes everything",
-      description:
-        "The excitement is not random. There are three real stories that keep pulling people in, even when the lab reality is much less theatrical.",
+      eyebrow: "02 / pull",
+      title: "Why the spell keeps working",
+      description: "The draw is real. The math is stranger. The fantasy is louder than the lab.",
       clusters: [
         {
-          eyebrow: "Energy thesis",
+          eyebrow: "energy thesis",
           title: "Different watt math.",
-          body: "If biology can do adaptive work under different energy constraints, the substrate story gets interesting fast.",
+          body: "Living work under strange energy constraints. That hook never dies.",
           tone: "bio",
         },
         {
-          eyebrow: "Plasticity thesis",
-          title: "Learning looks stranger here.",
-          body: "A living system reorganizes in ways that are not a clean analog of gradient descent, and that is exactly why people keep staring at it.",
+          eyebrow: "plasticity thesis",
+          title: "Learning gets uncanny.",
+          body: "A living system reorganizes in ways gradient descent only dreams about.",
           tone: "interface",
         },
         {
-          eyebrow: "Replacement thesis",
-          title: "The market loves a full replacement fantasy.",
-          body: "The dream is post-silicon replacement; the practical story is more likely interface augmentation and hybrid control.",
+          eyebrow: "replacement thesis",
+          title: "The replacement myth.",
+          body: "The fantasy is post-silicon. The likely shape is hybrid leverage.",
           tone: "meme",
         },
       ] satisfies SignalCardContent[],
     },
     bottlenecks: {
-      eyebrow: "03 / Constraint",
-      title: "Where it actually breaks",
-      description:
-        "This is the truth layer. The main failures are not aesthetic. They are mechanical, volumetric, biological, and operational.",
+      eyebrow: "03 / seam",
+      title: "Where the spell stalls",
+      description: "Readout, geometry, maintenance, control. The wall is boring and real.",
       items: [
         {
           eyebrow: "I/O",
           title: "Readout is the wall.",
-          body: "The dream dies where the readout is too slow, too sparse, or too lossy to capture the state you care about.",
+          body: "Too slow, too sparse, too lossy. The signal falls apart first.",
           tone: "interface",
         },
         {
-          eyebrow: "Geometry",
-          title: "3D tissue vs planar sensors.",
-          body: "Living tissue is volumetric. Most interfaces are still flat, opinionated, and under-instrumented.",
+          eyebrow: "geometry",
+          title: "3D tissue, flat sensors.",
+          body: "Living tissue is volumetric. Most interfaces are still stubbornly planar.",
           tone: "bio",
         },
         {
-          eyebrow: "Maintenance",
+          eyebrow: "maintenance",
           title: "Biology needs care.",
-          body: "Perfusion, stability, contamination control, and ongoing maintenance are not side quests. They are the bill.",
+          body: "Perfusion, stability, contamination. The bill is part of the ritual.",
           tone: "anchor",
         },
         {
-          eyebrow: "Control",
+          eyebrow: "control",
           title: "Decoding is still hard.",
-          body: "You can stimulate a tissue. Explaining the response in a way that supports control remains a separate problem.",
+          body: "Stimulation is easy to narrate. Control is harder to earn.",
           tone: "meme",
         },
       ] satisfies SignalCardContent[],
-      callout: "The myth is sentience. The lab sees an interface bottleneck.",
+      callout: "Myth says sentience. The lab counts bottlenecks.",
     },
     reality: {
-      eyebrow: "04 / Stack",
-      title: "Biohybrid reality",
-      description:
-        "The useful claim is not that biology replaces silicon. The useful claim is that biology mutates the stack and changes where the leverage lives.",
+      eyebrow: "04 / stack",
+      title: "Stack mutation",
+      description: "Not replacement. Rewiring leverage. Biology bends the stack; silicon keeps the clock.",
       thesis: "Not replacing silicon. Mutating the stack.",
       points: [
         {
-          eyebrow: "Silicon side",
-          title: "Control, routing, timing, measurement.",
-          body: "The deterministic surfaces stay on the silicon side, where orchestration is fast, traceable, and less fragile.",
+          eyebrow: "silicon side",
+          title: "Control, routing, timing.",
+          body: "The deterministic side keeps the clock and the measurement surface.",
           tone: "interface",
         },
         {
-          eyebrow: "Biology side",
-          title: "Plasticity, adaptation, nonstandard learning.",
-          body: "Living substrate contributes dynamics that are harder to fake with clean abstractions and easier to overstate from a distance.",
+          eyebrow: "biology side",
+          title: "Plasticity, adaptation, drift.",
+          body: "Living substrate adds dynamics that clean abstractions keep failing to fake.",
           tone: "bio",
         },
         {
-          eyebrow: "Hybrid outcome",
+          eyebrow: "hybrid outcome",
           title: "A new control surface.",
-          body: "The win is not purity. The win is a new stack shape with different trade-offs, different failure modes, and stranger leverage.",
+          body: "The win is leverage. Different failure modes. Stranger leverage.",
           tone: "meme",
         },
       ] satisfies SignalCardContent[],
     },
     archetypes: {
-      eyebrow: "05 / Meme layer",
-      title: "Archetypes that make the thesis legible",
-      description:
-        "The page should know how to speak to the alchemist, the sorcerer, the Brahmin, and the trader-engineer-transhumanist without losing the plot.",
+      eyebrow: "05 / masks",
+      title: "Ritual masks, real functions",
+      description: "The old roles return in new clothes: tissue, routing, leverage, canon.",
       cards: [
         {
           name: "Alchemist",
-          classicalFunction: "Turns matter into essence and believes residue matters.",
-          wetwareRewrite:
-            "Treats experimental residue as a prototype and reads the lab like a transformation engine.",
+          classicalFunction: "Turns matter into essence.",
+          wetwareRewrite: "Treats residue like a prototype and the lab like a transformation engine.",
           tone: "meme",
         },
         {
           name: "Sorcerer",
-          classicalFunction: "Works with hidden forces and invisible channels.",
-          wetwareRewrite:
-            "Designs interfaces that feel like ritual, but are really disciplined control surfaces with atmosphere.",
+          classicalFunction: "Works with hidden channels.",
+          wetwareRewrite: "Builds interfaces that feel like ritual, but stay disciplined under the hood.",
           tone: "interface",
         },
         {
           name: "Brahmin",
-          classicalFunction: "Guards canon, boundary, and doctrine.",
-          wetwareRewrite:
-            "Keeps semantic boundaries clean so the stack does not dissolve into hype, slippage, or public nonsense.",
+          classicalFunction: "Guards canon and boundary.",
+          wetwareRewrite: "Keeps semantic edges clean so the stack does not dissolve into fog.",
           tone: "anchor",
         },
         {
           name: "Trader / Engineer / Transhumanist",
-          classicalFunction: "Prices ambiguity, builds systems, and prefers leverage.",
-          wetwareRewrite:
-            "Reads the market, ships the container, and keeps one foot in the lab while the other foot tests the next substrate.",
+          classicalFunction: "Prices ambiguity and builds leverage.",
+          wetwareRewrite: "Reads the field, keeps one foot in the lab, and moves where the leverage leaks.",
           tone: "bio",
         },
       ] satisfies ArchetypeCardContent[],
     },
     snippets: {
-      eyebrow: "06 / Copy wall",
-      title: "The thesis as screenshot-friendly fragments",
-      description:
-        "Short lines should carry the whole argument. No whitepaper fog. No marketing sludge. Just enough compression to travel.",
+      eyebrow: "06 / fragments",
+      title: "Compressed theory",
+      description: "Short lines carry the whole thing. Screenshot bait, but not empty.",
       snippets: [
-        "The substrate learns. The interface bottlenecks.",
-        "You do not deploy software. You deploy stimulus.",
-        "The lab says signal. The timeline says sentience.",
+        "$wetware learns where the interface stalls.",
+        "You do not ship software. You invite a pulse.",
+        "The lab says signal. The myth says oracle.",
         "Biology mutates the stack.",
-        "Code-deployable is a metaphor, not a theology.",
-        "The dream is not purity. It is new trade-offs.",
+        "Code is a metaphor. The tissue is not.",
+        "The dream is leverage, not purity.",
         "Readout is policy.",
-        "A wet future still needs a boring control plane.",
+        "A wet future still needs a boring clock.",
       ],
     },
     palette: {
-      eyebrow: "07 / Color logic",
-      title: "The palette is part of the argument",
-      description:
-        "Green says living substrate. Cyan says readout and instrumentation. Fuchsia says meme energy. Void says the thing still needs depth.",
+      eyebrow: "07 / palette",
+      title: "The colors argue too",
+      description: "Green = living drift. Cyan = readout. Fuchsia = anomaly. Void = room for the signal.",
       entries: [
         {
           name: "Bio",
@@ -286,14 +293,13 @@ export const content = {
       ] satisfies PaletteCardContent[],
     },
     token: {
-      eyebrow: "08 / Signal economics",
-      title: "Token thesis and meme-native coordination",
-      description:
-        "The token is not scientific proof and it is not fake utility. It is a signal amplifier that makes the thesis easier to coordinate around.",
+      eyebrow: "08 / token logic",
+      title: "Signal economics",
+      description: "$wetware is not proof. It is a carrier wave for attention, myth, and coordination.",
       is: [
-        "An amplifier for attention, memetics, and cultural compression.",
-        "A way to package the thesis so people can carry it and remix it.",
-        "A broadcast layer for the idea, not a replacement for the idea.",
+        "Amplifies attention, memetics, and cultural compression.",
+        "Lets people carry the thesis and remix it.",
+        "Broadcasts the idea. Does not replace the idea.",
       ],
       isNot: [
         "A proof of sentience.",
@@ -303,8 +309,8 @@ export const content = {
     },
   },
   footer: {
-    line: "Frontier compute, but stranger.",
-    manifest: "Interface before mythology. The future got wet.",
+    line: "$wetware, stranger.",
+    manifest: "Interface before mythology. The future leaked.",
   },
 } as const;
 

@@ -26,12 +26,17 @@ export function BiohybridRealitySection() {
         </div>
       </Reveal>
 
-      <div className="grid gap-4 md:grid-cols-3 lg:grid-cols-1 xl:grid-cols-3">
-        {content.sections.reality.points.map((point, index) => (
-          <Reveal key={point.title} delay={index * 90}>
-            <SignalCard {...point} />
-          </Reveal>
-        ))}
+      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-12">
+        {content.sections.reality.points.map((point, index) => {
+          const spanClass =
+            index === 0 ? "xl:col-span-5" : index === 1 ? "xl:col-span-4 xl:col-start-4" : "xl:col-span-5 xl:col-start-8";
+
+          return (
+            <Reveal key={point.title} delay={index * 90}>
+              <SignalCard {...point} className={spanClass} />
+            </Reveal>
+          );
+        })}
       </div>
     </div>
   );

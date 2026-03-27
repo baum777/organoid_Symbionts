@@ -13,9 +13,9 @@ export function FooterManifest() {
             <p className="text-sm leading-7 text-zinc-400">{content.footer.manifest}</p>
           </div>
           <div className="flex flex-wrap gap-2">
-            <span className="chip">Meme-native</span>
-            <span className="chip">Research-aware</span>
-            <span className="chip">Deployable</span>
+            <span className="chip">meme-native</span>
+            <span className="chip">read-only</span>
+            <span className="chip">artifact</span>
           </div>
         </div>
       </footer>

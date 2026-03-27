@@ -6,9 +6,12 @@ export function PalettePanel() {
     <div className="mt-8 grid gap-4 lg:grid-cols-[1.02fr_0.98fr]">
       <Reveal>
         <div className="section-shell h-full p-5 sm:p-6">
-          <div className="grid gap-3 sm:grid-cols-2">
+          <div className="grid gap-3 sm:grid-cols-6">
             {content.sections.palette.entries.map((entry, index) => (
-              <div key={entry.name} className="glass-card overflow-hidden border border-white/10 p-4">
+              <div
+                key={entry.name}
+                className={`glass-card overflow-hidden border border-white/10 p-4 ${index === 0 ? "sm:col-span-3" : index === 1 ? "sm:col-span-3" : index === 2 ? "sm:col-span-2" : "sm:col-span-4"}`}
+              >
                 <div
                   className="h-24 rounded-[1rem] border border-white/8"
                   style={{
@@ -41,8 +44,8 @@ export function PalettePanel() {
           <div>
             <p className="font-display text-3xl uppercase tracking-[-0.05em] text-ink">Color as argument</p>
             <p className="mt-4 text-sm leading-7 text-zinc-300 sm:text-base">
-              The palette is not decorative. It encodes the whole thesis: living substrate, instrumented
-              readout, memetic heat, and the negative space needed for the message to land.
+              The palette is not decorative. It encodes the whole thesis: living drift, instrumented readout,
+              memetic heat, and the negative space needed for the signal to land.
             </p>
           </div>
 

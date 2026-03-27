@@ -6,11 +6,16 @@ export function BottleneckDiagram() {
   return (
     <div className="mt-8 grid gap-4 lg:grid-cols-[1.02fr_0.98fr]">
       <div className="grid gap-4 sm:grid-cols-2">
-        {content.sections.bottlenecks.items.map((item, index) => (
-          <Reveal key={item.title} delay={index * 90}>
-            <SignalCard {...item} />
-          </Reveal>
-        ))}
+        {content.sections.bottlenecks.items.map((item, index) => {
+          const spanClass =
+            index === 0 ? "sm:col-span-2" : index === 1 ? "" : index === 2 ? "" : "sm:col-span-2";
+
+          return (
+            <Reveal key={item.title} delay={index * 90}>
+              <SignalCard {...item} className={spanClass} />
+            </Reveal>
+          );
+        })}
       </div>
 
       <Reveal delay={120}>

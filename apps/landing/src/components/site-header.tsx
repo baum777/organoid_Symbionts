@@ -30,8 +30,8 @@ export function SiteHeader() {
         </nav>
 
         <div className="hidden items-center gap-2 lg:flex">
-          <span className="chip">SSOT aligned</span>
-          <span className="chip">Render ready</span>
+          <span className="chip">read-only</span>
+          <span className="chip">split runtime</span>
         </div>
       </div>
     </header>
