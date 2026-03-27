@@ -110,12 +110,13 @@ services:
     runtime: node
     region: frankfurt
     plan: starter
+    rootDir: apps/landing
     buildCommand: |
-      echo "Installing workspace dependencies..."
+      echo "Installing landing app dependencies..."
       pnpm install --frozen-lockfile --prod=false
       echo "Building landing app..."
-      pnpm build:landing
-    startCommand: pnpm start:landing
+      pnpm build
+    startCommand: pnpm start
     envVars:
       - key: NODE_ENV
         value: production
