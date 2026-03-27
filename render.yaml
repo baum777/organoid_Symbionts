@@ -104,6 +104,26 @@ services:
       - key: KV_URL
         sync: false
 
+  # Landing page web service
+  - type: web
+    name: organoid-landing
+    runtime: node
+    region: frankfurt
+    plan: starter
+    buildCommand: |
+      echo "Installing workspace dependencies..."
+      pnpm install --frozen-lockfile --prod=false
+      echo "Building landing app..."
+      pnpm build:landing
+    startCommand: pnpm start:landing
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: "3000"
+      - key: HOSTNAME
+        value: "0.0.0.0"
+
   # Daily Embodiment Snippet Extractor - Cron (täglich 3 Uhr UTC)
   - type: cron
     name: embodiments-daily-snippets

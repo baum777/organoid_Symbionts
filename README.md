@@ -8,6 +8,8 @@ This repo is also tracking the migration toward Organoid Entities as Semantic Sy
 
 This repository contains the production runtime for the Organoid Symbiont bot. The current stack is TypeScript-first and centers on a canonical pipeline that classifies incoming signals, derives a thesis, applies a stateful organoid orchestration contract, and renders the final reply or silence decision.
 
+The repo now also contains a separate landing app in [apps/landing](./apps/landing) so the public web surface can evolve without mixing into the worker runtime.
+
 The key idea is:
 
 `signal -> phase -> resonance -> roles -> expression -> validation`
@@ -88,6 +90,7 @@ The canonical lore lives in [docs/lore/README.md](./docs/lore/README.md), [docs/
 - `src/index.ts` - main entrypoint
 - `src/worker/` - worker orchestration and poller execution
 - `src/server.ts` - HTTP server and health surfaces
+- `apps/landing/` - isolated Next.js landing app with its own build and deploy path
 - `src/canonical/` - canonical pipeline and validation backbone
 - `src/organoid/` - runtime organoid orchestration and state
 - `docs/` - active documentation for architecture, operations, lore, testing, and references
@@ -111,11 +114,15 @@ pnpm run typecheck
 pnpm run lint
 pnpm run test
 pnpm run build
+pnpm run typecheck:landing
+pnpm run lint:landing
+pnpm run build:landing
 ```
 
 ## Local Run
 
 - `pnpm run dev` for the watcher-based worker
+- `pnpm run dev:landing` for the landing page
 - `pnpm run poll` for the dotenv-loaded poller
 - `pnpm run start` for the built runtime
 - `pnpm run organoid:build-semantic` to regenerate semantic artifacts

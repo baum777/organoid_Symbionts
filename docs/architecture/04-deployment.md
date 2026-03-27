@@ -4,6 +4,8 @@
 
 The runtime is a TypeScript/Node worker process with an optional health web service and an optional cron job.
 
+A separate Next.js landing app now lives in `apps/landing/` so the public web surface can ship on its own deploy path without touching the worker runtime.
+
 ## Local Deployment
 
 - `pnpm dev` for the watch-mode worker
@@ -14,6 +16,7 @@ The runtime is a TypeScript/Node worker process with an optional health web serv
 
 - `render.yaml` is the current deployment blueprint
 - worker, health, and cron services are defined there
+- the landing page is deployed as its own Render web service
 - `USE_REDIS=true` is required for multi-worker production
 - `KV_URL` must point at a shared Redis instance for production coordination
 

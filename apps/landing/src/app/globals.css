@@ -1,0 +1,115 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: var(--font-body-face);
+  --font-display: var(--font-headline-face);
+  --font-mono: var(--font-mono-face);
+  --color-void: #09090b;
+  --color-surface: #18181b;
+  --color-surface-2: #27272a;
+  --color-lumen: #6ee7b7;
+  --color-signal: #67e8f9;
+  --color-anomaly: #e879f9;
+  --color-ink: #fafafa;
+  --color-muted: #a1a1aa;
+  --animate-drift: drift 18s ease-in-out infinite;
+  --animate-float: float 12s ease-in-out infinite;
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    min-height: 100vh;
+    overflow-x: hidden;
+    background:
+      radial-gradient(circle at 20% 20%, rgba(103, 232, 249, 0.08), transparent 30%),
+      radial-gradient(circle at 80% 0%, rgba(232, 121, 249, 0.08), transparent 24%),
+      radial-gradient(circle at 50% 100%, rgba(110, 231, 183, 0.08), transparent 30%),
+      var(--color-void);
+  }
+
+  ::selection {
+    background: rgba(103, 232, 249, 0.28);
+    color: var(--color-ink);
+  }
+}
+
+@layer components {
+  .section-shell {
+    @apply rounded-[2rem] border border-white/10 bg-white/[0.035] p-6 shadow-[0_24px_120px_rgba(0,0,0,0.35)] backdrop-blur-xl sm:p-8;
+  }
+
+  .section-title {
+    @apply font-display text-3xl uppercase tracking-[-0.04em] text-ink sm:text-4xl lg:text-5xl;
+  }
+
+  .section-label {
+    @apply font-mono text-[11px] uppercase tracking-[0.35em] text-muted;
+  }
+
+  .section-copy {
+    @apply max-w-3xl text-sm leading-7 text-zinc-300 sm:text-base;
+  }
+
+  .chip {
+    @apply inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1 font-mono text-[11px] uppercase tracking-[0.25em] text-zinc-300;
+  }
+
+  .glass-card {
+    @apply rounded-[1.5rem] border border-white/10 bg-white/[0.04] shadow-[0_16px_60px_rgba(0,0,0,0.24)] backdrop-blur-xl;
+  }
+
+  .subtle-panel {
+    @apply rounded-[1.5rem] border border-white/8 bg-white/[0.025];
+  }
+}
+
+[data-reveal] {
+  opacity: 0;
+  transform: translateY(16px);
+  filter: blur(8px);
+  transition:
+    opacity 700ms ease,
+    transform 700ms ease,
+    filter 700ms ease;
+}
+
+[data-reveal="true"] {
+  opacity: 1;
+  transform: translateY(0);
+  filter: blur(0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-reveal] {
+    opacity: 1;
+    transform: none;
+    filter: none;
+    transition: none;
+  }
+}
+
+@keyframes drift {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+
+  50% {
+    transform: translate3d(0, -14px, 0) scale(1.02);
+  }
+}
+
+@keyframes float {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+
+  50% {
+    transform: translate3d(0, 12px, 0) scale(0.985);
+  }
+}
