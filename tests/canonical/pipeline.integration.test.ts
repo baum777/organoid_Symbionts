@@ -112,6 +112,33 @@ describe("pipeline integration", () => {
     }
   });
 
+  it("rescues a wetware follow-up into conversation_continue when thread context is present", async () => {
+    const result = await handleEvent(
+      makeEvent({
+        trigger_type: "reply",
+        text: "what about scaling?",
+        parent_text: "We are comparing wetware readout, I/O, and scaling constraints.",
+        conversation_context: ["parent: wetware readout, I/O, and scaling constraints"],
+      }),
+      makeDeps("Scaling usually fails at the interface and readout layer."),
+      DEFAULT_CANONICAL_CONFIG,
+    );
+
+    expect(result.action).toBe("publish");
+    if (result.action === "publish") {
+      expect(result.mode).toBe("neutral_clarification");
+      expect(result.audit.path).toBe("social");
+      expect(result.audit.classifier_output.intent).toBe("conversation_continue");
+      expect(result.audit.classifier_output.baseIntent).toBe("question");
+      expect(result.audit.classifierIntent).toBe("conversation_continue");
+      expect(result.audit.baseIntent).toBe("question");
+      expect(result.audit.sourceIntent).toBe("conversation_continue");
+      expect(result.audit.hasParentContext).toBe(true);
+      expect(result.audit.continuationSignal).toBe(true);
+      expect(result.audit.finalMode).toBe("neutral_clarification");
+    }
+  });
+
   it("rescues a structured critique statement into skeptical_breakdown", async () => {
     const result = await handleEvent(
       makeEvent({

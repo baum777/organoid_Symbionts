@@ -43,6 +43,32 @@ const CONTINUATION_NEGATIVE_PATTERNS: RegExp[] = [
   /^\s*(?:what\s+now|now\s+what|why\??|so\??|and\??)\s*$/i,
 ];
 
+const WETWARE_CONTINUATION_FORM_PATTERNS: RegExp[] = [
+  /^\s*and\s+where\s+does\s+it\s+fail\b/i,
+  /^\s*what\s+about\s+scal(?:ing|e)\b/i,
+  /^\s*so\s+what(?:'s|\s+is)\s+the\s+constraint\b/i,
+  /^\s*then\s+what\s+is\s+actually\s+being\s+computed\b/i,
+  /^\s*where\s+does\s+the\s+interface\s+break\b/i,
+  /^\s*what\s+is\s+silicon\s+still\s+doing\s+here\b/i,
+  /^\s*and\s+how\s+much\s+of\s+this\s+is\s+real\s+vs\s+marketing\b/i,
+];
+
+const WETWARE_CONTINUATION_RELEVANCE_PATTERNS: RegExp[] = [
+  /\bscal(?:e|ing|ability)\b/i,
+  /\bconstraint(?:s)?\b/i,
+  /\binterface\b/i,
+  /\bi\/o\b/i,
+  /\bcompute(?:d|s|ing)?\b/i,
+  /\bsilicon\b/i,
+  /\bmarketing\b/i,
+  /\bbottleneck(?:s)?\b/i,
+  /\bfail(?:s|ure|ing)?\b/i,
+  /\bbreak(?:s|ing|down)?\b/i,
+  /\breadout\b/i,
+  /\bdecod(?:e|ing|er|ers)\b/i,
+  /\bstability\b/i,
+];
+
 function normalize(text: string): string {
   return (text ?? "").trim().replace(/\s+/g, " ");
 }
@@ -69,13 +95,19 @@ export function hasRelevantParentContext(event: CanonicalEvent): boolean {
 export function looksLikeContinuation(text: string): boolean {
   const normalized = normalize(text);
   if (!normalized) return false;
-  return hasPatternMatch(normalized, CONTINUATION_FORM_PATTERNS);
+  return (
+    hasPatternMatch(normalized, CONTINUATION_FORM_PATTERNS) ||
+    hasPatternMatch(normalized, WETWARE_CONTINUATION_FORM_PATTERNS)
+  );
 }
 
 export function hasContinuationRelevance(text: string): boolean {
   const normalized = normalize(text);
   if (!normalized) return false;
-  return hasPatternMatch(normalized, CONTINUATION_RELEVANCE_PATTERNS);
+  return (
+    hasPatternMatch(normalized, CONTINUATION_RELEVANCE_PATTERNS) ||
+    hasPatternMatch(normalized, WETWARE_CONTINUATION_RELEVANCE_PATTERNS)
+  );
 }
 
 function isNegativeContinuation(text: string): boolean {

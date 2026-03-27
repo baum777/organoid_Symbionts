@@ -39,8 +39,20 @@ const FRONTIER_DOMAIN_PATTERNS: Array<[FrontierDomainTag, RegExp[]]> = [
     [
       /\bwetware\b/i,
       /\borganoid(?:s)?\b/i,
+      /\borganoid\s+intelligence\b/i,
+      /\bbiohybrid\b/i,
       /\bbiocomput(?:er|ing|ation)?\b/i,
       /\bbiological\s+comput(?:ing|ation)\b/i,
+      /\bbiological\s+learning\b/i,
+      /\bwetware\s+as\s+a\s+service\b/i,
+      /\bliving\s+server(?:s)?\b/i,
+      /\bmind\s+in\s+a\s+dish\b/i,
+      /\bpong\s*\/\s*cart[- ]?pole\b/i,
+      /\binterface\s+bottleneck\b/i,
+      /\bi\/o\s+layer\b/i,
+      /\bsentience\b/i,
+      /\bconscious(?:ness)?\b/i,
+      /\bplasticity\b/i,
     ],
   ],
   [
@@ -121,6 +133,25 @@ const WETWARE_UTILITY_PATTERNS: RegExp[] = [
   /\bbeyond\s+hype\b/i,
   /\breal\s+use\s+case\b/i,
   /\bactual\s+use\b/i,
+];
+
+const WETWARE_CONCEPTUAL_PATTERNS: RegExp[] = [
+  /^\s*is\s+wetware\s+really\s+more\s+energy\s+efficient\b/i,
+  /^\s*what\s+hidden\s+costs?\b.*\befficien(?:cy|t)\b/i,
+  /^\s*does\s+biological\s+comput(?:ing|ation)\s+actually\s+beat\s+silicon\s+on\s+power\b/i,
+  /^\s*what\s+does\s+pong\s*\/\s*cart[- ]?pole\s+actually\s+prove\b/i,
+  /^\s*does\s+this\s+show\s+intelligence\s+or\s+just\s+plasticity\b/i,
+  /^\s*what\s+can\s+organoid(?:s)?\s+actually\s+learn\b/i,
+  /^\s*what\s+limits?\s+biological\s+learning\b/i,
+  /^\s*can\s+organoid(?:s)?\s+replace\s+silicon\b/i,
+  /^\s*what\s+stops?\s+wetware\s+scal(?:ing|e)\b/i,
+  /^\s*where\s+does\s+biohybrid\s+comput(?:ing|ation)\s+fail\b/i,
+  /^\s*what\s+bottlenecks?\s+living\s+server(?:s)?\b/i,
+  /^\s*could\s+organoid(?:s)?\s+become\s+conscious\b/i,
+  /^\s*is\s+this\s+sentience\s+or\s+just\s+activity\b/i,
+  /^\s*why\s+do\s+people\s+call\s+this\s+a\s+mind\s+in\s+a\s+dish\b/i,
+  /^\s*what(?:'s|\s+is)\s+the\s+interface\s+bottleneck\b/i,
+  /^\s*is\s+the\s+i\/o\s+layer\s+the\s+real\s+problem\b/i,
 ];
 
 const CROSS_DOMAIN_CONVERGENCE_PATTERNS: RegExp[] = [
@@ -235,6 +266,7 @@ export function isConceptualProbe(text: string, context?: { event?: CanonicalEve
       ...STRUCTURAL_FIT_PATTERNS,
       ...TRANSHUMAN_MERGE_PATTERNS,
       ...WETWARE_UTILITY_PATTERNS,
+      ...WETWARE_CONCEPTUAL_PATTERNS,
       ...CROSS_DOMAIN_CONVERGENCE_PATTERNS,
     ]);
     if (!structured) continue;
@@ -249,6 +281,7 @@ export function isConceptualProbe(text: string, context?: { event?: CanonicalEve
       matchesAny(coreText, STRUCTURAL_FIT_PATTERNS) ||
       matchesAny(coreText, TRANSHUMAN_MERGE_PATTERNS) ||
       matchesAny(coreText, WETWARE_UTILITY_PATTERNS) ||
+      matchesAny(coreText, WETWARE_CONCEPTUAL_PATTERNS) ||
       matchesAny(coreText, CROSS_DOMAIN_CONVERGENCE_PATTERNS)
     ) {
       return true;

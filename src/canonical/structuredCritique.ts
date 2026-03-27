@@ -49,6 +49,40 @@ const STRUCTURED_CRITIQUE_NEGATIVE_PATTERNS: RegExp[] = [
   /^\s*(?:nice\s+weather|gm|good\s+morning|good\s+evening)\s*$/i,
 ];
 
+const WETWARE_CRITIQUE_FORM_PATTERNS: RegExp[] = [
+  /^\s*this\s+sounds?\s+efficient\b.*\binterface\b.*\boverhead\b.*\bdominates\b/i,
+  /^\s*the\s+substrate\s+may\s+learn\b.*\bcontrol\s+layer\b.*\breal\s+work\b/i,
+  /^\s*code[- ]?deployable\b.*\bsoftware\s+metaphor\b/i,
+  /^\s*people\s+are\s+confusing\s+adaptive\s+tissue\b.*\bgeneral\s+intelligence\b/i,
+  /^\s*the\s+hype\s+outruns\s+the\s+interface\b/i,
+  /^\s*this\s+looks?\s+promising\b.*\breproducibility\b.*\breal\s+bottleneck\b/i,
+  /^\s*they\s+call\s+it\s+replacement\b.*\bhybrid\s+stack\b/i,
+  /^\s*sentience\s+language\b.*\bout(?:runs|racing|running)\b.*\bdata\b/i,
+];
+
+const WETWARE_CRITIQUE_RELEVANCE_PATTERNS: RegExp[] = [
+  /\binterface\b/i,
+  /\boverhead\b/i,
+  /\bcontrol\s+layer\b/i,
+  /\bsubstrate\b/i,
+  /\badaptive\s+tissue\b/i,
+  /\bgeneral\s+intelligence\b/i,
+  /\breproducibility\b/i,
+  /\bhybrid\s+stack\b/i,
+  /\bcode[- ]?deployable\b/i,
+  /\bsoftware\s+metaphor\b/i,
+  /\bsentience\b/i,
+  /\bdata\b/i,
+  /\bhype\b/i,
+  /\bbiological\s+comput(?:ing|ation)\b/i,
+  /\borganoid(?:s)?\b/i,
+  /\bbiohybrid\b/i,
+  /\bwetware\b/i,
+  /\bplasticity\b/i,
+  /\bdecod(?:e|ing|er|ers)\b/i,
+  /\binterface\s+bottleneck\b/i,
+];
+
 function normalize(text: string): string {
   return (text ?? "").trim().replace(/\s+/g, " ");
 }
@@ -73,13 +107,19 @@ function isNegativeStructuredCritique(text: string): boolean {
 export function looksLikeStructuredCritique(text: string): boolean {
   const normalized = normalize(text);
   if (!normalized) return false;
-  return hasPatternMatch(normalized, STRUCTURED_CRITIQUE_FORM_PATTERNS);
+  return (
+    hasPatternMatch(normalized, STRUCTURED_CRITIQUE_FORM_PATTERNS) ||
+    hasPatternMatch(normalized, WETWARE_CRITIQUE_FORM_PATTERNS)
+  );
 }
 
 export function hasStructuredCritiqueRelevance(text: string): boolean {
   const normalized = normalize(text);
   if (!normalized) return false;
-  return hasPatternMatch(normalized, STRUCTURED_CRITIQUE_RELEVANCE_PATTERNS);
+  return (
+    hasPatternMatch(normalized, STRUCTURED_CRITIQUE_RELEVANCE_PATTERNS) ||
+    hasPatternMatch(normalized, WETWARE_CRITIQUE_RELEVANCE_PATTERNS)
+  );
 }
 
 export function assessStructuredCritique(
