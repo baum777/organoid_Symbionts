@@ -15,7 +15,7 @@ const SOCIAL_MODE_MAP: Partial<Record<IntentClass, CanonicalMode>> = {
   market_question_general: "market_banter",
   embodiment_query: "embodiment_reply",
   lore_query: "lore_drop",
-  conversation_continue: "conversation_hook",
+  conversation_continue: "neutral_clarification",
 };
 
 export function selectMode(
@@ -37,6 +37,10 @@ export function selectMode(
 
   if (cls.intent === "conceptual_probe") {
     return "neutral_clarification";
+  }
+
+  if (cls.intent === "structured_critique") {
+    return "skeptical_breakdown";
   }
 
   const socialMode = SOCIAL_MODE_MAP[cls.intent];

@@ -91,6 +91,11 @@ export function buildAuditRecord(params: {
   classifierIntent?: IntentClass;
   baseIntent?: IntentClass;
   sourceIntent?: IntentClass;
+  hasParentContext?: boolean;
+  continuationSignal?: boolean;
+  continuationSupportScore?: number;
+  structuredCritiqueSignal?: boolean;
+  structuredCritiqueSupportScore?: number;
   orchestrationEligibleMinimal?: boolean;
   conceptualProbeRescue?: boolean;
   fastPathBypassReason?: string;
@@ -135,6 +140,11 @@ export function buildAuditRecord(params: {
     classifierIntent: params.classifierIntent,
     baseIntent: params.baseIntent,
     sourceIntent: params.sourceIntent,
+    hasParentContext: params.hasParentContext,
+    continuationSignal: params.continuationSignal,
+    continuationSupportScore: params.continuationSupportScore,
+    structuredCritiqueSignal: params.structuredCritiqueSignal,
+    structuredCritiqueSupportScore: params.structuredCritiqueSupportScore,
     orchestrationEligibleMinimal: params.orchestrationEligibleMinimal,
     conceptualProbeRescue: params.conceptualProbeRescue,
     fastPathBypassReason: params.fastPathBypassReason,

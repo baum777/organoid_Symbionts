@@ -3,6 +3,7 @@ import type {
   ClassifierOutput,
   ScoreBundle,
 } from "./types.js";
+import { hasRelevantParentContext } from "./conversationContinue.js";
 
 function clamp01(v: number): number {
   return Math.max(0, Math.min(1, v));
@@ -15,6 +16,7 @@ function computeRelevance(event: CanonicalEvent, cls: ClassifierOutput): number 
   if (cls.intent === "embodiment_query" || cls.intent === "lore_query") score += 0.15;
   if (cls.intent === "market_question_general") score += 0.20;
   if (cls.intent === "conversation_continue") score += 0.10;
+  if (cls.intent === "structured_critique") score += 0.15;
   if (cls.intent === "conceptual_probe") score += 0.15;
   if (cls.intent === "hype_claim" || cls.intent === "performance_claim") score += 0.25;
   if (cls.intent === "accusation") score += 0.3;
@@ -26,7 +28,7 @@ function computeRelevance(event: CanonicalEvent, cls: ClassifierOutput): number 
   if (cls.intent === "meme_only") score -= 0.1;
 
   if (event.cashtags.length > 0) score += 0.15;
-  if (event.parent_text) score += 0.1;
+  if (hasRelevantParentContext(event)) score += 0.1;
   if (event.conversation_context.length > 0) score += 0.05;
 
   return clamp01(score);
@@ -45,7 +47,7 @@ function computeConfidence(event: CanonicalEvent, cls: ClassifierOutput): number
   if (cls.evidence_bullets.length >= 3) score += 0.1;
   else if (cls.evidence_bullets.length >= 2) score += 0.05;
 
-  if (event.parent_text) score += 0.1;
+  if (hasRelevantParentContext(event)) score += 0.1;
   if (event.conversation_context.length >= 2) score += 0.05;
 
   if (cls.bait_probability > 0.5) score -= 0.15;
@@ -80,6 +82,7 @@ function computeOpportunity(event: CanonicalEvent, cls: ClassifierOutput): numbe
   if (cls.intent === "embodiment_query" || cls.intent === "lore_query") score += 0.25;
   if (cls.intent === "market_question_general") score += 0.25;
   if (cls.intent === "conversation_continue") score += 0.15;
+  if (cls.intent === "structured_critique") score += 0.20;
   if (cls.intent === "hype_claim" || cls.intent === "performance_claim") score += 0.25;
   if (cls.intent === "accusation") score += 0.15;
   if (cls.intent === "question") score += 0.2;

@@ -49,6 +49,10 @@ function deriveThesisType(
     return "unclear_or_unverifiable";
   }
 
+  if (cls.intent === "structured_critique") {
+    return "suspicious_behavior_pattern";
+  }
+
   if (BAIT_LANGUAGE.test(text) && cls.bait_probability > 0.4) {
     return "obvious_bait";
   }

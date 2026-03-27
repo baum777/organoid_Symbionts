@@ -86,6 +86,7 @@ function makeSkipResult(
 ): PipelineResult {
   const cfg = config ?? DEFAULT_CANONICAL_CONFIG;
   const clsOut = cls ?? emptyClassifier();
+  const intentTrace = buildAuditIntentTrace(clsOut);
   const pathType = SOCIAL_INTENTS.includes(clsOut.intent) ? "social" as const : "audit" as const;
   const audit = buildAuditRecord({
     event,
@@ -93,9 +94,7 @@ function makeSkipResult(
     scores: scores ?? emptyScores(),
     mode: "ignore",
     ...buildAuditDebugFields({
-      classifierIntent: clsOut.intent,
-      baseIntent: clsOut.intent,
-      sourceIntent: clsOut.intent,
+      ...intentTrace,
       orchestrationEligibleMinimal: false,
       conceptualProbeRescue: false,
       fastPathBypassReason: undefined,
@@ -140,6 +139,11 @@ function buildAuditDebugFields(args: {
   classifierIntent: IntentClass;
   baseIntent: IntentClass;
   sourceIntent: IntentClass;
+  hasParentContext?: boolean;
+  continuationSignal?: boolean;
+  continuationSupportScore?: number;
+  structuredCritiqueSignal?: boolean;
+  structuredCritiqueSupportScore?: number;
   orchestrationEligibleMinimal: boolean;
   conceptualProbeRescue?: boolean;
   fastPathBypassReason?: string;
@@ -150,6 +154,11 @@ function buildAuditDebugFields(args: {
   classifierIntent: IntentClass;
   baseIntent: IntentClass;
   sourceIntent: IntentClass;
+  hasParentContext?: boolean;
+  continuationSignal?: boolean;
+  continuationSupportScore?: number;
+  structuredCritiqueSignal?: boolean;
+  structuredCritiqueSupportScore?: number;
   orchestrationEligibleMinimal: boolean;
   conceptualProbeRescue?: boolean;
   fastPathBypassReason?: string;
@@ -162,6 +171,11 @@ function buildAuditDebugFields(args: {
     classifierIntent: args.classifierIntent,
     baseIntent: args.baseIntent,
     sourceIntent: args.sourceIntent,
+    hasParentContext: args.hasParentContext,
+    continuationSignal: args.continuationSignal,
+    continuationSupportScore: args.continuationSupportScore,
+    structuredCritiqueSignal: args.structuredCritiqueSignal,
+    structuredCritiqueSupportScore: args.structuredCritiqueSupportScore,
     orchestrationEligibleMinimal: args.orchestrationEligibleMinimal,
     conceptualProbeRescue: args.conceptualProbeRescue,
     fastPathBypassReason: args.fastPathBypassReason,
@@ -169,6 +183,28 @@ function buildAuditDebugFields(args: {
     silencePolicy: args.organoidPlan?.silencePolicy,
     renderPolicy: args.organoidPlan?.renderPolicy,
     leadEmbodimentId: args.leadEmbodimentId ?? args.organoidPlan?.leadEmbodimentId,
+  };
+}
+
+function buildAuditIntentTrace(cls: ClassifierOutput): {
+  classifierIntent: IntentClass;
+  baseIntent: IntentClass;
+  sourceIntent: IntentClass;
+  hasParentContext?: boolean;
+  continuationSignal?: boolean;
+  continuationSupportScore?: number;
+  structuredCritiqueSignal?: boolean;
+  structuredCritiqueSupportScore?: number;
+} {
+  return {
+    classifierIntent: cls.intent,
+    baseIntent: cls.baseIntent ?? cls.intent,
+    sourceIntent: cls.intent,
+    hasParentContext: cls.hasParentContext,
+    continuationSignal: cls.continuationSignal,
+    continuationSupportScore: cls.continuationSupportScore,
+    structuredCritiqueSignal: cls.structuredCritiqueSignal,
+    structuredCritiqueSupportScore: cls.structuredCritiqueSupportScore,
   };
 }
 
@@ -220,9 +256,7 @@ export async function handleEvent(
       scores,
       mode: "neutral_clarification",
       ...buildAuditDebugFields({
-        classifierIntent: cls.intent,
-        baseIntent: cls.intent,
-        sourceIntent: cls.intent,
+        ...buildAuditIntentTrace(cls),
         orchestrationEligibleMinimal: false,
         conceptualProbeRescue: false,
         fastPathBypassReason: undefined,
@@ -268,9 +302,7 @@ export async function handleEvent(
       scores,
       mode: "market_banter",
       ...buildAuditDebugFields({
-        classifierIntent: cls.intent,
-        baseIntent: cls.intent,
-        sourceIntent: cls.intent,
+        ...buildAuditIntentTrace(cls),
         orchestrationEligibleMinimal: false,
         conceptualProbeRescue: false,
         fastPathBypassReason: undefined,
@@ -528,8 +560,13 @@ export async function handleEvent(
       mode: finalMode,
       ...buildAuditDebugFields({
         classifierIntent,
-        baseIntent: classifierIntent,
+        baseIntent: cls.baseIntent ?? classifierIntent,
         sourceIntent,
+        hasParentContext: cls.hasParentContext,
+        continuationSignal: cls.continuationSignal,
+        continuationSupportScore: cls.continuationSupportScore,
+        structuredCritiqueSignal: cls.structuredCritiqueSignal,
+        structuredCritiqueSupportScore: cls.structuredCritiqueSupportScore,
         orchestrationEligibleMinimal: minimalOrchestrationEligible,
         conceptualProbeRescue: isConceptualProbeRescue,
         fastPathBypassReason,
@@ -577,8 +614,13 @@ export async function handleEvent(
       mode: finalMode,
       ...buildAuditDebugFields({
         classifierIntent,
-        baseIntent: classifierIntent,
+        baseIntent: cls.baseIntent ?? classifierIntent,
         sourceIntent,
+        hasParentContext: cls.hasParentContext,
+        continuationSignal: cls.continuationSignal,
+        continuationSupportScore: cls.continuationSupportScore,
+        structuredCritiqueSignal: cls.structuredCritiqueSignal,
+        structuredCritiqueSupportScore: cls.structuredCritiqueSupportScore,
         orchestrationEligibleMinimal: minimalOrchestrationEligible,
         conceptualProbeRescue: isConceptualProbeRescue,
         fastPathBypassReason,

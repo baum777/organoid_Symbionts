@@ -59,7 +59,7 @@ export function computeRelevanceScore(input: RelevanceInput): RelevanceResult {
     cls.intent,
   )
     ? 0.8
-    : ["question", "launch_announcement"].includes(cls.intent)
+    : ["question", "launch_announcement", "structured_critique"].includes(cls.intent)
       ? 0.6
       : 0.3;
 

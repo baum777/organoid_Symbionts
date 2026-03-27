@@ -89,14 +89,24 @@ describe("modeSelector — social routing", () => {
     expect(mode).toBe("lore_drop");
   });
 
-  it("conversation_continue maps to conversation_hook", () => {
+  it("conversation_continue maps to neutral_clarification", () => {
     const mode = selectMode(
       makeCls({ intent: "conversation_continue" }),
       makeScores(),
       makeThesis(),
       DEFAULT_CANONICAL_CONFIG,
     );
-    expect(mode).toBe("conversation_hook");
+    expect(mode).toBe("neutral_clarification");
+  });
+
+  it("structured_critique maps to skeptical_breakdown", () => {
+    const mode = selectMode(
+      makeCls({ intent: "structured_critique" }),
+      makeScores({ confidence: 0.01 }),
+      makeThesis(),
+      DEFAULT_CANONICAL_CONFIG,
+    );
+    expect(mode).toBe("skeptical_breakdown");
   });
 
   it("no social intent maps to ignore", () => {

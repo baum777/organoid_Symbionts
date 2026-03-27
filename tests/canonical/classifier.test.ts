@@ -62,6 +62,27 @@ describe("classifier", () => {
     expect(result.intent).toBe("question");
   });
 
+  it("rescues standalone structured skepticism as structured_critique", () => {
+    const event = makeEvent({ text: "this architecture looks clean but I don't trust the incentives" });
+    const result = classify(event);
+    expect(result.intent).toBe("structured_critique");
+    expect(result.baseIntent).toBe("irrelevant");
+    expect(result.target).toBe("claim");
+    expect(result.evidence_class).toBe("contextual_medium");
+    expect(result.structuredCritiqueSignal).toBe(true);
+    expect(result.structuredCritiqueSupportScore).toBeGreaterThanOrEqual(0.66);
+  });
+
+  it.each([
+    "and?",
+    "so?",
+    "what now",
+    "nice weather today",
+  ])("does not rescue generic low-signal text as structured_critique: %s", (text) => {
+    const result = classify(makeEvent({ text }));
+    expect(result.intent).not.toBe("structured_critique");
+  });
+
   it("classifies irrelevant text", () => {
     const event = makeEvent({ text: "nice weather today" });
     const result = classify(event);

@@ -10,6 +10,7 @@ export const IntentClassSchema = z.enum([
   "lore_query",
   "conversation_continue",
   "conceptual_probe",
+  "structured_critique",
   "hype_claim",
   "performance_claim",
   "launch_announcement",
@@ -146,6 +147,18 @@ export interface ClassifierOutput {
   policy_reasons?: string[];
   evidence_bullets: string[];
   risk_flags: string[];
+  /** Intent before any conservative continuation rescue */
+  baseIntent?: IntentClass;
+  /** Explicit thread context was present in the incoming event */
+  hasParentContext?: boolean;
+  /** Continuation rescue was applied */
+  continuationSignal?: boolean;
+  /** Conservative support score for continuation routing */
+  continuationSupportScore?: number;
+  /** Structured skepticism rescue was applied */
+  structuredCritiqueSignal?: boolean;
+  /** Conservative support score for structured critique routing */
+  structuredCritiqueSupportScore?: number;
 }
 
 export interface ScoreBundle {
@@ -265,6 +278,11 @@ export interface AuditRecord {
   classifierIntent?: IntentClass;
   baseIntent?: IntentClass;
   sourceIntent?: IntentClass;
+  hasParentContext?: boolean;
+  continuationSignal?: boolean;
+  continuationSupportScore?: number;
+  structuredCritiqueSignal?: boolean;
+  structuredCritiqueSupportScore?: number;
   orchestrationEligibleMinimal?: boolean;
   conceptualProbeRescue?: boolean;
   fastPathBypassReason?: string;

@@ -107,6 +107,39 @@ describe("classifier — social intents", () => {
     expect(result.intent).toBe("casual_ping");
   });
 
+  it("rescues a continuation-style execution follow-up when thread context exists", () => {
+    const result = classify(
+      makeEvent({
+        trigger_type: "reply",
+        text: "and where does execution actually break here?",
+        conversation_context: ["parent: intake -> scoring -> orchestration"],
+      }),
+    );
+
+    expect(result.intent).toBe("conversation_continue");
+    expect(result.baseIntent).toBe("question");
+    expect(result.hasParentContext).toBe(true);
+    expect(result.continuationSignal).toBe(true);
+    expect(result.continuationSupportScore).toBeGreaterThanOrEqual(0.66);
+    expect(result.target).toBe("conversation");
+  });
+
+  it.each([
+    "and?",
+    "so?",
+    "then buy?",
+    "and lol",
+  ])("does not rescue weak continuation bait: %s", (text) => {
+    const result = classify(
+      makeEvent({
+        text,
+        conversation_context: ["parent: context"],
+      }),
+    );
+
+    expect(result.intent).not.toBe("conversation_continue");
+  });
+
   it("greeting target is conversation", () => {
     const result = classify(makeEvent({ text: "hey" }));
     expect(result.target).toBe("conversation");

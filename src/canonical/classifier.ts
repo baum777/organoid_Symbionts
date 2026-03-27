@@ -7,6 +7,12 @@ import type {
   EvidenceClass,
 } from "./types.js";
 import { isConceptualProbe } from "./conceptualProbe.js";
+import {
+  assessConversationContinue,
+} from "./conversationContinue.js";
+import {
+  assessStructuredCritique,
+} from "./structuredCritique.js";
 import { normalizeCanonicalInputText } from "./inputNormalization.js";
 
 const GREETING_PATTERNS = [
@@ -125,16 +131,69 @@ function classifyIntentText(text: string, event: CanonicalEvent): IntentClass {
   return "irrelevant";
 }
 
-function classifyIntent(event: CanonicalEvent): IntentClass {
+function classifyIntentTrace(event: CanonicalEvent): {
+  intent: IntentClass;
+  baseIntent: IntentClass;
+  hasParentContext: boolean;
+  continuationSignal: boolean;
+  continuationSupportScore: number;
+  structuredCritiqueSignal: boolean;
+  structuredCritiqueSupportScore: number;
+} {
   const normalization = normalizeCanonicalInputText(event.text);
   for (const candidate of normalization.classifierTextCandidates) {
     const intent = classifyIntentText(candidate, event);
+    const continuation = assessConversationContinue(candidate, event);
+    const critique = assessStructuredCritique(candidate, event);
+
+    if ((intent === "question" || intent === "irrelevant") && continuation.continuationSignal) {
+      return {
+        intent: "conversation_continue",
+        baseIntent: intent,
+        hasParentContext: continuation.hasParentContext,
+        continuationSignal: true,
+        continuationSupportScore: continuation.continuationSupportScore,
+        structuredCritiqueSignal: false,
+        structuredCritiqueSupportScore: critique.structuredCritiqueSupportScore,
+      };
+    }
+
+    if ((intent === "question" || intent === "irrelevant") && critique.structuredCritiqueSignal) {
+      return {
+        intent: "structured_critique",
+        baseIntent: intent,
+        hasParentContext: critique.hasParentContext,
+        continuationSignal: false,
+        continuationSupportScore: continuation.continuationSupportScore,
+        structuredCritiqueSignal: true,
+        structuredCritiqueSupportScore: critique.structuredCritiqueSupportScore,
+      };
+    }
+
     if (intent !== "irrelevant") {
-      return intent;
+      return {
+        intent,
+        baseIntent: intent,
+        hasParentContext: continuation.hasParentContext,
+        continuationSignal: false,
+        continuationSupportScore: continuation.continuationSupportScore,
+        structuredCritiqueSignal: false,
+        structuredCritiqueSupportScore: critique.structuredCritiqueSupportScore,
+      };
     }
   }
 
-  return "irrelevant";
+  const continuation = assessConversationContinue(normalization.normalizedText, event);
+  const critique = assessStructuredCritique(normalization.normalizedText, event);
+  return {
+    intent: "irrelevant",
+    baseIntent: "irrelevant",
+    hasParentContext: continuation.hasParentContext,
+    continuationSignal: false,
+    continuationSupportScore: continuation.continuationSupportScore,
+    structuredCritiqueSignal: false,
+    structuredCritiqueSupportScore: critique.structuredCritiqueSupportScore,
+  };
 }
 
 function classifyTarget(event: CanonicalEvent, intent: IntentClass): TargetClass {
@@ -142,6 +201,7 @@ function classifyTarget(event: CanonicalEvent, intent: IntentClass): TargetClass
   if (intent === "embodiment_query") return "embodiment";
   if (intent === "lore_query") return "lore";
   if (intent === "conceptual_probe") return "claim";
+  if (intent === "structured_critique") return "claim";
   if (intent === "greeting" || intent === "casual_ping" || intent === "conversation_continue") return "conversation";
   if (intent === "market_question_general") return "market_structure";
   if (intent === "accusation") return "behavior";
@@ -154,8 +214,8 @@ function classifyTarget(event: CanonicalEvent, intent: IntentClass): TargetClass
 
 function classifyEvidence(event: CanonicalEvent, intent: IntentClass): EvidenceClass {
   const text = event.text;
-  const hasParent = !!event.parent_text;
-  const hasContext = event.conversation_context.length > 0;
+  const hasParent = !!event.parent_text?.trim();
+  const hasContext = event.conversation_context.length > 0 || Boolean(event.context?.trim()) || Boolean(event.quoted_text?.trim());
 
   const productProof = countPatternMatches(text, PRODUCT_PROOF_PATTERNS);
   const parentProof = event.parent_text
@@ -165,7 +225,7 @@ function classifyEvidence(event: CanonicalEvent, intent: IntentClass): EvidenceC
   if (productProof >= 2 || (productProof >= 1 && parentProof >= 1)) {
     return "self_contained_strong";
   }
-  if (intent === "conceptual_probe") {
+  if (intent === "conceptual_probe" || intent === "structured_critique") {
     return "contextual_medium";
   }
   if (hasParent || hasContext || productProof >= 1) {
@@ -210,10 +270,18 @@ function extractEvidenceBullets(event: CanonicalEvent, intent: IntentClass): str
   if (intent === "conceptual_probe") {
     bullets.push("structured frontier question");
   }
+  if (intent === "structured_critique") {
+    bullets.push("structured skepticism about incentives or architecture");
+  }
   if (countPatternMatches(text, PERFORMANCE_PATTERNS) > 0) {
     bullets.push("includes unverified performance claims");
   }
-  if (countPatternMatches(text, PRODUCT_PROOF_PATTERNS) === 0 && intent !== "question") {
+  if (
+    countPatternMatches(text, PRODUCT_PROOF_PATTERNS) === 0 &&
+    intent !== "question" &&
+    intent !== "conversation_continue" &&
+    intent !== "structured_critique"
+  ) {
     bullets.push("no concrete product proof in visible text");
   }
   if (countPatternMatches(text, VOLUME_BEHAVIOR_PATTERNS) > 0) {
@@ -273,7 +341,8 @@ function classifyPolicyBlock(intent: IntentClass, spamProb: number, riskFlags: s
 }
 
 export function classify(event: CanonicalEvent): ClassifierOutput {
-  const intent = classifyIntent(event);
+  const intentTrace = classifyIntentTrace(event);
+  const intent = intentTrace.intent;
   const target = classifyTarget(event, intent);
   const evidence_class = classifyEvidence(event, intent);
   const bait_probability = estimateBaitProbability(event);
@@ -293,5 +362,11 @@ export function classify(event: CanonicalEvent): ClassifierOutput {
     policy_reasons: policy.reasons,
     evidence_bullets,
     risk_flags,
+    baseIntent: intentTrace.baseIntent,
+    hasParentContext: intentTrace.hasParentContext,
+    continuationSignal: intentTrace.continuationSignal,
+    continuationSupportScore: intentTrace.continuationSupportScore,
+    structuredCritiqueSignal: intentTrace.structuredCritiqueSignal,
+    structuredCritiqueSupportScore: intentTrace.structuredCritiqueSupportScore,
   };
 }
