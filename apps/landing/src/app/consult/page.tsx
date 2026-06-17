@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, type KeyboardEvent } from "react";
+import { useEffect, useState, type KeyboardEvent } from "react";
 import Link from "next/link";
 import { PracticeNav } from "@/components/practice-nav";
 import { PracticeCompliance } from "@/components/practice-compliance";
@@ -341,6 +341,16 @@ function AnswerCard({
 function StubAnswer({ onReset }: { onReset: () => void }) {
   return (
     <div className="flex flex-col gap-5">
+      <div className="rounded-2xl border border-anomaly/30 bg-anomaly/8 p-4">
+        <p className="font-mono text-[11px] uppercase tracking-[0.28em] text-anomaly">
+          UI demo · hardcoded answers
+        </p>
+        <p className="mt-2 text-sm leading-6 text-zinc-300">
+          The real /api/consult endpoint is wired in Week 3. Until then, every
+          answer below is a static demo with three voices from the practice
+          matrix.
+        </p>
+      </div>
       <div className="flex flex-wrap items-center justify-between gap-3">
         <p className="font-mono text-[11px] uppercase tracking-[0.28em] text-muted">
           request · {STUB_ANSWER.requestId} · phase {STUB_ANSWER.phase} ·{" "}
@@ -388,6 +398,15 @@ export default function ConsultPage() {
   const [posture, setPosture] = useState<ConsultPosture>("empathisch");
   const [signal, setSignal] = useState<string>("");
   const [submitted, setSubmitted] = useState<boolean>(false);
+
+  // When the user changes context or posture after submitting, the
+  // previous stub answer is no longer accurate. Hide it so the next
+  // submit re-runs cleanly.
+  useEffect(() => {
+    if (submitted) {
+      setSubmitted(false);
+    }
+  }, [context, posture]);
 
   return (
     <main className="relative isolate overflow-hidden">
@@ -466,7 +485,12 @@ export default function ConsultPage() {
             Answer
           </h2>
           {submitted ? (
-            <StubAnswer onReset={() => setSubmitted(false)} />
+            <StubAnswer
+              onReset={() => {
+                setSubmitted(false);
+                setSignal("");
+              }}
+            />
           ) : (
             <div className="subtle-panel p-6">
               <p className="text-sm leading-7 text-zinc-300">

@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { PracticeNav } from "@/components/practice-nav";
+import { PracticeCompliance } from "@/components/practice-compliance";
 import { FooterManifest } from "@/components/footer-manifest";
 import { practice } from "@/lib/content";
 
@@ -65,6 +66,10 @@ export default async function EmbodimentPage({ params }: { params: Params }) {
         >
           ← Back to all 7 voices
         </Link>
+
+        <section id="compliance" className="scroll-mt-24">
+          <PracticeCompliance />
+        </section>
 
         <FooterManifest showPractice />
       </div>
