@@ -37,7 +37,7 @@ export function FooterManifest({ showPractice = false }: FooterManifestProps) {
                   <li key={link.href}>
                     <a
                       href={link.href}
-                      className="font-mono text-[11px] uppercase tracking-[0.24em] text-zinc-200 underline-offset-4 transition-colors hover:text-ink hover:underline"
+                      className="inline-flex min-h-[44px] items-center font-mono text-[11px] uppercase tracking-[0.24em] text-zinc-200 underline-offset-4 transition-colors hover:text-ink hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-white/40 focus-visible:ring-offset-2 focus-visible:ring-offset-void"
                     >
                       {link.label}
                     </a>
@@ -45,9 +45,26 @@ export function FooterManifest({ showPractice = false }: FooterManifestProps) {
                 ))}
               </ul>
               <p className="text-sm leading-7 text-zinc-400">{practice.footer.compliance}</p>
-              <p className="font-mono text-[11px] uppercase tracking-[0.24em] text-zinc-500">
-                {practice.footer.crisis}
-              </p>
+              <div className="flex flex-wrap items-center gap-x-3 gap-y-1 font-mono text-[11px] uppercase tracking-[0.24em] text-zinc-300">
+                <span className="text-muted">Crisis?</span>
+                <a
+                  href={practice.footer.crisis.international.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={`${practice.footer.crisis.international.label} (opens in new tab)`}
+                  className="underline-offset-4 hover:text-ink hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-white/40 focus-visible:ring-offset-2 focus-visible:ring-offset-void"
+                >
+                  {practice.footer.crisis.international.label}
+                </a>
+                <span className="text-muted">·</span>
+                <a
+                  href={practice.footer.crisis.de.href}
+                  aria-label={`${practice.footer.crisis.de.label} anrufen`}
+                  className="underline-offset-4 hover:text-ink hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-white/40 focus-visible:ring-offset-2 focus-visible:ring-offset-void"
+                >
+                  DE: {practice.footer.crisis.de.label}
+                </a>
+              </div>
             </div>
           </div>
         ) : (

@@ -15,7 +15,8 @@ export function PracticeCompliance() {
           href={practice.compliance.crisisInternational.href}
           target="_blank"
           rel="noopener noreferrer"
-          className="font-mono text-[11px] uppercase tracking-[0.24em] text-zinc-200 underline-offset-4 hover:underline"
+          aria-label={`${practice.compliance.crisisInternational.label} (opens in new tab)`}
+          className="inline-flex min-h-[44px] items-center font-mono text-[11px] uppercase tracking-[0.24em] text-zinc-200 underline-offset-4 hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-white/40 focus-visible:ring-offset-2 focus-visible:ring-offset-void"
         >
           {practice.compliance.crisisInternational.label} (new tab)
         </a>

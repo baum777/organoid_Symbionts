@@ -61,7 +61,7 @@ export default async function EmbodimentPage({ params }: { params: Params }) {
 
         <Link
           href="/practice"
-          className="font-mono text-[11px] uppercase tracking-[0.28em] text-zinc-300 hover:text-ink"
+          className="inline-flex min-h-[44px] items-center font-mono text-[11px] uppercase tracking-[0.28em] text-zinc-300 hover:text-ink focus:outline-none focus-visible:ring-2 focus-visible:ring-white/40 focus-visible:ring-offset-2 focus-visible:ring-offset-void"
         >
           ← Back to all 7 voices
         </Link>

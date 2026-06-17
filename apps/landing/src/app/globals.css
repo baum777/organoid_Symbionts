@@ -172,4 +172,13 @@
   body::before {
     animation: none;
   }
+
+  .animate-pulse,
+  .animate-spin,
+  .animate-ping,
+  .animate-bounce,
+  .animate-drift,
+  .animate-float {
+    animation: none !important;
+  }
 }

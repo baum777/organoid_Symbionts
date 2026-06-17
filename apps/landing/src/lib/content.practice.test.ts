@@ -66,4 +66,30 @@ describe("practice content", () => {
     }
     expect(roles.size).toBe(practice.embodiments.length);
   });
+
+  // --- Week 2 add (2026-06-17) — session types and cohort CTA blocks ---
+  it("exposes 3 session-type entries with all required fields and bounded body copy", () => {
+    expect(practice.sessionTypes).toHaveLength(3);
+    for (const entry of practice.sessionTypes) {
+      expect(entry.eyebrow.length).toBeGreaterThan(0);
+      expect(entry.title.length).toBeGreaterThan(0);
+      expect(entry.body.length).toBeGreaterThan(0);
+      expect(entry.body.length).toBeLessThanOrEqual(300);
+      expect(entry.meta.length).toBeGreaterThan(0);
+      expect(TONE_KEYS).toContain(entry.tone);
+    }
+  });
+
+  it("exposes a cohort CTA with chips tuple and a mailto: href", () => {
+    const cohort = practice.cohort;
+    expect(cohort.eyebrow.length).toBeGreaterThan(0);
+    expect(cohort.heading.length).toBeGreaterThan(0);
+    expect(cohort.body.length).toBeGreaterThan(0);
+    expect(cohort.body.length).toBeLessThanOrEqual(200);
+    expect(cohort.chips).toHaveLength(2);
+    expect(cohort.chips[0].length).toBeGreaterThan(0);
+    expect(cohort.chips[1].length).toBeGreaterThan(0);
+    expect(cohort.mailtoHref).toMatch(/^mailto:/);
+    expect(cohort.mailtoLabel.length).toBeGreaterThan(0);
+  });
 });

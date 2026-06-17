@@ -24,17 +24,16 @@ export function PracticeHero() {
         <div className="mt-8 flex flex-wrap items-center gap-3">
           <Link
             href={practice.hero.primaryCtaHref}
-            className="inline-flex items-center justify-center rounded-full border border-anomaly/30 bg-anomaly/12 px-5 py-3 font-mono text-xs uppercase tracking-[0.26em] text-anomaly transition-all duration-300 hover:-translate-y-0.5 hover:border-anomaly/50 hover:bg-anomaly/18"
+            className="inline-flex min-h-[44px] items-center justify-center rounded-full border border-anomaly/30 bg-anomaly/12 px-5 py-3 font-mono text-xs uppercase tracking-[0.26em] text-anomaly transition-all duration-300 hover:-translate-y-0.5 hover:border-anomaly/50 hover:bg-anomaly/18 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/40 focus-visible:ring-offset-2 focus-visible:ring-offset-void"
           >
             {practice.hero.primaryCtaLabel}
           </Link>
           <Link
             href={practice.hero.secondaryCtaHref}
-            className="inline-flex items-center justify-center rounded-full border border-white/12 bg-white/5 px-5 py-3 font-mono text-xs uppercase tracking-[0.26em] text-zinc-200 transition-all duration-300 hover:-translate-y-0.5 hover:border-white/20 hover:bg-white/8"
+            className="inline-flex min-h-[44px] items-center justify-center rounded-full border border-white/12 bg-white/5 px-5 py-3 font-mono text-xs uppercase tracking-[0.26em] text-zinc-200 transition-all duration-300 hover:-translate-y-0.5 hover:border-white/20 hover:bg-white/8 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/40 focus-visible:ring-offset-2 focus-visible:ring-offset-void"
           >
             {practice.hero.secondaryCtaLabel}
           </Link>
-          <span className="chip">{practice.hero.secondaryCtaBadge}</span>
         </div>
       </div>
     </Reveal>

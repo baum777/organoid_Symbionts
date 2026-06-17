@@ -347,6 +347,23 @@ export type PracticeCompliance = {
   crisisDe: { label: string; href: string; tel: string };
 };
 
+export type SessionTypeEntry = {
+  eyebrow: string;
+  title: string;
+  body: string;
+  meta: string;
+  tone: ToneKey;
+};
+
+export type CohortCtaContent = {
+  eyebrow: string;
+  heading: string;
+  body: string;
+  chips: readonly [string, string];
+  mailtoHref: string;
+  mailtoLabel: string;
+};
+
 export const practice = {
   hero: {
     eyebrow: "Liminal work",
@@ -360,7 +377,6 @@ export const practice = {
     primaryCtaHref: "#contact",
     secondaryCtaLabel: "Try the matrix free",
     secondaryCtaHref: "/consult",
-    secondaryCtaBadge: "Coming soon",
   },
   methodology: {
     eyebrow: "01 / 5 movements",
@@ -525,9 +541,68 @@ export const practice = {
     compliance:
       "Reflection companion, not therapy. Bei klinischen Themen verweise " +
       "ich an Fachpersonen.",
-    crisis:
-      "Crisis? findahelpline.com · DE: Telefonseelsorge 0800-1110111.",
+    crisis: {
+      international: {
+        label: "findahelpline.com",
+        href: "https://findahelpline.com",
+      },
+      de: {
+        label: "Telefonseelsorge 0800-1110111",
+        href: "tel:08001110111",
+      },
+    },
   },
+  // --- Week 2 add (2026-06-17) — Session types and cohort CTA blocks ---
+  // Sourced from docs/landing-practice-route.md § 3 (rows 5 and 6 of the
+  // /practice page-structure table) and § 10 build order (week 2).
+  // sessionTypes[].body is capped ~300 chars; cohort.body is capped
+  // ~200 chars. Tones reuse the existing 5-key palette from theme.ts.
+  sessionTypes: [
+    {
+      eyebrow: "60 min · 1:1",
+      title: "Deep session",
+      body:
+        "Slow, single-thread. We pick one question and stay with it until " +
+        "something shifts. Best for life decisions, identity work, or stuck " +
+        "transitions.",
+      meta: "from 250€ · sliding scale welcome",
+      tone: "bio",
+    },
+    {
+      eyebrow: "30 min · 1:1",
+      title: "Burst session",
+      body:
+        "Focused, fast, decision-oriented. One question, one answer, one " +
+        "next step. Best for clarity between meetings or a quick reflective " +
+        "check-in.",
+      meta: "from 130€",
+      tone: "interface",
+    },
+    {
+      eyebrow: "7 weeks · group",
+      title: "7 voices, 7 weeks",
+      body:
+        "Small group (max 12). One embodiment per week, with a daily " +
+        "practice and a weekly live call. Best for sustained reframe work " +
+        "and a community of practice.",
+      meta: "350€ per cohort · next: Q3 2026",
+      tone: "meme",
+    },
+  ] satisfies SessionTypeEntry[],
+  cohort: {
+    eyebrow: "cohort status",
+    heading: "Next cohort opens Q3 2026",
+    body:
+      "7 weeks. 12 Plätze. One embodiment per week. Bewerbung per Email " +
+      "mit einem kurzen Text, was du mitbringst.",
+    chips: ["Q3 2026", "12 Plätze"],
+    // The mailto address below is a placeholder (practice@example.org).
+    // Replace with the real booking inbox before cohort sign-up goes live.
+    // The cohort CTA is rendered as a disabled button until the address
+    // is replaced with a real one; see components/practice-cohort-cta.tsx.
+    mailtoHref: "mailto:practice@example.org?subject=Next%20cohort",
+    mailtoLabel: "Sign-up opens Q3 2026",
+  } satisfies CohortCtaContent,
 } as const;
 
 export type PracticeContent = typeof practice;
