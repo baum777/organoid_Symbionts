@@ -10,7 +10,7 @@ export function ConsultHeader() {
         ← Back to /practice
       </Link>
       <span className="chip self-start">
-        reflection companion · API wiring in week 3
+        reflection companion · live matrix
       </span>
       <h1 className="font-display text-4xl uppercase leading-[0.95] tracking-[-0.04em] text-ink sm:text-5xl lg:text-6xl">
         Try the matrix

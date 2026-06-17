@@ -1,33 +1,4 @@
-import { practice } from "@/lib/content";
-
-// Stub answer for the Week 2 UI-skeleton. The real /api/consult endpoint
-// replaces this in Week 3. Derived from the canonical practice.embodiments
-// registry (not hardcoded) so changes to the embodiment data flow through
-// automatically. The three voices are horizon-drifter (lead),
-// root-sentinel (counterweight), and stabil-core (anchor) — the same
-// triadic voice structure that /api/consult will return in Week 3.
-function lookupVoice(id: string) {
-  const entry = practice.embodiments.find((e) => e.id === id);
-  if (!entry) {
-    throw new Error(`Consult stub answer references missing embodiment: ${id}`);
-  }
-  return {
-    id: entry.id,
-    glyph: entry.glyph,
-    name: entry.name,
-    classical: entry.classical,
-    answer: entry.sampleQuote,
-  };
-}
-
-export const STUB_ANSWER = {
-  requestId: "01HXYZ-STUB-WEEK-2",
-  phase: "Swarm Coherence",
-  phaseConfidence: 0.78,
-  lead: lookupVoice("horizon-drifter"),
-  counterweight: lookupVoice("root-sentinel"),
-  anchor: lookupVoice("stabil-core"),
-} as const;
+import type { ConsultResponse } from "@/lib/consult/types";
 
 type AnswerCardProps = {
   glyph: string;
@@ -61,34 +32,35 @@ function AnswerCard({ glyph, name, classical, answer, label }: AnswerCardProps) 
         </div>
       </div>
       <p className="mt-4 text-sm leading-7 text-zinc-200 sm:text-base">{answer}</p>
-      <p className="mt-4 font-mono text-[11px] uppercase tracking-[0.24em] text-zinc-500">
-        → /api/connect (coming week 3)
-      </p>
     </article>
   );
 }
 
-type StubAnswerProps = {
+type ConsultAnswerProps = {
+  response: ConsultResponse;
   onReset: () => void;
 };
 
-export function StubAnswer({ onReset }: StubAnswerProps) {
+export function ConsultAnswer({ response, onReset }: ConsultAnswerProps) {
+  const cards: Array<{ key: string; label: string; voice: typeof response.lead }> = [];
+  cards.push({ key: "lead", label: "Lead", voice: response.lead });
+  if (response.counterweight) {
+    cards.push({
+      key: "counterweight",
+      label: "Counterweight",
+      voice: response.counterweight,
+    });
+  }
+  if (response.anchor) {
+    cards.push({ key: "anchor", label: "Anchor", voice: response.anchor });
+  }
+
   return (
     <div className="flex flex-col gap-5">
-      <div className="rounded-2xl border border-anomaly/30 bg-anomaly/8 p-4">
-        <p className="font-mono text-[11px] uppercase tracking-[0.28em] text-anomaly">
-          UI demo · hardcoded answers
-        </p>
-        <p className="mt-2 text-sm leading-6 text-zinc-300">
-          The real /api/consult endpoint is wired in Week 3. Until then, every
-          answer below is a static demo with three voices from the practice
-          matrix.
-        </p>
-      </div>
       <div className="flex flex-wrap items-center justify-between gap-3">
         <p className="font-mono text-[11px] uppercase tracking-[0.28em] text-muted">
-          request · {STUB_ANSWER.requestId} · phase {STUB_ANSWER.phase} ·{" "}
-          {(STUB_ANSWER.phaseConfidence * 100).toFixed(0)}% confidence
+          request · {response.requestId} · phase {response.phase} ·{" "}
+          {(response.phaseConfidence * 100).toFixed(0)}% confidence
         </p>
         <button
           type="button"
@@ -99,27 +71,16 @@ export function StubAnswer({ onReset }: StubAnswerProps) {
         </button>
       </div>
       <div className="grid gap-4 lg:grid-cols-3">
-        <AnswerCard
-          label="Lead"
-          glyph={STUB_ANSWER.lead.glyph}
-          name={STUB_ANSWER.lead.name}
-          classical={STUB_ANSWER.lead.classical}
-          answer={STUB_ANSWER.lead.answer}
-        />
-        <AnswerCard
-          label="Counterweight"
-          glyph={STUB_ANSWER.counterweight.glyph}
-          name={STUB_ANSWER.counterweight.name}
-          classical={STUB_ANSWER.counterweight.classical}
-          answer={STUB_ANSWER.counterweight.answer}
-        />
-        <AnswerCard
-          label="Anchor"
-          glyph={STUB_ANSWER.anchor.glyph}
-          name={STUB_ANSWER.anchor.name}
-          classical={STUB_ANSWER.anchor.classical}
-          answer={STUB_ANSWER.anchor.answer}
-        />
+        {cards.map((card) => (
+          <AnswerCard
+            key={card.key}
+            label={card.label}
+            glyph={card.voice.glyph}
+            name={card.voice.name}
+            classical={card.voice.classical}
+            answer={card.voice.answer}
+          />
+        ))}
       </div>
     </div>
   );

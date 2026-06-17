@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+
 import { PracticeNav } from "@/components/practice-nav";
 import { PracticeCompliance } from "@/components/practice-compliance";
 import { FooterManifest } from "@/components/footer-manifest";
@@ -8,14 +9,16 @@ import { ConsultHeader } from "@/components/consult-header";
 import { ContextSelector } from "@/components/consult-context-selector";
 import { PostureSelector } from "@/components/consult-posture-selector";
 import { ConsultInput } from "@/components/consult-input";
-import { StubAnswer } from "@/components/consult-answer";
+import { ConsultAnswer } from "@/components/consult-answer";
 import {
   GLYPH_PULSE,
+  SIGNAL_MAX,
   type ConsultContext,
   type ConsultLocale,
   type ConsultPosture,
   type ConsultStatus,
 } from "@/lib/consult/constants";
+import type { ConsultResponse } from "@/lib/consult/types";
 
 // --- Page -------------------------------------------------------------
 
@@ -23,13 +26,14 @@ export default function ConsultPage() {
   const [context, setContext] = useState<ConsultContext>("life");
   const [posture, setPosture] = useState<ConsultPosture>("empathisch");
   const [signal, setSignal] = useState<string>("");
-  // status: "idle" before any submit, "loading" during a future fetch,
-  // "success" when an answer is shown, "error" on a failed request.
-  // The Week 2 stub answers go straight to "success"; Week 3 will
-  // introduce the "loading" state for the real /api/consult call.
+  // status: "idle" before any submit, "loading" during the
+  // fetch, "success" when an answer is shown, "error" on a
+  // failed request. The Week 3 implementation hits /api/consult
+  // and renders the structured response.
   const [status, setStatus] = useState<ConsultStatus>("idle");
   const [error, setError] = useState<string | null>(null);
-  // Locale is fixed to "de" for Week 2/3. The architecture supports
+  const [answer, setAnswer] = useState<ConsultResponse | null>(null);
+  // Locale is fixed to "de" for Week 3. The architecture supports
   // dynamic locale; the actual i18n wiring is a Phase 3 task.
   const [locale] = useState<ConsultLocale>("de");
 
@@ -43,23 +47,49 @@ export default function ConsultPage() {
     if (status !== "idle") {
       setStatus("idle");
       setError(null);
+      setAnswer(null);
     }
   }, [context, posture]);
 
   const canSubmit = signal.trim().length > 0;
 
-  function handleSubmit() {
+  async function handleSubmit() {
     if (!canSubmit) return;
-    // Week 3 swap-in: set status to "loading", fetch /api/consult, then
-    // set to "success" or "error". For now, jump directly to "success"
-    // and show the stub.
-    setStatus("success");
+    setStatus("loading");
     setError(null);
+    setAnswer(null);
+    try {
+      const response = await fetch("/api/consult", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          signal: signal.slice(0, SIGNAL_MAX),
+          context,
+          posture,
+          locale,
+        }),
+      });
+      if (!response.ok) {
+        const body = (await response.json().catch(() => null)) as
+          | { error?: string }
+          | null;
+        setStatus("error");
+        setError(body?.error ?? `HTTP ${response.status}`);
+        return;
+      }
+      const data = (await response.json()) as ConsultResponse;
+      setAnswer(data);
+      setStatus("success");
+    } catch (err) {
+      setStatus("error");
+      setError(err instanceof Error ? err.message : "Network error");
+    }
   }
 
   function handleReset() {
     setStatus("idle");
     setError(null);
+    setAnswer(null);
     setSignal("");
   }
 
@@ -88,12 +118,12 @@ export default function ConsultPage() {
 
           <button
             type="button"
-            disabled={!canSubmit}
+            disabled={!canSubmit || status === "loading"}
             onClick={handleSubmit}
             className="glass-card inline-flex min-h-[44px] w-full items-center justify-center rounded-2xl border border-anomaly/30 bg-anomaly/12 px-5 py-3 font-mono text-xs uppercase tracking-[0.26em] text-anomaly transition-all duration-300 hover:-translate-y-0.5 hover:border-anomaly/50 hover:bg-anomaly/18 disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:translate-y-0 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/40 focus-visible:ring-offset-2 focus-visible:ring-offset-void"
             aria-label="Aus der Matrix ziehen — submit the consult request"
           >
-            Aus der Matrix ziehen
+            {status === "loading" ? "Reading the matrix…" : "Aus der Matrix ziehen"}
           </button>
           {!canSubmit ? (
             <p
@@ -104,12 +134,12 @@ export default function ConsultPage() {
             </p>
           ) : null}
 
-          {status === "success" ? (
+          {status === "loading" ? (
             <div role="status" aria-live="polite" className="flex flex-col gap-2">
               <p className="text-sm leading-6 text-zinc-200">
                 {locale === "de"
-                  ? "API wird in Woche 3 verkabelt. Bis dahin ist dies ein UI-Skeleton."
-                  : "API is being wired in week 3. This is a UI skeleton for now."}
+                  ? "Die Matrix liest deine Frage…"
+                  : "The matrix is reading your question…"}
               </p>
               <div
                 aria-hidden
@@ -141,8 +171,8 @@ export default function ConsultPage() {
           >
             Answer
           </h2>
-          {status === "success" ? (
-            <StubAnswer onReset={handleReset} />
+          {status === "success" && answer ? (
+            <ConsultAnswer response={answer} onReset={handleReset} />
           ) : status === "error" ? (
             <div className="subtle-panel p-6" role="alert">
               <p className="text-sm leading-7 text-zinc-300">
@@ -156,17 +186,11 @@ export default function ConsultPage() {
                 Try again
               </button>
             </div>
-          ) : status === "loading" ? (
-            <div className="subtle-panel p-6" aria-live="polite">
-              <p className="text-sm leading-7 text-zinc-300">
-                Reading the matrix…
-              </p>
-            </div>
           ) : (
             <div className="subtle-panel p-6">
               <p className="text-sm leading-7 text-zinc-300">
-                Hier erscheint deine Antwort aus der Lead-Stimme, sobald das
-                /api/consult Endpoint in Week 3 live geht.
+                Hier erscheint deine Antwort aus der Lead-Stimme, sobald du
+                eine Frage stellst.
               </p>
             </div>
           )}
