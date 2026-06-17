@@ -1,6 +1,6 @@
 import { practice, type EmbodimentEntry } from "@/lib/content";
 import { cn } from "@/lib/utils";
-import { toneColors, toneNames, type ToneKey } from "@/lib/theme";
+import { toneColors, toneNames } from "@/lib/theme";
 import { SectionHeading } from "@/components/section-heading";
 import { Reveal } from "@/components/reveal";
 import Link from "next/link";
@@ -33,8 +33,10 @@ export function PracticeEmbodimentGrid() {
 }
 
 function EmbodimentCard({ entry, index }: { entry: EmbodimentEntry; index: number }) {
-  const accent = toneColors[entry.tone as ToneKey];
-  const toneLabel = toneNames[entry.tone as ToneKey];
+  // entry.tone is the literal union from `as const` data; it's a subset
+  // of ToneKey, so the indexer accepts it without an `as ToneKey` cast.
+  const accent = toneColors[entry.tone];
+  const toneLabel = toneNames[entry.tone];
 
   return (
     <Reveal delay={index * 70}>
