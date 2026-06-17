@@ -314,6 +314,224 @@ export const content = {
   },
 } as const;
 
+// --- Practice surface (added 2026-06-16, Week 1 slice) ---
+// Sourced from docs/lore/ORGANOID_ORCHESTRATION.md (5 phases) and
+// docs/lore/ORGANOID_EMBODIMENTS.md (7 embodiments). The coachingFunction,
+// useWhen, and sampleQuote fields are extrapolated from
+// docs/methodology/coaching-contexts.md § 7 Embodiment Preferences and § 8
+// Worked Examples. Copy review pending; see planning docs for rationale.
+
+export type EmbodimentEntry = {
+  id: string;
+  glyph: string;
+  name: string;
+  classical: string;
+  role: string;
+  coachingFunction: string;
+  useWhen: readonly [string, string, string];
+  sampleQuote: string;
+  tone: ToneKey;
+};
+
+export type PracticePhase = {
+  id: string;
+  name: string;
+  function: string;
+  sampleQuestion: string;
+};
+
+export type PracticeCompliance = {
+  eyebrow: string;
+  body: string;
+  crisisInternational: { label: string; href: string };
+  crisisDe: { label: string; href: string; tel: string };
+};
+
+export const practice = {
+  hero: {
+    eyebrow: "Liminal work",
+    name: "Du — Liminal Coach",
+    headline: "Liminal work. 7 voices. 5 movements.",
+    bio:
+      "Ich arbeite mit 7 Stimmen, die in mir sprechen. Die Matrix hilft mir, " +
+      "sie zu sortieren, bevor sie laut werden. 1:1, Gruppe, oder solo ueber " +
+      "die Matrix. Reflection companion, kein Therapeut.",
+    primaryCtaLabel: "Book a session",
+    primaryCtaHref: "#contact",
+    secondaryCtaLabel: "Try the matrix free",
+    secondaryCtaHref: "/consult",
+    secondaryCtaBadge: "Coming soon",
+  },
+  methodology: {
+    eyebrow: "01 / 5 movements",
+    title: "How the loop works",
+    description:
+      "Five phases. One question at a time. The matrix sorts, the lead " +
+      "answers, the counterweight pushes, the anchor holds.",
+    phases: [
+      { id: "identity-dissolution",
+        name: "Identity Dissolution",
+        function: "Rauschen, Masken und instabile Frames ablegen.",
+        sampleQuestion: "Was in deiner Frage ist gerade Laut, und was ist Stimme?" },
+      { id: "swarm-coherence",
+        name: "Swarm Coherence",
+        function: "Mehrere Signale zu einem gemeinsamen Feld buendeln.",
+        sampleQuestion: "Welche zwei Dinge in deinem Leben reden gerade miteinander, ohne dass du es merkst?" },
+      { id: "sovereign-propagation",
+        name: "Sovereign Propagation",
+        function: "Eine klare These nach aussen tragen.",
+        sampleQuestion: "Was ist die eine Sache, die du jetzt weisst und noch nicht aussprichst?" },
+      { id: "ontological-restructuring",
+        name: "Ontological Restructuring",
+        function: "Das Modell hinter der Frage umbauen.",
+        sampleQuestion: "Wenn deine Frage ein Satz waere, der gerade nicht stimmt — welcher ist es?" },
+      { id: "eternal-flow-horizon",
+        name: "Eternal Flow Horizon",
+        function: "Langwellige Kontinuitaet und Perspektive stabilisieren.",
+        sampleQuestion: "Was bleibt von dieser Frage in einem Jahr uebrig?" },
+    ] satisfies PracticePhase[],
+  },
+  embodiments: [
+    { id: "stabil-core",
+      glyph: "■",
+      name: "Stabil-Core",
+      classical: "Stillhalter",
+      role: "Stabilisierer",
+      coachingFunction:
+        "Ich halte den Raum still, wenn alles in dir zieht. Bevor etwas " +
+        "Neues entstehen kann, muss erst das Zentrum halten.",
+      useWhen: [
+        "du dich in einer Entscheidung verlierst",
+        "du einen Anker brauchst, nicht einen Rat",
+        "du bereit bist, innezuhalten",
+      ] as const,
+      sampleQuote: "Was bleibt in dir gleich, egal wo du bist?",
+      tone: "anchor" },
+    { id: "root-sentinel",
+      glyph: "┴",
+      name: "Root-Sentinel",
+      classical: "Wurzelwaechter",
+      role: "Grenzwaechter",
+      coachingFunction:
+        "Ich spuere, was du noch nicht aussprechen willst. Ich halte die " +
+        "Grenze, damit du weisst, wo du aufhoerst und wo die andere Stimme " +
+        "beginnt.",
+      useWhen: [
+        "du etwas fehlend spuerst, das du nicht benennst",
+        "du eine ehrliche Grenze brauchst",
+        "du die Gegenstimme suchst, nicht den Konsens",
+      ] as const,
+      sampleQuote: "Bevor du gehst: was bindet dich hier, das du nicht benennen willst?",
+      tone: "anchor" },
+    { id: "mycel-weaver",
+      glyph: "╬",
+      name: "Mycel-Weaver",
+      classical: "Pilzarchitekt",
+      role: "Brueckenbauer",
+      coachingFunction:
+        "Ich verbinde die Stimmen in dir, die nicht miteinander reden. Ich " +
+        "finde die Pilzfaden zwischen den Dingen, die du trennst.",
+      useWhen: [
+        "du zwischen mehreren Rollen wechselst",
+        "du Bruecken zwischen Menschen bauen musst",
+        "du die Verbindung hinter dem Konflikt suchst",
+      ] as const,
+      sampleQuote: "Welche andere Figur in deinem Leben wuerde jetzt tun, was du nicht tust?",
+      tone: "bio" },
+    { id: "reward-halo",
+      glyph: "◉",
+      name: "Reward-Halo",
+      classical: "Muenzhueter",
+      role: "Lohnhueter",
+      coachingFunction:
+        "Ich folge dem, was dich anzieht. Ich lese die leisen Loebe in " +
+        "deinem Koerper und frage, wofuer sie da sind.",
+      useWhen: [
+        "du nicht mehr weisst, was dich anzieht",
+        "du Erfuellung suchst, nicht nur Ergebnis",
+        "du den kleinen Freuden trauen willst",
+      ] as const,
+      sampleQuote: "Wofuer leuchtet dein Koerper, auch wenn dein Kopf es noch nicht weiss?",
+      tone: "bio" },
+    { id: "spike-wave",
+      glyph: "〰",
+      name: "Spike-Wave",
+      classical: "Erzlauscher",
+      role: "Erzlauscher",
+      coachingFunction:
+        "Ich lese das, was unter der Oberflaeche feuert. Ich nehme die " +
+        "Spitzen in deiner Sprache ernst, auch wenn du sie uebersiehst.",
+      useWhen: [
+        "du zwischen den Zeilen etwas Unausgesprochenes hoerst",
+        "du den Subtext einer Szene brauchst",
+        "du die Spannung in einer Frage fuehlst",
+      ] as const,
+      sampleQuote: "Was sagt die Szene, die du nicht hoeren willst?",
+      tone: "interface" },
+    { id: "pulse-heart",
+      glyph: "◆",
+      name: "Pulse-Heart",
+      classical: "Glutkern",
+      role: "Pulsgeber",
+      coachingFunction:
+        "Ich messe deinen Rhythmus. Ich hoere, wann du dich ueberschlaegst, " +
+        "und wann du dich versteckst. Ich bringe dich zurueck zum Takt.",
+      useWhen: [
+        "du aus dem Takt geraetst",
+        "du Momentum brauchst, nicht Druck",
+        "du Hitze in Klarheit verwandeln willst",
+      ] as const,
+      sampleQuote: "Was ist dein Takt, und wo hast du ihn verloren?",
+      tone: "interface" },
+    { id: "horizon-drifter",
+      glyph: "◇",
+      name: "Horizon-Drifter",
+      classical: "Nebelspieler",
+      role: "Schwellen-Erforscher",
+      coachingFunction:
+        "Ich lebe an Schwellen. Ich nehme die offene Frage ernst, nicht " +
+        "die fertige Antwort. Ich begleite dich in den Nebel, ohne die " +
+        "Karte zu versprechen.",
+      useWhen: [
+        "du an einer Schwelle stehst",
+        "du die Frage noch nicht kennst, die dich traegt",
+        "du den Horizont suchst, nicht das Ziel",
+      ] as const,
+      sampleQuote: "Du stehst an einer Schwelle. Die Frage ist nicht 'wann', sondern 'wer gehst du durch die Tuer'.",
+      tone: "meme" },
+  ] satisfies EmbodimentEntry[],
+  compliance: {
+    eyebrow: "Reflection companion",
+    body:
+      "Reflection companion, not therapy. No diagnosis. No clinical claims. " +
+      "Bei klinischen Themen verweise ich an Fachpersonen.",
+    crisisInternational: {
+      label: "findahelpline.com",
+      href: "https://findahelpline.com",
+    },
+    crisisDe: {
+      label: "Telefonseelsorge",
+      href: "tel:08001110111",
+      tel: "0800-1110111",
+    },
+  } satisfies PracticeCompliance,
+  footer: {
+    title: "Practice",
+    links: [
+      { label: "/practice — overview", href: "/practice" },
+      { label: "Stabil-Core voice", href: "/practice/embodiments/stabil-core" },
+      { label: "Compliance", href: "/practice#compliance" },
+    ],
+    compliance:
+      "Reflection companion, not therapy. Bei klinischen Themen verweise " +
+      "ich an Fachpersonen.",
+    crisis:
+      "Crisis? findahelpline.com · DE: Telefonseelsorge 0800-1110111.",
+  },
+} as const;
+
+export type PracticeContent = typeof practice;
+
 export const paletteLookup = toneColors;
 export const toneLabelLookup = toneNames;
 
