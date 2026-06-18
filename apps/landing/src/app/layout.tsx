@@ -55,16 +55,10 @@ export const metadata: Metadata = {
     siteName: "$wetware",
     images: [
       {
-        url: "/api/og",
-        width: 1200,
-        height: 630,
-        alt: "Organoid Symbiont preview image",
-      },
-      {
         url: "/og-fallback.svg",
         width: 1200,
         height: 630,
-        alt: "Organoid Symbiont fallback preview image",
+        alt: "Organoid Symbiont preview image",
       },
     ],
   },
@@ -72,7 +66,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "$wetware",
     description: "$wetware as a bio-digital signal object for the seam between substrate and interface.",
-    images: ["/api/og", "/og-fallback.svg"],
+    images: ["/og-fallback.svg"],
   },
   icons: {
     icon: "/icon.svg",
