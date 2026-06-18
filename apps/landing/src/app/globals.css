@@ -1,21 +1,100 @@
 @import "tailwindcss";
 
+/* ─────────────────────────────────────────────────────────
+   THEME TOKENS
+   --color-* → Tailwind utility classes (text-*, bg-*, border-*)
+   --font-*  → Tailwind font utilities
+───────────────────────────────────────────────────────── */
 @theme {
-  --font-sans: var(--font-body-face);
+  /* Fonts */
+  --font-sans:    var(--font-body-face);
   --font-display: var(--font-headline-face);
-  --font-mono: var(--font-mono-face);
-  --color-void: #09090b;
-  --color-surface: #18181b;
-  --color-surface-2: #27272a;
-  --color-lumen: #6ee7b7;
-  --color-signal: #67e8f9;
-  --color-anomaly: #e879f9;
-  --color-ink: #fafafa;
-  --color-muted: #a1a1aa;
+  --font-mono:    var(--font-mono-face);
+
+  /* Background scale */
+  --color-void:      #0c0c10;
+  --color-chrome:    #17171d;
+  --color-raised:    #1e1e26;
+  --color-surface:   #17171d;   /* legacy alias → chrome */
+  --color-surface-2: #1e1e26;   /* legacy alias → raised */
+
+  /* Text hierarchy */
+  --color-ink:    #ededf0;  /* primary   — was #fafafa */
+  --color-body:   #c4c4c9;  /* body copy */
+  --color-muted:  #8e8e96;  /* secondary — was #a1a1aa */
+  --color-meta:   #5e5e68;  /* meta / timestamps */
+  --color-ghost:  #38383f;  /* disabled / dividers */
+
+  /* Accent colors */
+  --color-anomaly: #e879f9;  /* action · question · CTA */
+  --color-signal:  #67e8f9;  /* gegenstimme · secondary */
+  --color-lumen:   #6ee7b7;  /* anker · confirmation */
+
+  /* Animations */
   --animate-drift: drift 18s ease-in-out infinite;
   --animate-float: float 12s ease-in-out infinite;
 }
 
+/* ─────────────────────────────────────────────────────────
+   DESIGN TOKENS  (used via var() — not Tailwind utilities)
+   Follows Prism 5-layer model adapted for single dark theme.
+───────────────────────────────────────────────────────── */
+:root {
+  /* Card backgrounds */
+  --bg-card:         rgba(255, 255, 255, 0.032);
+  --bg-card-elevated: rgba(255, 255, 255, 0.048);
+
+  /* Accent soft fill + border */
+  --anomaly-soft: rgba(232, 121, 249, 0.07);
+  --anomaly-b:    rgba(232, 121, 249, 0.32);
+  --signal-soft:  rgba(103, 232, 249, 0.06);
+  --signal-b:     rgba(103, 232, 249, 0.18);
+  --lumen-soft:   rgba(110, 231, 183, 0.06);
+  --lumen-b:      rgba(110, 231, 183, 0.18);
+
+  /* Border scale */
+  --border-subtle: rgba(255, 255, 255, 0.06);
+  --border-base:   rgba(255, 255, 255, 0.09);
+  --border-strong: rgba(255, 255, 255, 0.16);
+
+  /* Radius scale */
+  --r-xs:   4px;
+  --r-sm:   7px;
+  --r-md:   9px;
+  --r-lg:  14px;     /* window / floating panel */
+  --r-pill: 9999px;
+
+  /* Spacing — 4px base unit */
+  --sp-1:   4px;
+  --sp-2:   8px;
+  --sp-3:  12px;
+  --sp-4:  16px;
+  --sp-5:  20px;
+  --sp-6:  24px;
+  --sp-8:  32px;
+  --sp-10: 40px;
+  --sp-12: 48px;
+
+  /* Motion */
+  --dur-fast:    150ms;
+  --dur-base:    200ms;
+  --dur-slow:    300ms;
+  --ease-out:    cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in:     cubic-bezier(0.7, 0, 0.84, 0);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+
+  /* Z-index scale */
+  --z-sticky:   10;
+  --z-dropdown: 20;
+  --z-modal-bg: 25;
+  --z-modal:    30;
+  --z-tooltip:  40;
+  --z-toast:    50;
+}
+
+/* ─────────────────────────────────────────────────────────
+   BASE
+───────────────────────────────────────────────────────── */
 @layer base {
   html {
     scroll-behavior: smooth;
@@ -27,9 +106,9 @@
     overflow-x: hidden;
     background:
       radial-gradient(circle at 20% 20%, rgba(103, 232, 249, 0.08), transparent 30%),
-      radial-gradient(circle at 80% 0%, rgba(232, 121, 249, 0.08), transparent 24%),
+      radial-gradient(circle at 80% 0%,  rgba(232, 121, 249, 0.08), transparent 24%),
       radial-gradient(circle at 50% 100%, rgba(110, 231, 183, 0.08), transparent 30%),
-      var(--color-void);
+      #0c0c10;
   }
 
   body::before {
@@ -59,41 +138,237 @@
     animation: noiseShift 26s linear infinite;
   }
 
+  /* Global focus ring — anomaly accent, 2px + 2px offset (Prism §9.2)
+     Placed outside @layer utilities so it doesn't lose to Tailwind focus: */
+
+
   ::selection {
     background: rgba(103, 232, 249, 0.28);
-    color: var(--color-ink);
+    color: #ededf0;
   }
 }
 
+/* ─────────────────────────────────────────────────────────
+   COMPONENTS
+───────────────────────────────────────────────────────── */
 @layer components {
+
+  /* ── Layout shells ─────────────────────────────────── */
+
   .section-shell {
-    @apply rounded-[2rem] border border-white/10 bg-white/[0.035] p-6 shadow-[0_24px_120px_rgba(0,0,0,0.35)] backdrop-blur-xl sm:p-8;
+    @apply border border-white/10 p-6 shadow-[0_24px_120px_rgba(0,0,0,0.35)] backdrop-blur-xl sm:p-8;
+    border-radius: var(--r-lg);
+    background: var(--bg-card);
+  }
+
+  .glass-card {
+    @apply border border-white/10 shadow-[0_16px_60px_rgba(0,0,0,0.24)] backdrop-blur-xl;
+    border-radius: var(--r-md);
+    background: var(--bg-card-elevated);
+  }
+
+  .subtle-panel {
+    border-radius: var(--r-md);
+    border: 1px solid var(--border-subtle);
+    background: rgba(255, 255, 255, 0.025);
+  }
+
+  /* ── Typography utilities ───────────────────────────── */
+
+  /* 11px mono caps — wide tracking (section / marketing labels) */
+  .section-label {
+    @apply font-mono uppercase;
+    font-size: 11px;
+    letter-spacing: 0.35em;
+    color: var(--color-muted);
+  }
+
+  /* 11px mono caps — medium tracking (practice chips / role labels) */
+  .label-caps {
+    @apply font-mono uppercase;
+    font-size: 11px;
+    letter-spacing: 0.18em;
+    color: var(--color-muted);
+  }
+
+  /* 11px mono — tight tracking (request IDs, timestamps) */
+  .label-meta {
+    @apply font-mono;
+    font-size: 11px;
+    letter-spacing: 0.10em;
+    color: var(--color-meta);
   }
 
   .section-title {
     @apply font-display text-3xl uppercase tracking-[-0.04em] text-ink sm:text-4xl lg:text-5xl;
   }
 
-  .section-label {
-    @apply font-mono text-[11px] uppercase tracking-[0.35em] text-muted;
+  .section-copy {
+    @apply max-w-3xl text-sm leading-7 text-body sm:text-base;
   }
 
-  .section-copy {
-    @apply max-w-3xl text-sm leading-7 text-zinc-300 sm:text-base;
-  }
+  /* ── Chips ──────────────────────────────────────────── */
 
   .chip {
-    @apply inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1 font-mono text-[11px] uppercase tracking-[0.25em] text-zinc-300;
+    @apply inline-flex items-center gap-2 font-mono uppercase;
+    font-size: 11px;
+    letter-spacing: 0.25em;
+    padding: var(--sp-1) var(--sp-3);
+    border-radius: var(--r-pill);
+    border: 1px solid var(--border-base);
+    background: rgba(255, 255, 255, 0.05);
+    color: #c4c4c9;
   }
 
-  .glass-card {
-    @apply rounded-[1.5rem] border border-white/10 bg-white/[0.04] shadow-[0_16px_60px_rgba(0,0,0,0.24)] backdrop-blur-xl;
+  /* Context / posture selector chip */
+  .context-chip {
+    @apply inline-flex items-center font-mono uppercase;
+    font-size: 11px;
+    letter-spacing: 0.14em;
+    padding: var(--sp-1) var(--sp-3);
+    border-radius: var(--r-pill);
+    border: 1px solid var(--border-subtle);
+    color: var(--color-meta);
+    min-height: 32px;
+    transition:
+      border-color var(--dur-fast) var(--ease-out),
+      background   var(--dur-fast) var(--ease-out),
+      color        var(--dur-fast) var(--ease-out);
   }
 
-  .subtle-panel {
-    @apply rounded-[1.5rem] border border-white/8 bg-white/[0.025];
+  .context-chip[data-active="true"],
+  .context-chip.active {
+    border-color: var(--anomaly-b);
+    background: var(--anomaly-soft);
+    color: #e879f9;
   }
 
+  /* ── Buttons ────────────────────────────────────────── */
+
+  .artifact-link {
+    @apply inline-flex items-center gap-2 font-mono uppercase;
+    font-size: 11px;
+    letter-spacing: 0.26em;
+    padding: var(--sp-2) var(--sp-4);
+    border-radius: var(--r-pill);
+    border: 1px solid var(--border-base);
+    background: rgba(255, 255, 255, 0.04);
+    color: #c4c4c9;
+    min-height: 36px;
+    transition:
+      border-color var(--dur-base) var(--ease-out),
+      background   var(--dur-base) var(--ease-out),
+      color        var(--dur-base) var(--ease-out),
+      transform    var(--dur-base) var(--ease-out);
+  }
+
+  .artifact-link:hover {
+    border-color: var(--border-strong);
+    background: rgba(255, 255, 255, 0.08);
+    color: #ededf0;
+    transform: translateY(-1px);
+  }
+
+  /* Primary CTA — anomaly */
+  .btn-primary {
+    @apply inline-flex items-center justify-center font-mono uppercase;
+    font-size: 11px;
+    letter-spacing: 0.18em;
+    padding: var(--sp-2) var(--sp-4);
+    border-radius: var(--r-sm);
+    border: 1px solid var(--anomaly-b);
+    background: var(--anomaly-soft);
+    color: #e879f9;
+    min-height: 36px;
+    transition:
+      border-color var(--dur-fast) var(--ease-out),
+      background   var(--dur-fast) var(--ease-out),
+      transform    var(--dur-fast) var(--ease-out);
+  }
+
+  .btn-primary:hover {
+    border-color: rgba(232, 121, 249, 0.50);
+    background: rgba(232, 121, 249, 0.12);
+    transform: translateY(-1px);
+  }
+
+  /* Pull button — signal accent (Gegenstimme / reveal) */
+  .btn-pull {
+    @apply inline-flex items-center gap-2 font-mono uppercase;
+    font-size: 11px;
+    letter-spacing: 0.13em;
+    padding: var(--sp-2) var(--sp-3);
+    border-radius: var(--r-pill);
+    border: 1px solid var(--signal-b);
+    background: var(--signal-soft);
+    color: #67e8f9;
+    min-height: 36px;
+    transition:
+      border-color var(--dur-fast) var(--ease-out),
+      background   var(--dur-fast) var(--ease-out),
+      transform    var(--dur-fast) var(--ease-out);
+  }
+
+  .btn-pull:hover {
+    border-color: rgba(103, 232, 249, 0.30);
+    background: rgba(103, 232, 249, 0.10);
+    transform: translateY(-1px);
+  }
+
+  /* Ghost button — neutral (reset / new question) */
+  .btn-ghost {
+    @apply inline-flex items-center gap-2 font-mono uppercase;
+    font-size: 11px;
+    letter-spacing: 0.13em;
+    padding: var(--sp-2) var(--sp-3);
+    border-radius: var(--r-pill);
+    border: 1px solid var(--border-subtle);
+    background: transparent;
+    color: var(--color-muted);
+    min-height: 36px;
+    transition:
+      border-color var(--dur-fast) var(--ease-out),
+      color        var(--dur-fast) var(--ease-out);
+  }
+
+  .btn-ghost:hover {
+    border-color: var(--border-base);
+    color: #c4c4c9;
+  }
+
+  /* ── Practice surface atoms ─────────────────────────── */
+
+  /* Voice card — base */
+  .voice-card {
+    border-radius: var(--r-md);
+    border: 1px solid var(--border-base);
+    background: var(--bg-card);
+    padding: var(--sp-3) var(--sp-4);
+    transition:
+      border-color var(--dur-base) var(--ease-out),
+      background   var(--dur-base) var(--ease-out);
+  }
+
+  /* Border tinted by role */
+  .voice-card[data-role="counter"],
+  .voice-card.counter { border-color: var(--signal-b); }
+
+  .voice-card[data-role="anchor"],
+  .voice-card.anchor  { border-color: var(--lumen-b); }
+
+  /* Question block — signature element, anomaly left border */
+  .question-block {
+    @apply font-mono;
+    font-size: 14px;
+    line-height: 1.6;
+    color: #e879f9;
+    padding: var(--sp-3) var(--sp-4);
+    border-left: 2px solid var(--anomaly-b);
+    background: var(--anomaly-soft);
+    border-radius: 0 var(--r-sm) var(--r-sm) 0;
+  }
+
+  /* Noise texture — embodiment card overlay */
   .noise-skin {
     background-image:
       radial-gradient(circle at 20% 20%, rgba(255, 255, 255, 0.14), transparent 18%),
@@ -101,20 +376,26 @@
       radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.05), transparent 40%);
     background-size: 140px 140px, 180px 180px, 220px 220px;
   }
-
-  .artifact-link {
-    @apply inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.04] px-4 py-2 font-mono text-[11px] uppercase tracking-[0.26em] text-zinc-200 transition-all duration-300 hover:-translate-y-0.5 hover:border-white/20 hover:bg-white/8 hover:text-ink;
-  }
 }
 
+/* Focus ring — outside @layer so it wins over Tailwind utilities */
+:focus-visible {
+  outline: 2px solid #e879f9;
+  outline-offset: 2px;
+  border-radius: var(--r-xs);
+}
+
+/* ─────────────────────────────────────────────────────────
+   REVEAL ANIMATION
+───────────────────────────────────────────────────────── */
 [data-reveal] {
   opacity: 0;
   transform: translateY(16px);
   filter: blur(8px);
   transition:
-    opacity 700ms ease,
+    opacity   700ms ease,
     transform 700ms ease,
-    filter 700ms ease;
+    filter    700ms ease;
 }
 
 [data-reveal="true"] {
@@ -132,46 +413,30 @@
   }
 }
 
+/* ─────────────────────────────────────────────────────────
+   KEYFRAMES
+───────────────────────────────────────────────────────── */
 @keyframes drift {
-  0%,
-  100% {
-    transform: translate3d(0, 0, 0) scale(1);
-  }
-
-  50% {
-    transform: translate3d(0, -14px, 0) scale(1.02);
-  }
+  0%,  100% { transform: translate3d(0, 0, 0) scale(1); }
+  50%        { transform: translate3d(0, -14px, 0) scale(1.02); }
 }
 
 @keyframes float {
-  0%,
-  100% {
-    transform: translate3d(0, 0, 0) scale(1);
-  }
-
-  50% {
-    transform: translate3d(0, 12px, 0) scale(0.985);
-  }
+  0%,  100% { transform: translate3d(0, 0, 0) scale(1); }
+  50%        { transform: translate3d(0, 12px, 0) scale(0.985); }
 }
 
 @keyframes noiseShift {
-  0% {
-    transform: translate3d(0, 0, 0);
-  }
-
-  50% {
-    transform: translate3d(-1.5%, 0.5%, 0);
-  }
-
-  100% {
-    transform: translate3d(0, 0, 0);
-  }
+  0%   { transform: translate3d(0, 0, 0); }
+  50%  { transform: translate3d(-1.5%, 0.5%, 0); }
+  100% { transform: translate3d(0, 0, 0); }
 }
 
+/* ─────────────────────────────────────────────────────────
+   REDUCED MOTION
+───────────────────────────────────────────────────────── */
 @media (prefers-reduced-motion: reduce) {
-  body::before {
-    animation: none;
-  }
+  body::before { animation: none; }
 
   .animate-pulse,
   .animate-spin,

@@ -16,10 +16,7 @@ export function PostureSelector({ value, onChange }: PostureSelectorProps) {
       aria-labelledby="consult-posture-label"
       className="flex flex-col gap-3"
     >
-      <legend
-        id="consult-posture-label"
-        className="font-mono text-[11px] uppercase tracking-[0.28em] text-muted"
-      >
+      <legend id="consult-posture-label" className="label-caps">
         Posture
       </legend>
       <div className="flex flex-wrap gap-2">
@@ -43,12 +40,10 @@ export function PostureSelector({ value, onChange }: PostureSelectorProps) {
                 )
               }
               className={[
-                "inline-flex min-h-[44px] items-center justify-center rounded-full border px-4 py-2 font-mono text-[11px] uppercase tracking-[0.24em] transition-all duration-300",
-                "focus:outline-none focus-visible:ring-2 focus-visible:ring-white/40 focus-visible:ring-offset-2 focus-visible:ring-offset-void",
-                selected
-                  ? "border-anomaly/40 bg-anomaly/14 text-anomaly"
-                  : "border-white/12 bg-white/5 text-zinc-300 hover:border-white/20 hover:text-ink",
+                "context-chip min-h-[44px]",
+                selected ? "active" : "",
               ].join(" ")}
+              data-active={selected ? "true" : "false"}
             >
               {option.label}
             </button>

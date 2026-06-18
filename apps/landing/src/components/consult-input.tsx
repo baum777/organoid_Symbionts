@@ -10,10 +10,7 @@ export function ConsultInput({ value, onChange, context }: ConsultInputProps) {
   const remaining = SIGNAL_MAX - value.length;
   return (
     <div className="flex flex-col gap-3">
-      <label
-        htmlFor="consult-signal"
-        className="font-mono text-[11px] uppercase tracking-[0.28em] text-muted"
-      >
+      <label htmlFor="consult-signal" className="label-caps">
         Your question
       </label>
       <textarea
@@ -27,17 +24,11 @@ export function ConsultInput({ value, onChange, context }: ConsultInputProps) {
         required
         aria-required="true"
         aria-describedby="consult-counter consult-help"
-        className="glass-card min-h-[44px] w-full resize-y rounded-2xl border border-white/10 bg-white/[0.04] p-4 text-sm leading-7 text-zinc-100 placeholder:text-zinc-500 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/40 focus-visible:ring-offset-2 focus-visible:ring-offset-void"
+        className="subtle-panel min-h-[44px] w-full resize-y p-4 text-sm leading-7 text-ink placeholder:text-ghost backdrop-blur-xl"
       />
       <div className="flex items-center justify-between gap-3">
-        <p id="consult-help" className="font-mono text-[11px] uppercase tracking-[0.24em] text-muted">
-          Max 800 characters
-        </p>
-        <p
-          id="consult-counter"
-          aria-live="polite"
-          className="font-mono text-[11px] uppercase tracking-[0.24em] text-zinc-300"
-        >
+        <p id="consult-help" className="label-meta">Max 800 characters</p>
+        <p id="consult-counter" aria-live="polite" className="label-meta text-body">
           {remaining} characters left
         </p>
       </div>

@@ -16,10 +16,7 @@ export function ContextSelector({ value, onChange }: ContextSelectorProps) {
       aria-labelledby="consult-context-label"
       className="flex flex-col gap-3"
     >
-      <legend
-        id="consult-context-label"
-        className="font-mono text-[11px] uppercase tracking-[0.28em] text-muted"
-      >
+      <legend id="consult-context-label" className="label-caps">
         Context
       </legend>
       <div className="grid gap-3 sm:grid-cols-3">
@@ -43,12 +40,9 @@ export function ContextSelector({ value, onChange }: ContextSelectorProps) {
                 )
               }
               className={[
-                "glass-card flex min-h-[44px] cursor-pointer flex-col gap-1 p-4 text-left transition-all duration-300",
-                "focus:outline-none focus-visible:ring-2 focus-visible:ring-white/40 focus-visible:ring-offset-2 focus-visible:ring-offset-void",
+                "voice-card flex min-h-[44px] cursor-pointer flex-col gap-1 text-left backdrop-blur-xl shadow-[0_8px_30px_rgba(0,0,0,0.20)]",
                 option.toneClass,
-                selected
-                  ? "border-white/30 ring-1 ring-white/20"
-                  : "border-white/10 opacity-80 hover:opacity-100",
+                selected ? "opacity-100" : "opacity-75 hover:opacity-100",
               ].join(" ")}
             >
               <span className="font-display text-base uppercase tracking-[-0.02em]">
