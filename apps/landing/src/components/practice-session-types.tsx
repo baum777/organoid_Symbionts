@@ -12,7 +12,7 @@ export function PracticeSessionTypes() {
       <SectionHeading
         eyebrow="03 / how we work"
         title="Three ways to work with me"
-        description="Solo, deep, or in a group. Pick the format that fits what you're holding this season. Pricing is a starting point; sliding scale is welcome."
+        description="Solo, deep, or in a group. Pick the format that fits what you're holding this season."
       />
       <div className="mt-8 grid gap-4 lg:grid-cols-3">
         {practice.sessionTypes.map((entry, index) => (

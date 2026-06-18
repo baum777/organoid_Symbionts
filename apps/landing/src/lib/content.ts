@@ -565,7 +565,7 @@ export const practice = {
         "Slow, single-thread. We pick one question and stay with it until " +
         "something shifts. Best for life decisions, identity work, or stuck " +
         "transitions.",
-      meta: "from 250€ · sliding scale welcome",
+      meta: "60 min · booking on request",
       tone: "bio",
     },
     {
@@ -575,7 +575,7 @@ export const practice = {
         "Focused, fast, decision-oriented. One question, one answer, one " +
         "next step. Best for clarity between meetings or a quick reflective " +
         "check-in.",
-      meta: "from 130€",
+      meta: "30 min · booking on request",
       tone: "interface",
     },
     {
@@ -585,7 +585,7 @@ export const practice = {
         "Small group (max 12). One embodiment per week, with a daily " +
         "practice and a weekly live call. Best for sustained reframe work " +
         "and a community of practice.",
-      meta: "350€ per cohort · next: Q3 2026",
+      meta: "next cohort · Q3 2026",
       tone: "meme",
     },
   ] satisfies SessionTypeEntry[],
