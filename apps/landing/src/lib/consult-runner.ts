@@ -2,6 +2,7 @@
 //
 // MVP contract (Week 3):
 //   - Validates the request.
+//   - Runs the clinical-topic guard (§ 6, coaching-contexts.md).
 //   - Selects lead / counterweight / anchor from the
 //     practice.embodiments registry, biased by context.
 //   - Builds a deterministic stub answer for each voice.
@@ -21,6 +22,8 @@ import { createHash, randomBytes } from "node:crypto";
 
 import { practice, type EmbodimentEntry } from "@/lib/content";
 
+import { classifySignal } from "@/lib/consult/clinicalGuard";
+import { buildDeflectionResponse } from "@/lib/consult/deflectionResponse";
 import {
   CONFIDENCE_FLOOR,
   LEAD_HARD_MAX,
@@ -33,6 +36,7 @@ import type {
   ConsultResponse,
   ConsultVoice,
 } from "@/lib/consult/types";
+import { checkVoiceRules } from "@/lib/consult/voiceRuleCheck";
 import type { ConsultContext, ConsultPosture } from "@/lib/consult/constants";
 
 type ContextPhase = {
@@ -183,11 +187,23 @@ export function runConsult(request: ConsultRequest): RunConsultResult {
     return { ok: false, error: { code: "invalid_locale" } };
   }
 
-  // --- 2. Select ------------------------------------------------------
-  const phaseInfo = CONTEXT_PHASE[context];
+  // --- 2. Clinical-topic guard ----------------------------------------
+  // Runs before any LLM call or stub render. Crisis signals get a
+  // hard_caution deflection with a crisis resource. Clinical / out-of-
+  // scope / moderation signals get soft_deflection. The signal hash
+  // is omitted from deflection responses (redacted) so matched terms
+  // never propagate downstream.
   const requestId = newRequestId();
+  const guardResult = classifySignal(signal, context);
+  if (guardResult.matched) {
+    const deflection = buildDeflectionResponse(guardResult.category, request.locale, requestId);
+    return { ok: true, response: deflection };
+  }
 
-  // --- 3. Build voices ------------------------------------------------
+  // --- 3. Select ------------------------------------------------------
+  const phaseInfo = CONTEXT_PHASE[context];
+
+  // --- 4. Build voices ------------------------------------------------
   const lead = buildVoice(phaseInfo.lead, "lead", posture);
   const counterweight =
     phaseInfo.counterweight === phaseInfo.lead
@@ -198,7 +214,7 @@ export function runConsult(request: ConsultRequest): RunConsultResult {
       ? null
       : buildVoice(phaseInfo.anchor, "anchor", posture);
 
-  // --- 4. Confidence gate --------------------------------------------
+  // --- 5. Confidence gate --------------------------------------------
   // The week-3 stub confidence is static per context. If it
   // ever falls below the per-context floor, the runner
   // suppresses the counterweight and emits a stabilisation
@@ -206,7 +222,20 @@ export function runConsult(request: ConsultRequest): RunConsultResult {
   // hard_caution mode is week-4 work.)
   const passed = confidenceGate(context, phaseInfo.phaseConfidence);
 
-  // --- 5. Compose response -------------------------------------------
+  // --- 6. Voice-rule check (output guard) ----------------------------
+  // In week 3 (stub mode): collect violations for observability only.
+  // In week 4 (LLM mode): violations trigger a retry; second violation
+  // falls back to stub. The check runs here so the seam is in place.
+  const ruleCheck = checkVoiceRules(lead.answer, context);
+  if (!ruleCheck.valid) {
+    // Log for observability; do not block in week 3.
+    console.warn(
+      "[consult-runner] voice-rule violations",
+      JSON.stringify({ requestId, context, violations: ruleCheck.violations }),
+    );
+  }
+
+  // --- 7. Compose response -------------------------------------------
   const response: ConsultResponse = {
     requestId,
     phase: phaseInfo.phase,

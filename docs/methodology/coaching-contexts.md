@@ -169,7 +169,7 @@ Three example inputs, expected orchestrator paths, and expected lead voices. The
 **Expected**:
 - `selectMode` path: `cls.intent == "question"` → not market-cluster → `neutral_clarification` (L1).
 - Phase: `Swarm Coherence` (multiple signals — job, location, identity).
-- Lead: `◇ Horizon-Drifter` — "Du stehst an einer Schwelle. Die Frage ist nicht 'wann', sondern 'wer gehst du durch die Tuer'."
+- Lead: `◇ Horizon-Drifter` — "Du stehst an einer Schwelle. Die Frage ist nicht wann. Die Frage ist als wer."
 - Counterweight: `┴ Root-Sentinel` — "Bevor du gehst: was bindet dich hier, das du nicht benennen willst?"
 - Anchor: `■ Stabil-Core` — "Was bleibt in dir gleich, egal wo du bist?"
 - Posture: empathisch → no length adjustment.

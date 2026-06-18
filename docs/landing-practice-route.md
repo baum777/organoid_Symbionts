@@ -162,7 +162,7 @@ Content-Type: application/json
     "glyph": "◇",
     "name": "Horizon-Drifter",
     "classical": "Nebelspieler",
-    "answer": "Du stehst an einer Schwelle. Die Frage ist nicht 'wann', sondern 'wer gehst du durch die Tür'."
+    "answer": "Du stehst an einer Schwelle. Die Frage ist nicht wann. Die Frage ist als wer."
   },
   "counterweight": {
     "id": "root-sentinel",

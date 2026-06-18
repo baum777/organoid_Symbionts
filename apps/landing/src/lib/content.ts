@@ -513,7 +513,7 @@ export const practice = {
         "du die Frage noch nicht kennst, die dich traegt",
         "du den Horizont suchst, nicht das Ziel",
       ] as const,
-      sampleQuote: "Du stehst an einer Schwelle. Die Frage ist nicht 'wann', sondern 'wer gehst du durch die Tuer'.",
+      sampleQuote: "Du stehst an einer Schwelle. Die Frage ist nicht wann. Die Frage ist als wer.",
       tone: "meme" },
   ] satisfies EmbodimentEntry[],
   compliance: {
