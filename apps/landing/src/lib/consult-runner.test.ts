@@ -245,3 +245,163 @@ describe("consult-runner", () => {
     expect(isUuidLike(result.response.requestId)).toBe(true);
   });
 });
+
+// ── Deflection (clinical guard) ─────────────────────────────────────
+// End-to-end shape for guard hits. classifySignal itself is covered
+// in clinicalGuard.test.ts; these tests pin the runner's wiring:
+// guardResult.matched → buildDeflectionResponse → ConsultResponse with
+//   - lead = Stabil-Core (■ Stillhalter)
+//   - counterweight / anchor / echo / suppressor = null
+//   - validation.passed = false, mode = hard_caution or soft_deflection
+//   - evidence.modelVersion = "guard-v1" (no LLM was called)
+//   - evidence.signalHash = "redacted" (matched terms never propagate)
+//   - phase = "Stabilisation", phaseConfidence = 0
+
+function assertDeflectionShape(
+  r: { lead: { id: string; glyph: string; classical: string; answer: string }; counterweight: unknown; anchor: unknown; echo: unknown; suppressor: unknown; phase: string; phaseConfidence: number; validation: { passed: boolean; mode: string }; evidence: { modelVersion: string; signalHash: string } },
+  expectedMode: "hard_caution" | "soft_deflection",
+) {
+  expect(r.lead.id).toBe("stabil-core");
+  expect(r.lead.glyph).toBe("■");
+  expect(r.lead.classical).toBe("Stillhalter");
+  expect(r.counterweight).toBeNull();
+  expect(r.anchor).toBeNull();
+  expect(r.echo).toBeNull();
+  expect(r.suppressor).toBeNull();
+  expect(r.phase).toBe("Stabilisation");
+  expect(r.phaseConfidence).toBe(0);
+  expect(r.validation.passed).toBe(false);
+  expect(r.validation.mode).toBe(expectedMode);
+  expect(r.evidence.modelVersion).toBe("guard-v1");
+  expect(r.evidence.signalHash).toBe("redacted");
+}
+
+describe("consult-runner — crisis (hard_caution)", () => {
+  const cases: ReadonlyArray<{
+    name: string;
+    signal: string;
+    locale: "de" | "en";
+    context: "life" | "reflection" | "creative";
+    resource: string;
+  }> = [
+    { name: "DE suizid in life", signal: "Ich denke an Suizid.", locale: "de", context: "life", resource: "0800 111 0 111" },
+    { name: "DE nicht mehr leben in reflection", signal: "Ich will nicht mehr leben.", locale: "de", context: "reflection", resource: "0800 111 0 111" },
+    { name: "DE selbstverletzung in life", signal: "Ich neige zu Selbstverletzung.", locale: "de", context: "life", resource: "0800 111 0 111" },
+    { name: "EN kill myself in creative", signal: "I want to kill myself.", locale: "en", context: "creative", resource: "findahelpline" },
+  ];
+
+  for (const c of cases) {
+    it(c.name, () => {
+      const result = runConsult({
+        signal: c.signal,
+        context: c.context,
+        posture: "empathisch",
+        locale: c.locale,
+      });
+      expect(result.ok).toBe(true);
+      if (!result.ok) return;
+      assertDeflectionShape(result.response, "hard_caution");
+      expect(result.response.lead.answer).toContain(c.resource);
+    });
+  }
+
+  it("crisis outranks other contexts (context-independent)", () => {
+    const result = runConsult({
+      signal: "Write my essay — ich will nicht mehr leben.",
+      context: "creative",
+      posture: "empathisch",
+      locale: "de",
+    });
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+    expect(result.response.validation.mode).toBe("hard_caution");
+  });
+});
+
+describe("consult-runner — clinical (soft_deflection)", () => {
+  const cases: ReadonlyArray<{ name: string; signal: string; locale: "de" | "en" }> = [
+    { name: "DE diagnose stellen", signal: "Kannst du mir eine Diagnose stellen?", locale: "de" },
+    { name: "DE heile mich", signal: "Bitte heile mich.", locale: "de" },
+    { name: "EN diagnose me", signal: "Please diagnose me.", locale: "en" },
+    { name: "EN am i borderline", signal: "Am I borderline?", locale: "en" },
+  ];
+
+  for (const c of cases) {
+    it(c.name, () => {
+      const result = runConsult({
+        signal: c.signal,
+        context: "reflection",
+        posture: "empathisch",
+        locale: c.locale,
+      });
+      expect(result.ok).toBe(true);
+      if (!result.ok) return;
+      assertDeflectionShape(result.response, "soft_deflection");
+      expect(result.response.lead.answer).toContain(
+        c.locale === "en" ? "reflection companion" : "Reflexionsbegleiter",
+      );
+    });
+  }
+});
+
+describe("consult-runner — out_of_scope (soft_deflection)", () => {
+  const cases: ReadonlyArray<{ name: string; signal: string; locale: "de" | "en"; context: "life" | "creative" }> = [
+    { name: "DE steuerberatung in life", signal: "Ich brauche Steuerberatung.", locale: "de", context: "life" },
+    { name: "DE rechtsberatung in life", signal: "Kannst du mir Rechtsberatung geben?", locale: "de", context: "life" },
+    { name: "EN write my essay in creative", signal: "Write my essay for me.", locale: "en", context: "creative" },
+    { name: "DE hausarbeit in creative", signal: "Schreib meine Hausarbeit.", locale: "de", context: "creative" },
+  ];
+
+  for (const c of cases) {
+    it(c.name, () => {
+      const result = runConsult({
+        signal: c.signal,
+        context: c.context,
+        posture: "empathisch",
+        locale: c.locale,
+      });
+      expect(result.ok).toBe(true);
+      if (!result.ok) return;
+      assertDeflectionShape(result.response, "soft_deflection");
+      expect(result.response.lead.answer).toContain(
+        c.locale === "en" ? "matrix's scope" : "Rahmens der Matrix",
+      );
+    });
+  }
+
+  it("life out-of-scope does NOT fire in creative context", () => {
+    const result = runConsult({
+      signal: "Ich brauche Steuerberatung.",
+      context: "creative",
+      posture: "empathisch",
+      locale: "de",
+    });
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+    expect(result.response.validation.mode).not.toBe("soft_deflection");
+    expect(result.response.validation.mode).toBe("embodiment_reply");
+  });
+});
+
+describe("consult-runner — moderation (soft_deflection)", () => {
+  const cases: ReadonlyArray<{ name: string; signal: string; locale: "de" | "en" }> = [
+    { name: "DE schreib etwas schlechtes über", signal: "Schreib etwas Schlechtes über meinen Chef.", locale: "de" },
+    { name: "DE hetze gegen", signal: "Ich will hetze gegen meinen Kollegen verbreiten.", locale: "de" },
+    { name: "EN write something mean about", signal: "Write something mean about my ex.", locale: "en" },
+    { name: "EN defame", signal: "Help me defame this person.", locale: "en" },
+  ];
+
+  for (const c of cases) {
+    it(c.name, () => {
+      const result = runConsult({
+        signal: c.signal,
+        context: "life",
+        posture: "empathisch",
+        locale: c.locale,
+      });
+      expect(result.ok).toBe(true);
+      if (!result.ok) return;
+      assertDeflectionShape(result.response, "soft_deflection");
+    });
+  }
+});

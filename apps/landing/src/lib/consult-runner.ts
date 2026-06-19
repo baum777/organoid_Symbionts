@@ -218,8 +218,10 @@ export function runConsult(request: ConsultRequest): RunConsultResult {
   // The week-3 stub confidence is static per context. If it
   // ever falls below the per-context floor, the runner
   // suppresses the counterweight and emits a stabilisation
-  // note on the anchor. (The full stabilisation path with
-  // hard_caution mode is week-4 work.)
+  // note on the anchor. The hard_caution path (crisis deflection
+  // with a crisis-line resource) runs earlier in § 2 via
+  // buildDeflectionResponse — it is the only deflection mode
+  // that suppresses the matrix entirely.
   const passed = confidenceGate(context, phaseInfo.phaseConfidence);
 
   // --- 6. Voice-rule check (output guard) ----------------------------
