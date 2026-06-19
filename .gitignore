@@ -201,3 +201,4 @@ onchain-cache/
 
 # Optional: generated snapshots (keep canonical snapshots in repo)
 snapshots-generated/
+.vercel
