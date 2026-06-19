@@ -13,7 +13,14 @@ export type LaunchMode = z.infer<typeof LaunchModeSchema>;
 const LogLevelSchema = z.enum(["debug", "info", "warn", "error"]);
 export type LogLevel = z.infer<typeof LogLevelSchema>;
 
-const LLMProviderSchema = z.enum(["xai", "openai", "anthropic"]);
+const LLMProviderSchema = z.enum([
+  "xai",
+  "openai",
+  "anthropic",
+  "lfm25-local",
+  "openrouter-lfm25",
+  "openrouter-llama-1b",
+]);
 
 const allowlistSchema = z
   .string()
