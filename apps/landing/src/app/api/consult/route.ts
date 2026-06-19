@@ -107,7 +107,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     return errorResponse({ error: "invalid_locale" }, 400);
   }
 
-  const result = runConsult({
+  const result = await runConsult({
     signal,
     context,
     posture,

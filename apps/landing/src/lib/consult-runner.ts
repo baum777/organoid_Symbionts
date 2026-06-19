@@ -1,21 +1,24 @@
-// Deterministic consult-runner for the /api/consult endpoint.
+// Deterministic + LLM consult-runner for the /api/consult endpoint.
 //
-// MVP contract (Week 3):
-//   - Validates the request.
-//   - Runs the clinical-topic guard (§ 6, coaching-contexts.md).
-//   - Selects lead / counterweight / anchor from the
-//     practice.embodiments registry, biased by context.
-//   - Builds a deterministic stub answer for each voice.
-//   - Wraps the answer in the structured ConsultResponse
-//     shape from docs/landing-practice-route.md § 7.
-//
-// LLM wiring is deliberately deferred to Week 4 (see
-// docs/methodology/coaching-contexts.md § 4). The runner
-// exposes `tryLlmRender` as a private seam; the public
-// `runConsult` function does not call the LLM in week 3.
+// Pipeline (in order):
+//   1. Validate the request (signal length, context, posture, locale).
+//   2. Run the clinical-topic guard. Crisis/clinical/out_of_scope/
+//      moderation signals get a deflection and never reach the LLM.
+//   3. Select phase info: phase name, phaseConfidence, lead /
+//      counterweight / anchor embodiment ids (per CONTEXT_PHASE).
+//   4. Try the LLM seam for the lead answer. If no LLM is configured
+//      (LLM_PROVIDER unset) or the call fails, fall back to the
+//      deterministic stub.
+//   5. Run the voice-rule check on the lead answer.
+//      - Stub answer: warn-only (no retry), stub answers may trip
+//        a rule by design (sampleQuote is canonical).
+//      - LLM answer: first violation → retry once; second violation
+//        → fall back to stub.
+//   6. Compose the structured ConsultResponse.
 //
 // All decisions in this file are deterministic for the same
-// (signal, context, posture, locale) tuple. Tests in
+// (signal, context, posture, locale) tuple modulo the LLM path,
+// which is non-deterministic by design. Tests in
 // `consult-runner.test.ts` pin the response shape.
 
 import { createHash, randomBytes } from "node:crypto";
@@ -39,6 +42,10 @@ import type {
 import { checkVoiceRules } from "@/lib/consult/voiceRuleCheck";
 import type { ConsultContext, ConsultPosture } from "@/lib/consult/constants";
 
+import { buildLeadPrompt } from "@/lib/llm/prompt";
+import { getLlmClient, __resetLlmClientForTests } from "@/lib/llm/client";
+import type { LlmClient } from "@/lib/llm/types";
+
 type ContextPhase = {
   phase: string;
   phaseConfidence: number;
@@ -47,11 +54,6 @@ type ContextPhase = {
   anchor: string;
 };
 
-// Context → embodiment-preference table.
-// Sourced from docs/methodology/coaching-contexts.md § 7
-// (Embodiment Preferences) and § 8 (Worked Examples).
-// The bias is applied as a hard pick in week 3; the
-// orchestrator's resonance scoring takes over in week 4.
 const CONTEXT_PHASE: Record<ConsultContext, ContextPhase> = {
   life: {
     phase: "Swarm Coherence",
@@ -76,11 +78,6 @@ const CONTEXT_PHASE: Record<ConsultContext, ContextPhase> = {
   },
 };
 
-// Posture overlay (see coaching-contexts.md § 5):
-// the soft_target modifier applies to the lead answer's
-// target length. In week 3 this is a label-only change —
-// the LLM wiring that would actually lengthen/shorten the
-// answer is deferred to week 4.
 const POSTURE_TAIL: Record<ConsultPosture, string> = {
   sachlich: "Beobachten, nicht bewerten. Eine Tatsache, eine Implikation.",
   empathisch:
@@ -95,6 +92,10 @@ const POSTURE_LENGTH_MOD: Record<ConsultPosture, number> = {
   konfrontativ: 0.2,
 };
 
+const STUB_MODEL_VERSION = "stub-week3";
+const LLM_TEMPERATURE = 0.7;
+const MAX_LLM_RETRIES = 1;
+
 export type RunConsultError =
   | { code: "signal_too_long"; maxChars: number }
   | { code: "signal_too_short"; minChars: number }
@@ -106,8 +107,6 @@ export type RunConsultResult =
   | { ok: true; response: ConsultResponse }
   | { ok: false; error: RunConsultError };
 
-// ULID-ish request id: 10-char timestamp (ms, base36) +
-// 16-char random hex. Sortable, opaque, no extra dep.
 function newRequestId(): string {
   const ts = Date.now().toString(36).padStart(10, "0").toUpperCase();
   const rand = randomBytes(8).toString("hex").toUpperCase();
@@ -136,22 +135,23 @@ function lookupEmbodiment(id: string): EmbodimentEntry {
 
 type VoiceRole = "lead" | "counterweight" | "anchor";
 
-function buildVoice(id: string, role: VoiceRole, posture: ConsultPosture): ConsultVoice {
+function buildVoice(
+  id: string,
+  role: VoiceRole,
+  posture: ConsultPosture,
+  override?: string,
+): ConsultVoice {
   const entry = lookupEmbodiment(id);
-  // The lead answer is the embodiment's sampleQuote with a
-  // posture-tail appended. For counterweight/anchor roles
-  // the answer is the sampleQuote verbatim — they speak
-  // their canonical line.
-  const baseAnswer = entry.sampleQuote;
+  const baseAnswer = override ?? entry.sampleQuote;
   const lengthMod = POSTURE_LENGTH_MOD[posture];
   const hardMax = Math.round(LEAD_HARD_MAX * (1 + lengthMod));
-  // Length clamp: if the base answer is over the per-posture
-  // hard max, trim to the budget. (This is a soft cap; the
-  // LLM-driven answer in week 4 will use the same cap as a
-  // hard ceiling.)
   const trimmed = baseAnswer.length > hardMax ? baseAnswer.slice(0, hardMax) : baseAnswer;
   const postureTail = POSTURE_TAIL[posture];
-  const answer = role === "lead" ? `${trimmed} ${postureTail}` : trimmed;
+  // The posture-tail is appended to the lead voice in the stub path
+  // (the canonical sampleQuote doesn't carry the coachy framing). In
+  // the LLM path the model already writes the answer in the requested
+  // posture, so the tail is suppressed to avoid double-framing.
+  const answer = role === "lead" && !override ? `${trimmed} ${postureTail}` : trimmed;
   return {
     id: entry.id,
     glyph: entry.glyph,
@@ -166,7 +166,63 @@ function confidenceGate(context: ConsultContext, confidence: number): boolean {
   return confidence >= floor;
 }
 
-export function runConsult(request: ConsultRequest): RunConsultResult {
+function softBudget(posture: ConsultPosture): number {
+  return Math.round(LEAD_SOFT_TARGET * (1 + POSTURE_LENGTH_MOD[posture]));
+}
+
+type LlmOutcome = { answer: string; modelVersion: string } | null;
+
+function parseLlmAnswer(text: string): string | null {
+  // The model is asked to return strict JSON { "answer": "..." }.
+  // Be lenient: strip code-fence wrappers, then JSON.parse, then
+  // fall back to a regex extraction if the parse fails.
+  const stripped = text.replace(/^```(?:json)?\s*/i, "").replace(/```\s*$/, "").trim();
+  try {
+    const obj = JSON.parse(stripped) as unknown;
+    if (obj && typeof obj === "object" && "answer" in obj) {
+      const a = (obj as { answer: unknown }).answer;
+      if (typeof a === "string" && a.length > 0) return a;
+    }
+  } catch {
+    // fall through
+  }
+  const m = text.match(/"answer"\s*:\s*"((?:\\.|[^"\\])*)"/);
+  if (m && typeof m[1] === "string") {
+    try {
+      return JSON.parse(`"${m[1]}"`) as string;
+    } catch {
+      return m[1];
+    }
+  }
+  return null;
+}
+
+async function tryLlmRender(
+  client: LlmClient,
+  embodiment: EmbodimentEntry,
+  signal: string,
+  context: ConsultContext,
+  posture: ConsultPosture,
+  locale: "de" | "en",
+  budget: number,
+): Promise<LlmOutcome> {
+  const prompt = buildLeadPrompt({ embodiment, signal, context, posture, locale, budget });
+  try {
+    const result = await client.complete({
+      system: prompt.system,
+      user: prompt.user,
+      maxTokens: budget,
+      temperature: LLM_TEMPERATURE,
+    });
+    const answer = parseLlmAnswer(result.text);
+    if (!answer) return null;
+    return { answer, modelVersion: result.modelVersion };
+  } catch {
+    return null;
+  }
+}
+
+export async function runConsult(request: ConsultRequest): Promise<RunConsultResult> {
   // --- 1. Validate ----------------------------------------------------
   const signal = request.signal ?? "";
   if (signal.length > SERVER_SIGNAL_MAX) {
@@ -188,11 +244,6 @@ export function runConsult(request: ConsultRequest): RunConsultResult {
   }
 
   // --- 2. Clinical-topic guard ----------------------------------------
-  // Runs before any LLM call or stub render. Crisis signals get a
-  // hard_caution deflection with a crisis resource. Clinical / out-of-
-  // scope / moderation signals get soft_deflection. The signal hash
-  // is omitted from deflection responses (redacted) so matched terms
-  // never propagate downstream.
   const requestId = newRequestId();
   const guardResult = classifySignal(signal, context);
   if (guardResult.matched) {
@@ -200,11 +251,58 @@ export function runConsult(request: ConsultRequest): RunConsultResult {
     return { ok: true, response: deflection };
   }
 
-  // --- 3. Select ------------------------------------------------------
+  // --- 3. Select phase info -------------------------------------------
   const phaseInfo = CONTEXT_PHASE[context];
+  const leadEntry = lookupEmbodiment(phaseInfo.lead);
+  const budget = softBudget(posture);
 
-  // --- 4. Build voices ------------------------------------------------
-  const lead = buildVoice(phaseInfo.lead, "lead", posture);
+  // --- 4. LLM seam with voice-rule retry ------------------------------
+  // Try the LLM at most MAX_LLM_RETRIES+1 times. On first voice-rule
+  // violation, retry with a fresh call. On second violation (or any
+  // LLM error), fall back to the deterministic stub. The counterweight
+  // and anchor never go through the LLM — they keep the canonical
+  // sampleQuote, which is the safe-and-boring choice.
+  const client = getLlmClient();
+  let llmOutcome: LlmOutcome = null;
+  if (client) {
+    for (let attempt = 0; attempt <= MAX_LLM_RETRIES; attempt++) {
+      const outcome = await tryLlmRender(
+        client,
+        leadEntry,
+        signal,
+        context,
+        posture,
+        request.locale,
+        budget,
+      );
+      if (!outcome) {
+        // LLM error or unparseable response — fall back to stub.
+        break;
+      }
+      const ruleCheck = checkVoiceRules(outcome.answer, context);
+      if (ruleCheck.valid) {
+        llmOutcome = outcome;
+        break;
+      }
+      if (attempt < MAX_LLM_RETRIES) {
+        // First violation → retry. Log for observability.
+        console.warn(
+          "[consult-runner] voice-rule violation — retrying LLM",
+          JSON.stringify({ requestId, context, attempt, violations: ruleCheck.violations }),
+        );
+        continue;
+      }
+      // Second violation → fall back to stub.
+      console.warn(
+        "[consult-runner] voice-rule violation after retry — falling back to stub",
+        JSON.stringify({ requestId, context, violations: ruleCheck.violations }),
+      );
+      break;
+    }
+  }
+
+  // --- 5. Build voices ------------------------------------------------
+  const lead = buildVoice(phaseInfo.lead, "lead", posture, llmOutcome?.answer);
   const counterweight =
     phaseInfo.counterweight === phaseInfo.lead
       ? null
@@ -214,30 +312,25 @@ export function runConsult(request: ConsultRequest): RunConsultResult {
       ? null
       : buildVoice(phaseInfo.anchor, "anchor", posture);
 
-  // --- 5. Confidence gate --------------------------------------------
-  // The week-3 stub confidence is static per context. If it
-  // ever falls below the per-context floor, the runner
-  // suppresses the counterweight and emits a stabilisation
-  // note on the anchor. The hard_caution path (crisis deflection
-  // with a crisis-line resource) runs earlier in § 2 via
-  // buildDeflectionResponse — it is the only deflection mode
-  // that suppresses the matrix entirely.
+  // --- 6. Confidence gate --------------------------------------------
   const passed = confidenceGate(context, phaseInfo.phaseConfidence);
 
-  // --- 6. Voice-rule check (output guard) ----------------------------
-  // In week 3 (stub mode): collect violations for observability only.
-  // In week 4 (LLM mode): violations trigger a retry; second violation
-  // falls back to stub. The check runs here so the seam is in place.
-  const ruleCheck = checkVoiceRules(lead.answer, context);
-  if (!ruleCheck.valid) {
-    // Log for observability; do not block in week 3.
-    console.warn(
-      "[consult-runner] voice-rule violations",
-      JSON.stringify({ requestId, context, violations: ruleCheck.violations }),
-    );
+  // --- 7. Voice-rule check on stub path -------------------------------
+  // In the LLM path, the check above already enforced the rules. This
+  // block only fires for the stub path, where the canonical sampleQuote
+  // may trip a rule by design. Warn-only — never block.
+  if (!llmOutcome) {
+    const ruleCheck = checkVoiceRules(lead.answer, context);
+    if (!ruleCheck.valid) {
+      console.warn(
+        "[consult-runner] voice-rule violations (stub path)",
+        JSON.stringify({ requestId, context, violations: ruleCheck.violations }),
+      );
+    }
   }
 
-  // --- 7. Compose response -------------------------------------------
+  // --- 8. Compose response -------------------------------------------
+  const modelVersion = llmOutcome?.modelVersion ?? STUB_MODEL_VERSION;
   const response: ConsultResponse = {
     requestId,
     phase: phaseInfo.phase,
@@ -250,15 +343,20 @@ export function runConsult(request: ConsultRequest): RunConsultResult {
     validation: {
       passed,
       mode: "embodiment_reply",
-      budgetChars: Math.round(LEAD_SOFT_TARGET * (1 + POSTURE_LENGTH_MOD[posture])),
+      budgetChars: budget,
       actualChars: lead.answer.length,
     },
     evidence: {
       signalHash: hashSignal(signal, requestId),
       seed: new Date().toISOString(),
-      modelVersion: "stub-week3",
+      modelVersion,
     },
   };
 
   return { ok: true, response };
 }
+
+// Re-export the test injection helper so consult-runner.test.ts can
+// mock the LLM client without importing from the llm module path
+// twice. (vitest's vi.mock requires a single canonical path.)
+export { __resetLlmClientForTests };
