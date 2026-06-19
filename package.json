@@ -25,6 +25,8 @@
     "test:critical": "vitest run tests/critical",
     "test:smoke": "vitest run tests/smoke",
     "test:e2e": "vitest run tests/e2e",
+    "test:pre-llm": "vitest run tests/clients/adapters tests/canonical/preLLMClassifier.test.ts tests/integration/pipeline/pre-llm-roundtrip.test.ts",
+    "pre-llm:stress": "tsx scripts/test_public_guard_prefilter.ts --fixtures 100",
     "typecheck": "tsc --noEmit",
     "lint": "eslint \"src/**/*.ts\" \"tests/**/*.ts\" \"scripts/**/*.ts\"",
     "lint:landing": "pnpm --filter landing lint",
