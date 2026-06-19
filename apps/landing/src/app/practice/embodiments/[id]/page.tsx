@@ -25,7 +25,7 @@ export default async function EmbodimentPage({ params }: { params: Params }) {
         <section className="flex flex-col gap-4">
           <span
             role="img"
-            aria-label={`Glyph: ${entry.name}`}
+            aria-label={`${entry.name} (${entry.classical})`}
             className="font-display text-6xl text-ink"
           >
             {entry.glyph}

@@ -60,7 +60,7 @@ function EmbodimentCard({ entry, index }: { entry: EmbodimentEntry; index: numbe
           </div>
           <span
             role="img"
-            aria-label={`Glyph: ${entry.name}`}
+            aria-label={`${entry.name} (${entry.classical})`}
             className="mt-4 block font-display text-3xl text-ink"
           >
             {entry.glyph}
