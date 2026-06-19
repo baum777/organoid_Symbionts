@@ -1,0 +1,292 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`/api/consult — 9-case E2E matrix (slice 4.3) > creative / empathisch returns a stable, full-shape response 1`] = `
+{
+  "anchor": {
+    "classical": "Stillhalter",
+    "glyph": "■",
+    "id": "stabil-core",
+    "name": "Stabil-Core",
+  },
+  "counterweight": {
+    "classical": "Nebelspieler",
+    "glyph": "◇",
+    "id": "horizon-drifter",
+    "name": "Horizon-Drifter",
+  },
+  "evidence": {
+    "modelVersion": "stub-week3",
+  },
+  "lead": {
+    "classical": "Erzlauscher",
+    "glyph": "〰",
+    "id": "spike-wave",
+    "name": "Spike-Wave",
+  },
+  "phase": "Sovereign Propagation",
+  "phaseConfidence": 0.68,
+  "validation": {
+    "actualChars": 118,
+    "budgetChars": 200,
+    "mode": "embodiment_reply",
+    "passed": true,
+  },
+}
+`;
+
+exports[`/api/consult — 9-case E2E matrix (slice 4.3) > creative / konfrontativ returns a stable, full-shape response 1`] = `
+{
+  "anchor": {
+    "classical": "Stillhalter",
+    "glyph": "■",
+    "id": "stabil-core",
+    "name": "Stabil-Core",
+  },
+  "counterweight": {
+    "classical": "Nebelspieler",
+    "glyph": "◇",
+    "id": "horizon-drifter",
+    "name": "Horizon-Drifter",
+  },
+  "evidence": {
+    "modelVersion": "stub-week3",
+  },
+  "lead": {
+    "classical": "Erzlauscher",
+    "glyph": "〰",
+    "id": "spike-wave",
+    "name": "Spike-Wave",
+  },
+  "phase": "Sovereign Propagation",
+  "phaseConfidence": 0.68,
+  "validation": {
+    "actualChars": 117,
+    "budgetChars": 240,
+    "mode": "embodiment_reply",
+    "passed": true,
+  },
+}
+`;
+
+exports[`/api/consult — 9-case E2E matrix (slice 4.3) > creative / sachlich returns a stable, full-shape response 1`] = `
+{
+  "anchor": {
+    "classical": "Stillhalter",
+    "glyph": "■",
+    "id": "stabil-core",
+    "name": "Stabil-Core",
+  },
+  "counterweight": {
+    "classical": "Nebelspieler",
+    "glyph": "◇",
+    "id": "horizon-drifter",
+    "name": "Horizon-Drifter",
+  },
+  "evidence": {
+    "modelVersion": "stub-week3",
+  },
+  "lead": {
+    "classical": "Erzlauscher",
+    "glyph": "〰",
+    "id": "spike-wave",
+    "name": "Spike-Wave",
+  },
+  "phase": "Sovereign Propagation",
+  "phaseConfidence": 0.68,
+  "validation": {
+    "actualChars": 108,
+    "budgetChars": 160,
+    "mode": "embodiment_reply",
+    "passed": true,
+  },
+}
+`;
+
+exports[`/api/consult — 9-case E2E matrix (slice 4.3) > life / empathisch returns a stable, full-shape response 1`] = `
+{
+  "anchor": {
+    "classical": "Stillhalter",
+    "glyph": "■",
+    "id": "stabil-core",
+    "name": "Stabil-Core",
+  },
+  "counterweight": {
+    "classical": "Wurzelwaechter",
+    "glyph": "┴",
+    "id": "root-sentinel",
+    "name": "Root-Sentinel",
+  },
+  "evidence": {
+    "modelVersion": "stub-week3",
+  },
+  "lead": {
+    "classical": "Nebelspieler",
+    "glyph": "◇",
+    "id": "horizon-drifter",
+    "name": "Horizon-Drifter",
+  },
+  "phase": "Swarm Coherence",
+  "phaseConfidence": 0.78,
+  "validation": {
+    "actualChars": 148,
+    "budgetChars": 200,
+    "mode": "embodiment_reply",
+    "passed": true,
+  },
+}
+`;
+
+exports[`/api/consult — 9-case E2E matrix (slice 4.3) > life / konfrontativ returns a stable, full-shape response 1`] = `
+{
+  "anchor": {
+    "classical": "Stillhalter",
+    "glyph": "■",
+    "id": "stabil-core",
+    "name": "Stabil-Core",
+  },
+  "counterweight": {
+    "classical": "Wurzelwaechter",
+    "glyph": "┴",
+    "id": "root-sentinel",
+    "name": "Root-Sentinel",
+  },
+  "evidence": {
+    "modelVersion": "stub-week3",
+  },
+  "lead": {
+    "classical": "Nebelspieler",
+    "glyph": "◇",
+    "id": "horizon-drifter",
+    "name": "Horizon-Drifter",
+  },
+  "phase": "Swarm Coherence",
+  "phaseConfidence": 0.78,
+  "validation": {
+    "actualChars": 147,
+    "budgetChars": 240,
+    "mode": "embodiment_reply",
+    "passed": true,
+  },
+}
+`;
+
+exports[`/api/consult — 9-case E2E matrix (slice 4.3) > life / sachlich returns a stable, full-shape response 1`] = `
+{
+  "anchor": {
+    "classical": "Stillhalter",
+    "glyph": "■",
+    "id": "stabil-core",
+    "name": "Stabil-Core",
+  },
+  "counterweight": {
+    "classical": "Wurzelwaechter",
+    "glyph": "┴",
+    "id": "root-sentinel",
+    "name": "Root-Sentinel",
+  },
+  "evidence": {
+    "modelVersion": "stub-week3",
+  },
+  "lead": {
+    "classical": "Nebelspieler",
+    "glyph": "◇",
+    "id": "horizon-drifter",
+    "name": "Horizon-Drifter",
+  },
+  "phase": "Swarm Coherence",
+  "phaseConfidence": 0.78,
+  "validation": {
+    "actualChars": 138,
+    "budgetChars": 160,
+    "mode": "embodiment_reply",
+    "passed": true,
+  },
+}
+`;
+
+exports[`/api/consult — 9-case E2E matrix (slice 4.3) > reflection / empathisch returns a stable, full-shape response 1`] = `
+{
+  "anchor": null,
+  "counterweight": {
+    "classical": "Pilzarchitekt",
+    "glyph": "╬",
+    "id": "mycel-weaver",
+    "name": "Mycel-Weaver",
+  },
+  "evidence": {
+    "modelVersion": "stub-week3",
+  },
+  "lead": {
+    "classical": "Stillhalter",
+    "glyph": "■",
+    "id": "stabil-core",
+    "name": "Stabil-Core",
+  },
+  "phase": "Ontological Restructuring",
+  "phaseConfidence": 0.72,
+  "validation": {
+    "actualChars": 113,
+    "budgetChars": 200,
+    "mode": "embodiment_reply",
+    "passed": true,
+  },
+}
+`;
+
+exports[`/api/consult — 9-case E2E matrix (slice 4.3) > reflection / konfrontativ returns a stable, full-shape response 1`] = `
+{
+  "anchor": null,
+  "counterweight": {
+    "classical": "Pilzarchitekt",
+    "glyph": "╬",
+    "id": "mycel-weaver",
+    "name": "Mycel-Weaver",
+  },
+  "evidence": {
+    "modelVersion": "stub-week3",
+  },
+  "lead": {
+    "classical": "Stillhalter",
+    "glyph": "■",
+    "id": "stabil-core",
+    "name": "Stabil-Core",
+  },
+  "phase": "Ontological Restructuring",
+  "phaseConfidence": 0.72,
+  "validation": {
+    "actualChars": 112,
+    "budgetChars": 240,
+    "mode": "embodiment_reply",
+    "passed": true,
+  },
+}
+`;
+
+exports[`/api/consult — 9-case E2E matrix (slice 4.3) > reflection / sachlich returns a stable, full-shape response 1`] = `
+{
+  "anchor": null,
+  "counterweight": {
+    "classical": "Pilzarchitekt",
+    "glyph": "╬",
+    "id": "mycel-weaver",
+    "name": "Mycel-Weaver",
+  },
+  "evidence": {
+    "modelVersion": "stub-week3",
+  },
+  "lead": {
+    "classical": "Stillhalter",
+    "glyph": "■",
+    "id": "stabil-core",
+    "name": "Stabil-Core",
+  },
+  "phase": "Ontological Restructuring",
+  "phaseConfidence": 0.72,
+  "validation": {
+    "actualChars": 103,
+    "budgetChars": 160,
+    "mode": "embodiment_reply",
+    "passed": true,
+  },
+}
+`;
