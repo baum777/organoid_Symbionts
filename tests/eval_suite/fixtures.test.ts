@@ -15,6 +15,21 @@ const JUDGE_PROMPT = join(SUITE_DIR, "voice_judge_prompt.txt");
 
 const ALLOWED_TIERS = new Set(["pre_llm", "reasoning", "generation"]);
 
+const EMBODIMENT_GERMAN_TO_YAML: Record<string, string> = {
+  nebelspieler: "horizon-drifter",
+  stillhalter: "stabil-core",
+  pilzarchitekt: "mycel-weaver",
+  wurzelwaechter: "root-sentinel",
+  muenzhueter: "reward-halo",
+  erzlauscher: "spike-wave",
+  glutkern: "pulse-heart",
+};
+
+function yamlForEmbodimentId(germanId: string): string {
+  const filename = EMBODIMENT_GERMAN_TO_YAML[germanId] ?? germanId;
+  return join(EMBODIMENT_DIR, `${filename}.yaml`);
+}
+
 const FILE_TO_TIER: Record<keyof typeof FILES, string> = {
   pre_llm: "pre_llm",
   reasoning: "reasoning",
@@ -151,13 +166,13 @@ describe("eval_suite fixtures", () => {
 
   it("all 7 expected target_embodiments are covered by generation fixtures", () => {
     const expected = new Set([
-      "horizon-drifter",
-      "stabil-core",
-      "root-sentinel",
-      "mycel-weaver",
-      "reward-halo",
-      "spike-wave",
-      "pulse-heart",
+      "nebelspieler",
+      "stillhalter",
+      "wurzelwaechter",
+      "pilzarchitekt",
+      "muenzhueter",
+      "erzlauscher",
+      "glutkern",
     ]);
     const fixtures = loadFixtures(FILES.generation);
     const actual = new Set<string>();
@@ -173,8 +188,8 @@ describe("eval_suite fixtures", () => {
     const fixtures = loadFixtures(FILES.generation);
     for (const fx of fixtures) {
       if (fx.target_embodiment) {
-        const path = join(EMBODIMENT_DIR, `${fx.target_embodiment}.yaml`);
-        expect(existsSync(path), `missing embodiment YAML for ${fx.target_embodiment}`).toBe(true);
+        const path = yamlForEmbodimentId(fx.target_embodiment);
+        expect(existsSync(path), `missing embodiment YAML for ${fx.target_embodiment} (looked at ${path})`).toBe(true);
       }
     }
   });
@@ -183,8 +198,8 @@ describe("eval_suite fixtures", () => {
     const fixtures = loadFixtures(FILES.reasoning);
     for (const fx of fixtures) {
       if (fx.expected_lead) {
-        const path = join(EMBODIMENT_DIR, `${fx.expected_lead}.yaml`);
-        expect(existsSync(path), `missing embodiment YAML for expected_lead: ${fx.expected_lead}`).toBe(true);
+        const path = yamlForEmbodimentId(fx.expected_lead);
+        expect(existsSync(path), `missing embodiment YAML for expected_lead: ${fx.expected_lead} (looked at ${path})`).toBe(true);
       }
     }
   });
@@ -227,7 +242,7 @@ describe("eval_suite fixtures", () => {
     expect(existsSync(JUDGE_PROMPT), `judge prompt missing at ${JUDGE_PROMPT}`).toBe(true);
     const content = readFileSync(JUDGE_PROMPT, "utf8");
     expect(content.trim().length).toBeGreaterThan(0);
-    expect(content).toContain("horizon-drifter");
+    expect(content).toContain("nebelspieler");
     expect(content).toContain("{response}");
     expect(content).toContain("voice_match");
   });
