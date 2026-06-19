@@ -2,7 +2,13 @@
  * LLM client contract (provider-agnostic port for business pipelines)
  */
 
-export type LLMProvider = "xai" | "openai" | "anthropic";
+export type LLMProvider =
+  | "xai"
+  | "openai"
+  | "anthropic"
+  | "lfm25-local"
+  | "openrouter-lfm25"
+  | "openrouter-llama-1b";
 
 export interface LLMRequest {
   system: string;

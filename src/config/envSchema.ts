@@ -38,12 +38,50 @@ export const envSchema = z.object({
   XAI_MODEL_FALLBACKS: modelListSchema,
 
   // LLM provider routing
-  LLM_PROVIDER: z.enum(["xai", "openai", "anthropic"]).optional().default("xai"),
-  LLM_FALLBACK_PROVIDER: z.enum(["xai", "openai", "anthropic"]).optional(),
+  LLM_PROVIDER: z
+    .enum([
+      "xai",
+      "openai",
+      "anthropic",
+      "lfm25-local",
+      "openrouter-lfm25",
+      "openrouter-llama-1b",
+    ])
+    .optional()
+    .default("xai"),
+  LLM_FALLBACK_PROVIDER: z
+    .enum([
+      "xai",
+      "openai",
+      "anthropic",
+      "lfm25-local",
+      "openrouter-lfm25",
+      "openrouter-llama-1b",
+    ])
+    .optional(),
   LLM_TIMEOUT_MS: z.string().optional(),
   LLM_RETRY_MAX: z.string().optional(),
   LLM_MAX_TOKENS: z.string().optional(),
   LLM_TEMPERATURE: z.string().optional(),
+
+  // Pre-LLM tier routing (Phase 1)
+  PIPELINE_PRE_LLM_PROVIDER: z
+    .enum(["xai", "lfm25-local", "openrouter-lfm25", "openrouter-llama-1b", "rule-based"])
+    .optional()
+    .default("lfm25-local"),
+  PIPELINE_PRE_LLM_FALLBACK: z
+    .enum(["xai", "lfm25-local", "openrouter-lfm25", "openrouter-llama-1b", "rule-based"])
+    .optional()
+    .default("openrouter-llama-1b"),
+
+  // Pre-LLM provider config
+  LFM25_LOCAL_URL: z.string().optional().default("http://localhost:11434"),
+  LFM25_LOCAL_MODEL: z.string().optional().default("lfm2.5:1.2b-instruct"),
+  OPENROUTER_API_KEY: z.string().optional().default(""),
+  OPENROUTER_LFM25_MODEL: z.string().optional().default("liquid/lfm-2.5-1.2b-instruct:free"),
+  OPENROUTER_LLAMA1B_MODEL: z.string().optional().default("meta-llama/llama-3.2-1b-instruct:free"),
+  OPENROUTER_REFERER: z.string().optional().default("https://organoid-symbionts.app"),
+  OPENROUTER_TITLE: z.string().optional().default("organoid_Symbionts"),
 
   // OpenAI
   OPENAI_API_KEY: z.string().optional().default(""),
@@ -123,6 +161,15 @@ export function validateEnv(): EnvConfig {
     LLM_RETRY_MAX: process.env.LLM_RETRY_MAX,
     LLM_MAX_TOKENS: process.env.LLM_MAX_TOKENS,
     LLM_TEMPERATURE: process.env.LLM_TEMPERATURE,
+    PIPELINE_PRE_LLM_PROVIDER: process.env.PIPELINE_PRE_LLM_PROVIDER?.toLowerCase() || undefined,
+    PIPELINE_PRE_LLM_FALLBACK: process.env.PIPELINE_PRE_LLM_FALLBACK?.toLowerCase() || undefined,
+    LFM25_LOCAL_URL: process.env.LFM25_LOCAL_URL,
+    LFM25_LOCAL_MODEL: process.env.LFM25_LOCAL_MODEL,
+    OPENROUTER_API_KEY: process.env.OPENROUTER_API_KEY ?? "",
+    OPENROUTER_LFM25_MODEL: process.env.OPENROUTER_LFM25_MODEL,
+    OPENROUTER_LLAMA1B_MODEL: process.env.OPENROUTER_LLAMA1B_MODEL,
+    OPENROUTER_REFERER: process.env.OPENROUTER_REFERER,
+    OPENROUTER_TITLE: process.env.OPENROUTER_TITLE,
     OPENAI_API_KEY: process.env.OPENAI_API_KEY ?? process.env.LLM_API_KEY ?? "",
     OPENAI_MODEL: process.env.OPENAI_MODEL,
     OPENAI_BASE_URL: process.env.OPENAI_BASE_URL,

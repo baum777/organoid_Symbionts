@@ -92,6 +92,8 @@ export const SkipReasonSchema = z.enum([
   "skip_no_thesis",
   "skip_validation_failure",
   "skip_orchestration_silence",
+  "crisis_flag_detected_by_pre_llm",
+  "internal_token_in_input",
 ]);
 export type SkipReason = z.infer<typeof SkipReasonSchema>;
 
@@ -316,6 +318,8 @@ export interface AuditRecord {
   slang_applied?: boolean;
   /** Analytics: final hybrid bissigkeit (Full Spectrum) */
   bissigkeit_score?: number;
+  /** Phase 1: Pre-LLM classification result (carried for traceability) */
+  pre_llm_result?: import("./preLLMClassifier.js").PreLLMResult;
 }
 
 /** Phase-2: Embodiment selection result for routing writeback (avoids routing→canonical import) */

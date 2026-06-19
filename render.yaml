@@ -63,6 +63,22 @@ services:
       - key: XAI_MODEL_FALLBACKS
         value: grok-3-mini
 
+      # Pre-LLM tier (Phase 1) — Ollama sidecar primary, OpenRouter fallback
+      - key: LFM25_LOCAL_URL
+        value: "http://ollama-lfm25:11434"
+      - key: LFM25_LOCAL_MODEL
+        value: "lfm2.5:1.2b-instruct"
+      - key: PIPELINE_PRE_LLM_PROVIDER
+        value: "lfm25-local"
+      - key: PIPELINE_PRE_LLM_FALLBACK
+        value: "openrouter-llama-1b"
+      - key: OPENROUTER_API_KEY
+        sync: false
+      - key: OPENROUTER_REFERER
+        value: "https://organoid-symbionts.app"
+      - key: OPENROUTER_TITLE
+        value: "organoid_Symbionts"
+
       # Bot Configuration
       - key: BOT_USERNAME
         value: organoid_on_sol
@@ -124,6 +140,25 @@ services:
         value: "3000"
       - key: HOSTNAME
         value: "0.0.0.0"
+
+  # === Pre-LLM: Ollama Sidecar Service für LFM2.5 local ===
+  - type: worker
+    name: ollama-lfm25
+    runtime: docker
+    region: frankfurt
+    plan: standard
+    dockerfilePath: ./Dockerfile.ollama
+    dockerContext: .
+    disk:
+      name: ollama-data
+      mountPath: /root/.ollama
+      sizeGB: 5
+    envVars:
+      - key: OLLAMA_KEEP_ALIVE
+        value: "24h"
+      - key: OLLAMA_HOST
+        value: "0.0.0.0:11434"
+    healthCheckPath: /api/tags
 
   # Daily Embodiment Snippet Extractor - Cron (täglich 3 Uhr UTC)
   - type: cron

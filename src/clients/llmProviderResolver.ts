@@ -2,6 +2,9 @@ import type { LLMClient, LLMProvider } from "./llmClient.js";
 import { createAnthropicLLMClient } from "./adapters/llmClient.anthropic.js";
 import { createOpenAILLMClient } from "./adapters/llmClient.openai.js";
 import { createXAIAdapterClient } from "./adapters/llmClient.xaiAdapter.js";
+import { createLFM25LocalClient } from "./adapters/llmClient.lfm25.local.js";
+import { createOpenRouterLFM25Client } from "./adapters/llmClient.openrouterLfm25.js";
+import { createOpenRouterLlama1BClient } from "./adapters/llmClient.openrouterLlama1b.js";
 import { withProviderFallback } from "./llmFallback.js";
 
 export interface LLMRuntimeConfig {
@@ -44,6 +47,18 @@ function getProviderClient(provider: LLMProvider, defaults: Pick<LLMRuntimeConfi
       defaultTemperature: defaults.defaultTemperature,
       defaultMaxTokens: defaults.defaultMaxTokens,
     });
+  }
+
+  if (provider === "lfm25-local") {
+    return createLFM25LocalClient();
+  }
+
+  if (provider === "openrouter-lfm25") {
+    return createOpenRouterLFM25Client(process.env.OPENROUTER_API_KEY ?? "");
+  }
+
+  if (provider === "openrouter-llama-1b") {
+    return createOpenRouterLlama1BClient(process.env.OPENROUTER_API_KEY ?? "");
   }
 
   return createAnthropicLLMClient({

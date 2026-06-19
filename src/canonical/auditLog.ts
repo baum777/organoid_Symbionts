@@ -20,6 +20,7 @@ import { incrementCounter, setGauge } from "../observability/metrics.js";
 import { COUNTER_NAMES, GAUGE_NAMES } from "../observability/metricTypes.js";
 
 import { DATA_DIR } from "../config/dataDir.js";
+import type { PreLLMResult } from "./preLLMClassifier.js";
 
 const AUDIT_DIR = DATA_DIR;
 const AUDIT_FILE = join(AUDIT_DIR, "audit_log.jsonl");
@@ -120,6 +121,7 @@ export function buildAuditRecord(params: {
   energy_level?: import("./types.js").MarketEnergyLevel;
   slang_applied?: boolean;
   bissigkeit_score?: number;
+  pre_llm_result?: PreLLMResult;
 }): AuditRecord {
   const eventSnapshot = JSON.stringify({
     event_id: params.event.event_id,
@@ -172,6 +174,7 @@ export function buildAuditRecord(params: {
     energy_level: params.energy_level,
     slang_applied: params.slang_applied,
     bissigkeit_score: params.bissigkeit_score,
+    pre_llm_result: params.pre_llm_result,
   };
 }
 
