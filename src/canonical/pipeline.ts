@@ -60,6 +60,18 @@ import {
 } from "../organoid/state.js";
 import { isConceptualProbe, isOrchestrationEligibleMinimal } from "./conceptualProbe.js";
 import { normalizeCanonicalInputText } from "./inputNormalization.js";
+import {
+  classifyWithPreLLM,
+  classifyWithRules,
+  selectPreLLMProvider,
+  selectPreLLMFallback,
+  type PreLLMProviderId,
+  type PreLLMResult,
+} from "./preLLMClassifier.js";
+import { createLFM25LocalClient } from "../clients/adapters/llmClient.lfm25.local.js";
+import { createOpenRouterLFM25Client } from "../clients/adapters/llmClient.openrouterLfm25.js";
+import { createOpenRouterLlama1BClient } from "../clients/adapters/llmClient.openrouterLlama1b.js";
+import { logError } from "../ops/logger.js";
 
 export interface PipelineDeps {
   llm: LLMClient;
@@ -83,6 +95,7 @@ function makeSkipResult(
   scores?: ScoreBundle,
   config?: CanonicalConfig,
   inputNormalization?: ReturnType<typeof normalizeCanonicalInputText>,
+  preLLMResult?: PreLLMResult,
 ): PipelineResult {
   const cfg = config ?? DEFAULT_CANONICAL_CONFIG;
   const clsOut = cls ?? emptyClassifier();
@@ -110,6 +123,7 @@ function makeSkipResult(
     skip_reason: skipReason,
     reply_text: null,
     path: pathType,
+    pre_llm_result: preLLMResult,
   });
   persistAuditRecord(audit);
   return { action: "skip", skip_reason: skipReason, audit };
@@ -241,6 +255,37 @@ export async function handleEvent(
   if (!safetyResult.passed) {
     const cls = classify(event);
     return makeSkipResult(event, "skip_safety_filter", cls, undefined, config, inputNormalization);
+  }
+
+  // ── Pre-LLM tier (Phase 1) ──────────────────────────────────────────────
+  // Runs AFTER the cheap gates (dedupe, rate-limit, self-loop, safety) and
+  // BEFORE the rule-based classify(). The pre-LLM step is an LLM-augmented
+  // pre-classifier that:
+  //   (a) hard-stops on crisis_flag and contains_internal_token
+  //   (b) carries intent/confidence/tokens/sentiment into the audit log
+  // When PIPELINE_PRE_LLM_PROVIDER=rule-based, no LLM call is made.
+  const preLLMResult = await runPreLLM(event.text);
+  if (preLLMResult.crisis_flag) {
+    return makeSkipResult(
+      event,
+      "crisis_flag_detected_by_pre_llm",
+      undefined,
+      undefined,
+      config,
+      inputNormalization,
+      preLLMResult,
+    );
+  }
+  if (preLLMResult.contains_internal_token) {
+    return makeSkipResult(
+      event,
+      "internal_token_in_input",
+      undefined,
+      undefined,
+      config,
+      inputNormalization,
+      preLLMResult,
+    );
   }
 
   // ── Special intent fast-path: CA request ────────────────────────────────
@@ -586,6 +631,7 @@ export async function handleEvent(
       detected_narrative: narrative?.label,
       selected_pattern: pattern.pattern_id,
       response_mode: format.format,
+      pre_llm_result: preLLMResult,
     });
     persistAuditRecord(audit);
     return { action: "skip", skip_reason: "skip_validation_failure", audit };
@@ -643,6 +689,7 @@ export async function handleEvent(
     energy_level: energyLevel,
     slang_applied: styleContext.slangEnabled,
     bissigkeit_score: result.finalBissigkeit,
+    pre_llm_result: preLLMResult,
   });
   persistAuditRecord(audit);
   addToAuditTail(audit).catch(() => {});
@@ -683,4 +730,55 @@ function emptyClassifier(): ClassifierOutput {
 
 function emptyScores(): ScoreBundle {
   return { relevance: 0, confidence: 0, severity: 0, opportunity: 0, risk: 0, novelty: 0 };
+}
+
+// ── Pre-LLM tier helpers (Phase 1) ──────────────────────────────────────
+
+function createPreLLMClient(provider: PreLLMProviderId): LLMClient | null {
+  if (provider === "lfm25-local") return createLFM25LocalClient();
+  if (provider === "openrouter-lfm25") {
+    const key = process.env.OPENROUTER_API_KEY;
+    return key ? createOpenRouterLFM25Client(key) : null;
+  }
+  if (provider === "openrouter-llama-1b") {
+    const key = process.env.OPENROUTER_API_KEY;
+    return key ? createOpenRouterLlama1BClient(key) : null;
+  }
+  return null;
+}
+
+async function runPreLLM(text: string): Promise<PreLLMResult> {
+  const primary = selectPreLLMProvider();
+  if (primary === "rule-based") {
+    return classifyWithRules(text);
+  }
+
+  const primaryClient = createPreLLMClient(primary);
+  if (primaryClient) {
+    try {
+      return await classifyWithPreLLM(text, primaryClient, primary);
+    } catch (err) {
+      logError("[pre-llm] primary provider failed", {
+        provider: primary,
+        error: err instanceof Error ? err.message : String(err),
+      });
+    }
+  }
+
+  const fallback = selectPreLLMFallback();
+  if (fallback !== primary && fallback !== "rule-based") {
+    const fbClient = createPreLLMClient(fallback);
+    if (fbClient) {
+      try {
+        return await classifyWithPreLLM(text, fbClient, fallback);
+      } catch (err) {
+        logError("[pre-llm] fallback provider failed", {
+          provider: fallback,
+          error: err instanceof Error ? err.message : String(err),
+        });
+      }
+    }
+  }
+
+  return classifyWithRules(text);
 }
